@@ -32,7 +32,7 @@ class ThoughtGeneratorPlugin {
   async execute(agent, command, task) {
     console.log('thinking...');
 
-    // Get the LLM.
+    // Get the default LLM.
     const llm = agent.model();
     if (!llm) {
       console.log('No model was provided to Think');
@@ -55,18 +55,57 @@ class ThoughtGeneratorPlugin {
         command.args.commands || [],
         command.args.resources || [],
         command.args.assessments || []);
+    let output = {}
 
-    // Process the prompt with the LLM.
-    const response = await llm.generate(compiledPrompt + followUpText, {
-      max_length: 1000,
-      temperature: 0.7,
-    });
+    try {
+      // Process the prompt with the LLM.
+      const response = await llm.generate(compiledPrompt + followUpText, {
+        max_length: 1000,
+        temperature: 0.7,
+      });
+      output.outcome = 'SUCCESS';
+      const reply = response.data.choices[0].text || '{\n \"thoughts\": {\n    \"text\": \"Error\"}}';
+      let replyJSON = {};
+      if (typeof(reply) === String) { replyJSON = JSON.parse(reply); } else { replyJSON = reply }
 
+      output.text = Strings.textify(replyJSON);
+      //Create a new think task for each step in the plan
+      //We are creating one per command, but could combine all commands for a single action into one task.
+      const actions = replyJSON.thoughts.actions;
+      const plan = replyJSON.commands;
+      for (var i = 0; i < plan.length; i++) {
+        let t = new Task(this.task.agent, keyMaker(),
+              "Follow up", 'a task created by the model',
+              let step = plan[i];
+              if (step.model) { step.args['model'] = step.model}
+              actions[step.action], [{name: step.name, model: step.model||false, args:step.args}],
+              {from: this, returned: output}, []);
+        output.tasks.push(t);
+      }
+    }
+    catch {error => {
+           output.outcome = 'FAILURE';
+           output.results = {error: error};
+     }
+    }
+    return output;
+  },
+
+  execute(agent, command, task) {
+    console.log('thinking...');
+    this.model = agent.model();
+    if (!this.model){
+        console.log('No model was provided to Think');
+        return false;
+    };
+    this.followUpText = Strings.pluginIntro +'\n' +agent.pluginManager.describePlugins();
+    this.commandObject = command;
+    this.task = task;
+    this.prompt = command.args.prompt.response
     // Return the response.
     return response;
   }
 
 }
-
 
 module.exports = ThoughtGeneratorPlugin;
