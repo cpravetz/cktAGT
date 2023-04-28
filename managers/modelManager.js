@@ -36,7 +36,7 @@ class ModelManager {
 
   // This method gets a model by name.
   getModel(name)  {
-    return this.models[name];
+    return this.models[name] || false;
   }
 }
 

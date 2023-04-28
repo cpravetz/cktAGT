@@ -32,11 +32,13 @@ class ThoughtGeneratorPlugin {
   async execute(agent, command, task) {
     console.log('thinking...');
 
-    // Get the default LLM.
-    const llm = agent.model();
+    // Get the LLM from the command arguments or use the agent default
+    if (command.args.model) {
+     const llm = this.agent.agentManager.modelManager.getModel(command.args.model) || agent.model();
+    }
+
     if (!llm) {
-      console.log('No model was provided to Think');
-      return false;
+      return {outcome: 'FAILURE', results: {error:'No model was provided to Think'}};
     }
 
     // Get the follow-up text.
@@ -74,11 +76,11 @@ class ThoughtGeneratorPlugin {
       const actions = replyJSON.thoughts.actions;
       const plan = replyJSON.commands;
       for (var i = 0; i < plan.length; i++) {
-        let t = new Task(this.task.agent, keyMaker(),
+        let thisStep = plan[i];
+        if (thisStep.model) { thisStep.args['model'] = thisStep.model}
+        const t = new Task(this.task.agent, keyMaker(),
               "Follow up", 'a task created by the model',
-              let step = plan[i];
-              if (step.model) { step.args['model'] = step.model}
-              actions[step.action], [{name: step.name, model: step.model||false, args:step.args}],
+              actions[thisStep.action], [{name: thisStep.name, model: thisStep.model||false, args:thisStep.args}],
               {from: this, returned: output}, []);
         output.tasks.push(t);
       }
@@ -89,21 +91,6 @@ class ThoughtGeneratorPlugin {
      }
     }
     return output;
-  },
-
-  execute(agent, command, task) {
-    console.log('thinking...');
-    this.model = agent.model();
-    if (!this.model){
-        console.log('No model was provided to Think');
-        return false;
-    };
-    this.followUpText = Strings.pluginIntro +'\n' +agent.pluginManager.describePlugins();
-    this.commandObject = command;
-    this.task = task;
-    this.prompt = command.args.prompt.response
-    // Return the response.
-    return response;
   }
 
 }
