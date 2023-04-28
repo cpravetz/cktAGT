@@ -1,0 +1,79 @@
+body {
+  font-family: sans-serif;
+}
+
+#container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+}
+#container > button {
+}
+
+#top {
+  width:100%;
+  height: 80%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+#chatBox {
+  width: 70%;
+  border: 1px solid black;
+  padding: 10px;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#chatThread > li {
+ padding: 0.5rem 1rem;
+ display: flex;
+}
+
+#chatThread > li:nth-child(odd) {
+ background: #efefef;
+}
+
+#filesBox {
+  width: 30%;
+  border: 1px solid black;
+  padding: 10px;
+}
+
+#inputBox {
+  width: 100%;
+}
+
+#inputSpace, #checkSpace, #radioSpace {
+  width: 90%;
+  height: 60px;
+  padding: 0 1rem;
+  flex-grow: 1;
+  border-radius: 1rem;
+  margin: 0.25rem;
+}
+
+#checkSpace, #radioSpace {
+  display: none;
+}
+
+#submit {
+  width: 100px;
+  height: 20px;
+  background: #333;
+  border: none;
+  padding: 0 1rem;
+  margin: 0.25rem;
+  border-radius: 3px;
+  outline: none;
+  color: #fff;
+}
+
+#form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+
