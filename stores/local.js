@@ -8,6 +8,8 @@ const fs = require("fs");
 
 class LocalJsonFilesBackend {
 
+  name = 'local';
+
   // The directory where tasks are stored.
   tasksDir;
 

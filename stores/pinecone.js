@@ -8,12 +8,14 @@ const pinecone = require("pinecone");
 
 class PineconeBackend {
 
+  name = "pinecone";
+
   // The Pinecone client.
   client;
 
   // Constructor.
   constructor() {
-    this.client = new pinecone.Client();
+    this.client = new pinecone(process.env.PINECONE_API_KEY);
   }
 
   // Save a task.

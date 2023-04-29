@@ -17,9 +17,6 @@ class AgentManager {
   // The current status of the agent manager.
   status = "idle";
 
-  // The environment variables used by the agent manager.
-  env;
-
   //Don't go continuous unless instructed by the user
   continuous = false;
 
@@ -42,8 +39,7 @@ class AgentManager {
   userManager;
 
   // Creates a new AgentManager instance.
-  constructor(env, userManager) {
-    this.env = env;
+  constructor(userManager) {
     this.pluginManager = new PluginManager();
     this.modelManager = new ModelManager();
     this.memoryManager = new MemoryManager();

@@ -26,7 +26,7 @@ UserManager.io = io;
 // This is the main function.
 async function main() {
   // Create the agent manager.
-  const agentManager = new AgentManager(process.env, UserManager);
+  const agentManager = new AgentManager(UserManager);
 
   // Start the server.
   await server.listen(3000);

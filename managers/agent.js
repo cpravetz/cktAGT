@@ -72,6 +72,9 @@ const Agent = class {
         try {
           this.agentManager.useOneStep();
           const result = await task.execute();
+          // Report task feedback/errors to user
+          if (result.text) { this.say(result.text) };
+          if (result.results.error) { this.say(result.results.error) };
           result.forEach(cmdResp => {
             cmdResp.forEach(plugResp => {
               this.say(plugResp.text);

@@ -8,6 +8,8 @@ const redis = require("redis");
 
 class RedisBackend {
 
+  name="redis";
+
   // The Redis client.
   client;
 

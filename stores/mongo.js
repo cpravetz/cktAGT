@@ -8,6 +8,8 @@ const mongodb = require("mongodb");
 
 class MongoDBBackend {
 
+  name = "mongodb";
+
   // The MongoDB client.
   client;
 
@@ -16,8 +18,13 @@ class MongoDBBackend {
 
   // Constructor.
   constructor() {
-    this.client = new mongodb.MongoClient("mongodb://localhost:27017");
-    this.db = this.client.db("tasks");
+    this.client = new mongodb.MongoClient(process.env.MONGO_URL);
+    this.client.connect((err,db) => {
+        if (err) {
+            console.log(err)
+        } else {
+            this.db = db;
+        }})
   }
 
   // Save a task.
