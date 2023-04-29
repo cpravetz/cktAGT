@@ -30,7 +30,18 @@ class HTMLReaderPlugin {
     // Get the text of the web page.
     const text = cheer("body").text();
 
-    return text;
+    const t = new Task(this.task.agent, keyMaker(),
+              'File Send', 'sending the html body from file '+command.args.filename+' to the LLM',
+              'this is the body of '+command.args.filename, [{'Think', model: thisStep.model||false, args:{prompt:text}}],
+              {from: this});
+    return {
+      outcome: 'SUCCESS',
+      results: {
+        file: text,
+      },
+      tasks: [t]
+    };
+
   }
 
 }
