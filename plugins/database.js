@@ -35,7 +35,20 @@ class DatabasePlugin {
   // This method executes a query.
   execute(agent, command, task) {
     this.connect(command.args.host, command.args.port, command.args.database, command.args.username, command.args.password);
-    return this.connection.query(command.args.query);
+    const query = this.connection.query(command.args.query);
+    const t = new Task(this.task.agent, keyMaker(),
+                  'Query Send', 'sending the query results from '+command.args.query+' to the LLM',
+                  'this is the result of '+command.args.query,
+                  [{name:'Think', model: thisStep.model||false, args:{prompt:query}}],
+                  {from: this});
+        return {
+          outcome: 'SUCCESS',
+          results: {
+            file: text,
+          },
+          tasks: [t]
+        };
+
   }
 }
 

@@ -34,7 +34,18 @@ class InternetSearchPlugin {
     });
 
     // Return the results.
-    return results;
+    const t = new Task(this.task.agent, keyMaker(),
+              'File Send', 'sending the search results to the LLM',
+              'this is the search results for '+command.args.find,
+              [{name:'Think', model: thisStep.model||false, args:{prompt:results}}],
+              {from: this});
+    return {
+      outcome: 'SUCCESS',
+      results: {
+        search: results,
+      },
+      tasks: [t]
+    };
   }
 }
 
