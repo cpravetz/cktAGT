@@ -32,7 +32,7 @@ class HTMLReaderPlugin {
 
     const t = new Task(this.task.agent, keyMaker(),
               'File Send', 'sending the html body from file '+command.args.filename+' to the LLM',
-              'this is the body of '+command.args.filename, [{'Think', model: thisStep.model||false, args:{prompt:text}}],
+              'this is the body of '+command.args.filename, [{name:'Think', model: thisStep.model||false, args:{prompt:text}}],
               {from: this});
     return {
       outcome: 'SUCCESS',

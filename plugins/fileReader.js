@@ -43,7 +43,7 @@ class FileReaderPlugin {
     const contents = await fs.readFileSync(filePath);
     const t = new Task(this.task.agent, keyMaker(),
               'File Send', 'sending the file '+command.args.filename+' to the LLM',
-              'this is the file '+command.args.filename, [{'Think', model: thisStep.model||false, args:{prompt:contents}}],
+              'this is the file '+command.args.filename, [{name: 'Think', model: thisStep.model||false, args:{prompt:contents}}],
               {from: this});
     return {
       outcome: 'SUCCESS',
