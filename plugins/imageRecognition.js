@@ -19,6 +19,10 @@ class ImageRecognitionPlugin {
     image: 'The image to be recognized',
   };
 
+  constructor() {
+
+  }
+
   // This method executes the command.
   async execute(agent, command, task) {
     // Create a tensor from the image.

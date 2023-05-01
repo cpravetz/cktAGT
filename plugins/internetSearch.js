@@ -4,7 +4,7 @@
 
 // This module provides a class for representing an internet search plugin.
 
-const google = require("googleapis");
+const Task = require('./../managers/task.js');
 
 class InternetSearchPlugin {
 
@@ -19,18 +19,21 @@ class InternetSearchPlugin {
     find: 'The search term to be used',
   };
 
+  constructor() {
+
+  }
+
   // This method executes the command.
   async execute(agent, command, task) {
     // Create a Google Search API client.
-    const client = new google.customsearch({
-      version: "v1",
-      key: process.env.GOOGLE_API_KEY,
-      cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
-    });
+    const {google} = require("googleapis");
+    const client = google.customsearch('v1');
 
     // Search for the term.
     const results = await client.cse.list({
       q: command.args.find,
+      cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
+      auth:process.env.GOOGLE_API_KEY,
     });
 
     // Return the results.

@@ -5,6 +5,8 @@
 // This module provides a class for representing an HTML reader plugin.
 
 const cheerio = require("cheerio");
+const Task = require('./../managers/task.js');
+const keyMaker = require('./../constants/keymaker.js');
 
 class HTMLReaderPlugin {
 
@@ -19,6 +21,10 @@ class HTMLReaderPlugin {
     url: 'The URL of the web page to read',
   };
 
+  constructor() {
+
+  }
+
   // This method executes the command.
   async execute(agent, command, task) {
 
@@ -30,10 +36,10 @@ class HTMLReaderPlugin {
     // Get the text of the web page.
     const text = cheer("body").text();
 
-    const t = new Task(this.task.agent, keyMaker(),
+    const t = new Task(agent, keyMaker(),
               'Html Send', 'sending the html body from file '+command.args.url+' to the LLM',
               'this is the body of '+command.args.url,
-              [{name:'Think', model: thisStep.model||false, args:{prompt:text}}],
+              [{name:'Think', model: agent.model||false, args:{prompt:text}}],
               {from: this});
     return {
       outcome: 'SUCCESS',

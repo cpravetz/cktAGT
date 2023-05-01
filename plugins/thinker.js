@@ -4,6 +4,7 @@
 
 // This module provides a class for representing a thought generator plugin.
 
+
 const keyMaker = require("../constants/keymaker.js");
 const Strings = require("../constants/strings.js");
 const Task = require("../managers/task.js");
@@ -28,13 +29,18 @@ class ThoughtGeneratorPlugin {
     assessments: 'An array of any other text that should be sent to the LLM with the prompt'
   };
 
+  constructor(agent) {
+    // can construct with a
+    this.agent = agent || null;
+  }
+
   // This method executes the command.
   async execute(agent, command, task) {
     console.log('thinking...');
 
     // Get the LLM from the command arguments or use the agent default
     if (command.args.model) {
-     const llm = this.agent.agentManager.modelManager.getModel(command.args.model) || agent.model();
+     const llm = this.agent?.agentManager.modelManager.getModel(command.args.model) || agent.model();
     }
 
     if (!llm) {

@@ -4,20 +4,23 @@
 
 // This module provides a class for representing a user input plugin.
 
-const UserInputPlugin = {
+class UserInputPlugin  {
 
   // The version of the plugin.
-  version: 1.0,
+  version= 1.0;
 
   // The name of the command.
-  command: 'AskUser',
+  command= 'AskUser';
 
   // The arguments for the command.
-  args: {
+  args= {
     prompt: 'the message to send to the user',
     choices: 'An array of strings with possible answers',
     required: 'A boolean indicating whether the user is required to answer'
-  },
+  };
+
+  constructor() {
+  }
 
   // This method executes the command.
   async execute(agent, command, task) {
@@ -31,7 +34,7 @@ const UserInputPlugin = {
     const required = command.args.required || false;
 
     // Ask the user for input.
-    const response = await agent.ask(prompt, choices, required);
+    const response = await agent.agentManager.ask(prompt, choices, required);
 
     // Return the response.
     return response;

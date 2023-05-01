@@ -15,13 +15,16 @@ class LocalJsonFilesBackend {
 
   // Constructor.
   constructor(tasksDir) {
-    this.tasksDir = tasksDir;
+    this.tasksDir = tasksDir || './../workspace';
+    fs.mkdir(this.tasksDir, (e,r) => {if (e) { console.log(e)}});
+
   }
 
   // Save a task.
   save(task) {
     const taskPath = `${this.tasksDir}/${task.id}.json`;
     fs.writeFileSync(taskPath, JSON.stringify(task));
+    return task;
   }
 
   // Load a task.

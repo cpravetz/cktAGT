@@ -19,6 +19,10 @@ class NaturalLanguageProcessingPlugin {
     text: 'The text to be processed',
   };
 
+  constructor() {
+
+  }
+
   // This method executes the command.
   async execute(agent, command, task) {
     // Create a tensor from the text.

@@ -38,13 +38,19 @@ class AgentManager {
   // The user manager used by the agent manager.
   userManager;
 
+  workDirName;
+
   // Creates a new AgentManager instance.
-  constructor(userManager) {
+  constructor(userManager, workDirName) {
     this.pluginManager = new PluginManager();
     this.modelManager = new ModelManager();
     this.memoryManager = new MemoryManager();
     this.taskManager = new TaskManager(this.modelManager.activeModel, this.memoryManager.activeStore);
     this.userManager = userManager;
+    this.workDirName = workDirName;
+    if (workDirName[workDirName.length - 1] !== '/') {
+        this.workDirName = this.workDirName + '/'
+    }
   }
 
   // Starts the agent manager.

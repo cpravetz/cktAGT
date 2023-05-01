@@ -4,7 +4,8 @@
 
 // This module provides a class for representing a GitHub clone plugin.
 
-const github = require("@octokit/rest");
+const Clone = require("git-clone");
+const fs = require("fs");
 
 class GitHubClonePlugin {
 
@@ -20,22 +21,28 @@ class GitHubClonePlugin {
     clonePath: 'The path to the directory where the repository will be cloned',
   };
 
+  constructor() {
+
+  }
+
   // This method executes the command.
   async execute(agent, command, task) {
-    // Create a GitHub client.
-    const client = new github.Client({
-      username: process.env.GITHUB_USERNAME || "",
-      key: process.env.GITHUB_API_KEY || "",
-    });
+     Clone(command.args.repoUrl,agent.agentManager.workDirName,command.args.options || {},
+       (e,r) =>{if (e) {
+            return {
+                outcome: 'FAILURE',
+                text: e,
+                results: {
+                    error: e,
+                },
+            };
+       } else {
+            return {
+                outcome: 'SUCCESS'
+            }
+       }
 
-    // Get the repository.
-    const repo = await client.getRepo(command.args.repoUrl);
-
-    // Clone the repository.
-    await repo.clone(command.args.clonePath);
-
-    // Log a success message.
-    console.log("Repository cloned successfully!");
+     });
   }
 
 }

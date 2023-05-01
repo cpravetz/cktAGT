@@ -24,10 +24,14 @@ class FileWriterPlugin {
     overwrite: 'boolean true if existing file can be replaced, otherwise false',
   };
 
+  constructor() {
+
+  }
+
   // This method executes the command.
   async execute(agent, command, task) {
     // Get the file path from the task.
-    const filePath = command.args.fileName;
+    const filePath = agent.agentManager.workDirName+command.args.fileName;
 
     // Check if the file exists.
     if (fs.existsSync(filePath) && !command.args.overwrite) {

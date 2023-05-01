@@ -10,11 +10,9 @@ const path = require("path");
 const http = require('http');
 const dotenv = require("dotenv").config();
 
-
 const app = express();
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-
 
 const io = new Server(server);
 
@@ -25,8 +23,20 @@ UserManager.io = io;
 
 // This is the main function.
 async function main() {
+  //set up the workspace directory
+  let workDirName = process.env.WORKING_DIR || './workspace';
+  const isAbsolute = /^[a-z]+:\/\//i.test(workDirName);
+  // If the path is not absolute, prepend the current working directory
+  if (!isAbsolute) {
+    workDirName = `${__dirname}/${workDirName}`;
+  }
+  // If the directory does not exist, create it
+  if (!fs.existsSync(workDirName)) {
+    fs.mkdirSync(workDirName);
+  }
+
   // Create the agent manager.
-  const agentManager = new AgentManager(UserManager);
+  const agentManager = new AgentManager(UserManager, workDirName);
 
   // Start the server.
   await server.listen(3000);

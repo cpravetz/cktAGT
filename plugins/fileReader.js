@@ -5,6 +5,8 @@
 // This module provides a class for representing a file reader plugin.
 
 const fs = require("fs");
+const Task = require('./../managers/task.js');
+const keyMaker = require('./../constants/keymaker.js');
 
 class FileReaderPlugin {
 
@@ -23,10 +25,14 @@ class FileReaderPlugin {
     url: 'the location of the file, if it is not stored in our local working directory',
   };
 
+  constructor() {
+
+  }
+
   // This method executes the command.
   async execute(agent, command, task) {
     // Get the file path from the task.
-    const filePath = (command.args.url || '') + command.args.fileName;
+    const filePath = (command.args.url || agent.agentManager.workDirName) + command.args.fileName;
 
     // Check if the file exists.
     if (!fs.existsSync(filePath)) {
@@ -41,9 +47,9 @@ class FileReaderPlugin {
 
     // Read the contents of the file.
     const contents = await fs.readFileSync(filePath);
-    const t = new Task(this.task.agent, keyMaker(),
+    const t = new Task(agent, keyMaker(),
               'File Send', 'sending the file '+command.args.filename+' to the LLM',
-              'this is the file '+command.args.filename, [{name: 'Think', model: thisStep.model||false, args:{prompt:contents}}],
+              'this is the file '+command.args.filename, [{name: 'Think', model: agent.model||false, args:{prompt:contents}}],
               {from: this});
     return {
       outcome: 'SUCCESS',

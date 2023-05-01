@@ -27,6 +27,10 @@ class DatabasePlugin {
     query: 'The SQL command to be executed',
   };
 
+  constructor() {
+
+  }
+
   // This method connects to the database.
   connect(host, port, database, username, password) {
     this.connection = new database.Connection(host, port, database, username, password);
