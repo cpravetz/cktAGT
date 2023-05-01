@@ -4,7 +4,7 @@
     <title>Autonomous AI Agent</title>
     <link rel="stylesheet" href="style.css">
     <script src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="serverManager.js"></script>
+    <script type="text/javascript" src="managers/serverManager.js"></script>
 </head>
 <body>
 <div id="container">
@@ -29,8 +29,8 @@
 <div id="inputBox">
     <h3>Your input:</h3>
     <input type="text" id="inputSpace">
-    <div id="checkSpace" style="visibility: hidden;"></div>
-    <div id="radioSpace" style="visibility: hidden;"></div>
+    <div id="checkSpace" ></div>
+    <fieldset id="radioSpace" ></fieldset>
     <button id="submit">Submit</button>
 </div>
 </body>

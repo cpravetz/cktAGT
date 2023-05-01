@@ -4,8 +4,14 @@
 
 const socket = io();
 
+let serverManager;
+
 // The ServerManager provides a common interface for interacting on the client side
 class ServerManager {
+
+  constructor() {
+
+  }
 
   chat(text, justify) {
         if (typeof(text) === Object) {
@@ -39,7 +45,7 @@ class ServerManager {
 
   // This function sends a request to the server.  Usually triggered by an answer
   say(message) {
-    this.chat(message,'right');
+    this.chat(message.response || message,'right');
     if (this.askId) {
       message.id = this.askId;
       this.askId = false;
@@ -54,17 +60,17 @@ class ServerManager {
 
   // This function answers sends the server a new request in response to an ask
   answer(msg) {
-    let prompt = msg.prompt || false;
-    let choices = msg.choices || false;
+    serverManager.asked = {prompt: msg.prompt.prompt || msg.prompt,
+                           choices: msg.prompt.choices || false };
     let allowMultiple = msg.allowMultiple || false;
     this.askId = msg.id;
     // Say the prompt.
-    this.hear(prompt);
+    this.hear(serverManager.asked.prompt);
     var inputSpace = document.getElementById("inputSpace");
     var checkSpace = document.getElementById("checkSpace");
     var radioSpace = document.getElementById("radioSpace");
     // If choices is null, make inputSpace a text input and wait for the user to press the Submit button (id="Submit") and return the text in the input field.
-    if (!choices) {
+    if (!serverManager.asked.choices) {
       var inputSpace = document.getElementById("inputSpace");
       inputSpace.type = "text";
       inputSpace.style.display = 'block';
@@ -75,12 +81,12 @@ class ServerManager {
       // If allowMultiple is true, then the function creates checkboxes for each item in choices and waits for the user to press the Submit button then submits the text of the checkboxes checked as an array.
       if (allowMultiple) {
         var checkboxes = [];
-        for (var i = 0; i < choices.length; i++) {
+        for (var i = 0; i < serverManager.asked.choices.length; i++) {
           var checkbox = document.createElement("input");
           checkbox.name = 'aCheckBox';
           checkbox.type = "checkbox";
-          checkbox.value = choices[i];
-          checkbox.textContent = choices[i];
+          checkbox.value = serverManager.asked.choices[i];
+          checkbox.textContent = serverManager.asked.choices[i];
           checkboxes.push(checkbox);
         }
 
@@ -95,16 +101,19 @@ class ServerManager {
       } else {
         // If allowMultiple is false, the function creates a radiobutton type input using the strings in choices as the options and waits for the user to press Submit, then returns the text of the selected option as a string.
         var radioButtons = [];
-     for (var i = 0; i < choices.length; i++) {
+     for (var i = 0; i < serverManager.asked.choices.length; i++) {
+        var choice =  serverManager.asked.choices[i];
         var radioButton = document.createElement("input");
         radioButton.type = "radio";
-        radioButton.value = choices[i];
-        radioButton.textContent = choices[i];
+        radioButton.name = "aRadioButton";
+        radioButton.value = choice;
         radioButtons.push(radioButton);
-     }
-
-     for (radio of radioButtons) {
-       radioSpace.appendChild(radio);
+        radioSpace.appendChild(radioButton);
+        var label = document.createElement("label");
+        label.innerHTML = choice+ '<br/>';
+        label.for = i.toString();
+        radioButtons.push(label);
+        radioSpace.appendChild(label);
      }
      inputSpace.style.display = 'none';
      checkSpace.style.display = 'none';
@@ -115,24 +124,23 @@ class ServerManager {
 }
 
 socket.on('serverSays', function(msg) {
-    console.log('server Said:'+msg);
     if (msg.prompt) {
-        ServerManager.answer(msg)
+        serverManager.answer(msg)
     } else {
-        ServerManager.hear(msg);
+        serverManager.hear(msg);
     }
 });
 
 socket.on('serverFileAdd', function(msg) {
     console.log('new Work File:'+msg);
     if (msg.fileName) {
-        ServerManager.answer(msg)
+        serverManager.answer(msg)
     } else {
-        ServerManager._addFileName(msg.fileName, msg.url);
+        serverManager._addFileName(msg.fileName, msg.url);
     }
 });
 
-function updateApproval {
+updateApproval = function() {
   // Get the value of the checkbox.
   const continuous = document.getElementById("continuous").checked;
 
@@ -146,19 +154,18 @@ function updateApproval {
   });
 }
 
-function sendInputData() {
+sendInputData = function() {
     var inputSpace = document.getElementById("inputSpace");
     var checkSpace = document.getElementById("checkSpace");
     var radioSpace = document.getElementById("radioSpace");
-    if (inputSpace.style.visibility != 'hidden') {
+    if (inputSpace.style.display != 'none') {
         var text = inputSpace.value;
         // Return the text.
-        ServerManager.say({type: 'answer', prompt: prompt, response:text});
+        serverManager.say({type: 'answer', prompt: serverManager.answer.prompt, response:text});
         inputSpace.value = "";
     }
-    if (checkSpace.style.visibility != 'hidden') {
+    if (checkSpace.style.display != 'none') {
         // Get the checkboxes in the div.
-        const checkboxes = document.getElementsByName("myCheckboxes");
         var checkedTexts = [];
 
         while (checkSpace.hasChildNodes()) {
@@ -168,33 +175,35 @@ function sendInputData() {
             checkSpace.removeChild(checkSpace.firstChild);
         }
         // Return the text of the checkboxes checked.
-        say({type: 'answer', prompt: prompt, response:checkedTexts});
+        serverManager.say({type: 'answer', prompt: serverManager.answer.prompt, response:checkedTexts});
         checkSpace.style.display = 'none';
         inputSpace.style.display = 'block';
     }
-    if (radioSpace.style.visibility != 'hidden') {
+    if (radioSpace.style.display != 'none') {
         // Get the text of the selected radio button.
         var selectedText = "";
         while (radioSpace.hasChildNodes()) {
             if (radioSpace.firstChild.checked) {
                 selectedText = radioSpace.firstChild.value;
             }
-            radioSpace.removeChild(checkSpace.firstChild);
+            radioSpace.removeChild(radioSpace.firstChild);
         }
-        say({type: 'answer', prompt: prompt, response:selectedTexts});
+        serverManager.say({type: 'answer', prompt: serverManager.answer.prompt, response:selectedText});
         radioSpace.style.display = 'none';
         inputSpace.style.display = 'block';
     }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    ServerManager.say('We are up and ready');
+    serverManager = new ServerManager();
+
+    serverManager.say('We are up and ready');
 
     document.getElementById("submit").addEventListener("click", function() {
         sendInputData();
     });
 
-    document.getElementById("myInput").addEventListener("keypress", (event) => {
+    document.getElementById("inputSpace").addEventListener("keypress", (event) => {
         if (event.keyCode === 13) {
             sendInputData();
         }
@@ -204,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function() {
         updateApproval();
     });
 
-    continuousCheckbox.addEventListener("change", () => {
+    document.getElementById("continuous").addEventListener("change", () => {
         updateApproval();
     });
 

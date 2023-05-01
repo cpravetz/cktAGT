@@ -11,11 +11,17 @@ const Task = require("./task.js");
 const keyMaker = require("../constants/keymaker.js");
 const Strings = require("../constants/strings.js");
 
+const Status = {
+    launching : 0,
+    waiting : 1,
+    awaitingGoal : 2,
+    running : 3
+}
 // This is the AgentManager class.
 class AgentManager {
 
   // The current status of the agent manager.
-  status = "idle";
+  status = Status.launching;
 
   //Don't go continuous unless instructed by the user
   continuous = false;
@@ -53,28 +59,57 @@ class AgentManager {
     }
   }
 
-  // Starts the agent manager.
-  start() {
-    this.userManager.parent = this;
-    // Get the user's input.
-    const input = this.ask(Strings.welcome);
-    this.status = "waiting";
+  //Add a think task for feedback from the user
+  informTheLLM(input) {
+    const commands = [{name: "Think", args: {prompt: input}}];
+    const task = new Task(this.agent, keyMaker(), "User Feedback", "", input, commands, "", []);
+    // Add the task to the queue.
+    this.taskManager.addTask(task);
+    this.say('Understood');
   }
 
-  // Begins a new task.
-  begin(input) {
+  // Starts the agent manager.
+  startTheAgent() {
+    this.agent.start();
+    this.status = Status.running;
+  }
+
+  createNewAgent(input) {
     // Create a new agent.
-    const agent = new Agent(keyMaker(), this) //this.taskManager, this.pluginManager, this.userManager, this.memoryManager.activeStore);
+    this.agent = new Agent(keyMaker(), this) //this.taskManager, this.pluginManager, this.userManager, this.memoryManager.activeStore);
     const commands = [{name: "Think", args: {prompt: input}}];
     // Create a new task.
-    const task = new Task(agent, keyMaker(), "Initial Task", "we are processing the goal and constraints", input, commands, "", []);
+    const task = new Task(this.agent, keyMaker(), "Initial Task", "we are processing the goal and constraints", input, commands, "", []);
 
     // Add the task to the queue.
     this.taskManager.addTask(task);
-
-    agent.start();
-    this.status = "running";
   }
+
+
+  // Ask user, start new agent or load existing agent?
+  beginWithNewGoal(input) {
+    this.ask(Strings.newAgentMsg);
+    this.status = Status.awaitingGoal;
+  }
+
+  doLoadorNew(input) {
+    if (input.response == Strings.startNewAgent) {
+      this.beginWithNewGoal()
+    } else {
+     //Get the name of an agent from the user and TODO restart it
+    }
+
+  }
+
+  askLoadorNew() {
+    this.userManager.parent = this;
+    // Get the user's input.
+    const input = this.ask({prompt:Strings.welcome, choices: [Strings.startNewAgent,Strings.restartAgent]});
+    this.status = Status.waiting;
+
+    //create a new agent or load an existing one
+  }
+
 
   // Says a message to the user.
   say(text) {
@@ -100,13 +135,17 @@ class AgentManager {
     const input = JSON.parse(msg) || msg;
 
     // Deal with input supplied by the user, probably in response to an ask
-    if (this.status == "idle") {
-      this.start();
-    } else if (this.status == "waiting") {
-      this.begin(input);
-    } else {
-      this.say("Gotcha");
-      // TODO: Deal with the message from the user
+    if (this.status == Status.launching) {
+        this.askLoadorNew();
+    } else
+      if (this.status == Status.waiting) {
+        this.doLoadorNew(input);
+      } else {
+      if (this.status == Status.awaitingGoal) {
+        this.createNewAgent(input)
+      } else {
+        this.informTheLLM(input)
+      }
     }
   }
 

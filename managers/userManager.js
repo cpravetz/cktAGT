@@ -8,13 +8,19 @@ const keyMaker = require("../constants/keymaker.js");
 
 class UserManager {
 
+
   // This constructor initializes the user manager.
-  constructor(app, req, io, parent) {
+  constructor(app, io) {
     this.app = app;
-    this.req = req;
     this.io = io;
     this.asks = [];
-    this.parent = parent;
+    this.listeners = [];
+  }
+
+  addListener(l) {
+   if (typeof(l.hear) === 'function') {
+     this.listeners.push(l);
+   }
   }
 
   // This method sends a message to the server.
@@ -38,8 +44,9 @@ class UserManager {
         this.asks.splice(index, 1);
       }
     }
-    if (this.parent) {
-      this.parent.hear(msg);
+
+    for (const listener of this.listeners) {
+      listener.hear(msg);
     }
   }
 

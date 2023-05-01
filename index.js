@@ -20,6 +20,7 @@ const AgentManager = require("./managers/agentManager.js");
 const UserManager = require("./managers/userManager.js");
 UserManager.io = io;
 
+let agentManager;
 
 // This is the main function.
 async function main() {
@@ -35,8 +36,11 @@ async function main() {
     fs.mkdirSync(workDirName);
   }
 
+  //create the userManager
+  const userManager = new UserManager(app, io);
   // Create the agent manager.
-  const agentManager = new AgentManager(UserManager, workDirName);
+  agentManager = new AgentManager(userManager, workDirName);
+  userManager.addListener(agentManager);
 
   // Start the server.
   await server.listen(3000);

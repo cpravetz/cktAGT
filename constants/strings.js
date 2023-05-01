@@ -6,7 +6,10 @@
 
 const Strings = {
   // A message that is displayed when the agent manager is ready.
-  welcome: 'Your agent manager is now ready. Begin by providing a set of instructions for the agent to tackle. Begin with a goal, then add any constraints or parameters that might apply. Remember that this is experimental software and could waste your time and your money.',
+  welcome: 'Your agent manager is now ready. Do you want to start a new agent or continue with an existing agent?',
+  restartAgent: 'Restart an existing agent',
+  startNewAgent: 'Start a new agent with a new goal',
+  newAgentMsg:'Begin by providing a set of instructions for the agent to tackle. Begin with a goal, then add any constraints or parameters that might apply. Remember that this is experimental software and could waste your time and your money.',
 
   // A message that is displayed when the agent is asked for its goal.
   goalPrompt: "What is your goal?",
