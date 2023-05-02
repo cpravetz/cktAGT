@@ -74,15 +74,17 @@ Return your response in JSON format as described here:
   ]
 }
 `,
+ pluginIntro : `Several plugins are available to facilitate your interaction with the world.
+ These plugins are:
+`,
+
+
   // A function that formats a response from the agent.
   textify: (obj) => {
     let text = 'The agent responds: '
       + '\n\t' + obj.thoughts.text || '';
     if (obj.thoughts.reasoning) {
       text += '\n\n\tReasoning:\n\t\t' + obj.thoughts.reasoning;
-    }
-    if (obj.thoughts.criticism) {
-      text += '\n\n\tCriticism:\n\t\t' + obj.thoughts.criticism;
     }
     if (obj.thoughts.actions) {
       text += '\n\n\tActions:';

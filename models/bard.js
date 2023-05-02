@@ -8,11 +8,14 @@ const Model = require('./model.js');
 
 class Bard extends Model {
 
-  // The name of the model.
-  name = 'bard';
+   constructor() {
+    super();
+    // The name of the model.
+    this.name = 'bard';
 
-  // The base URL for the Bard API.
-  baseUrl = 'https://bard.google.com/v1/';
+    // The base URL for the Bard API.
+    this.baseUrl = 'https://bard.google.com/v1/';
+   }
 
   async generate(messages, options) {
     // Create a request object.

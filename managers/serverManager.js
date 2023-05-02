@@ -72,7 +72,6 @@ class ServerManager {
     // If choices is null, make inputSpace a text input and wait for the user to press the Submit button (id="Submit") and return the text in the input field.
     if (!serverManager.asked.choices) {
       var inputSpace = document.getElementById("inputSpace");
-      inputSpace.type = "text";
       inputSpace.style.display = 'block';
       checkSpace.style.display = 'none';
       radioSpace.style.display = 'none';
@@ -140,13 +139,17 @@ socket.on('serverFileAdd', function(msg) {
     }
 });
 
+socket.on('serverNeedsApproval', function(msg) {
+  document.getElementById("getApproval").style.display = 'block';
+});
+
 updateApproval = function() {
   // Get the value of the checkbox.
   const continuous = document.getElementById("continuous").checked;
 
   // Get the value of the text input field.
   const steps = document.getElementById("steps").value;
-
+  document.getElementById("getApproval").style.display = 'none';
   // Send a socket emit.
   socket.emit("userApproves", {
     continuous: continuous,

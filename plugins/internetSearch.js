@@ -8,19 +8,19 @@ const Task = require('./../managers/task.js');
 
 class InternetSearchPlugin {
 
-  // The version of the plugin.
-  version= 1.0;
-
-  // The name of the command.
-  command= 'SearchWeb';
-
-  // The arguments for the command.
-  args= {
-    find: 'The search term to be used',
-  };
-
   constructor() {
+    // The version of the plugin.
+    this.version= 1.0;
 
+    // The name of the command.
+    this.command= 'SearchWeb';
+
+    this.description = 'Searches google for a given term';
+
+    // The arguments for the command.
+    this.args= {
+      find: 'The search term to be used',
+    };
   }
 
   // This method executes the command.

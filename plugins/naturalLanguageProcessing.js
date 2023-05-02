@@ -8,19 +8,19 @@ const nlp = require("@tensorflow/tfjs-core");
 
 class NaturalLanguageProcessingPlugin {
 
-  // The version of the plugin.
-  version= 1.0;
-
-  // The name of the command.
-  command= 'ProcessText';
-
-  // The arguments for the command.
-  args= {
-    text: 'The text to be processed',
-  };
-
   constructor() {
+    // The version of the plugin.
+    this.version= 1.0;
 
+    // The name of the command.
+    this.command= 'ProcessText';
+
+    this.description = 'Interprets text with an LLM';
+
+    // The arguments for the command.
+    this.args= {
+      text: 'The text to be processed',
+    };
   }
 
   // This method executes the command.

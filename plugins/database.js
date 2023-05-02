@@ -8,27 +8,25 @@ const database = require("mysql");
 
 class DatabasePlugin {
 
-  // The version of the plugin.
-  version= 1.0;
-
-  // The name of the command.
-  command= 'QueryDB';
-
-  // The description of the command.
-  description= 'Executes SQL commands a given database';
-
-  // The arguments for the command.
-  args= {
-    host: 'SQL Server URL',
-    port: 'SQL Server port',
-    database: 'The name of the database',
-    username: 'A username to be used to execute the query',
-    password: 'A password to use',
-    query: 'The SQL command to be executed',
-  };
-
   constructor() {
+    // The version of the plugin.
+    this.version= 1.0;
 
+    // The name of the command.
+    this.command= 'QueryDB';
+
+    // The description of the command.
+    this.description= 'Executes SQL commands a given database';
+
+    // The arguments for the command.
+    this.args= {
+      host: 'SQL Server URL',
+      port: 'SQL Server port',
+      database: 'The name of the database',
+      username: 'A username to be used to execute the query',
+      password: 'A password to use',
+      query: 'The SQL command to be executed',
+    };
   }
 
   // This method connects to the database.

@@ -9,8 +9,6 @@ const { Configuration, OpenAIApi } = require("openai");
 
 class GPT4 extends Model {
 
-  // The name of the model.
-  name = 'gpt-4';
 
   // The OpenAI API configuration.
   configuration;
@@ -20,6 +18,8 @@ class GPT4 extends Model {
 
   constructor(apiKey) {
     super();
+    // The name of the model.
+    this.name = 'gpt-4';
     this.configuration = new Configuration({
       apiKey,
     });
@@ -38,8 +38,9 @@ class GPT4 extends Model {
       temperature,
     });
 
-    // Return the generated text.
-    return response.data.text;
+    // Return the full message
+    response.data.choices[0].text = response.data.choices[0].message.content;
+    return response;
   }
 }
 

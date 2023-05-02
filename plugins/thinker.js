@@ -9,27 +9,26 @@ const Task = require("../managers/task.js");
 
 class ThoughtGeneratorPlugin {
 
-  // The version of the plugin.
-  version= 1.0;
-
-  // The name of the command.
-  command= 'Think';
-
-  // The description of the plugin.
-  description= 'Sends a message to an LLM, likely you';
-
-  // The arguments for the command.
-  args= {
-    prompt: 'the message to send to the LLM for a response',
-    constraints: 'An array of strings describing constraints the LLM should consider',
-    commands: 'An array of commands/instructions to be performed by the LLM',
-    resources: 'An array of strings or JSON strings with inputs the LLM may need',
-    assessments: 'An array of any other text that should be sent to the LLM with the prompt'
-  };
-
   constructor(agent) {
-    // can construct with a
     this.agent = agent || null;
+
+    // The version of the plugin.
+    this.version= 1.0;
+
+    // The name of the command.
+    this.command= 'Think';
+
+    // The description of the plugin.
+    this.description= 'Sends a message to an LLM, likely you';
+
+    // The arguments for the command.
+    this.args= {
+      prompt: 'the message to send to the LLM for a response',
+      constraints: 'An array of strings describing constraints the LLM should consider',
+      commands: 'An array of commands/instructions to be performed by the LLM',
+      resources: 'An array of strings or JSON strings with inputs the LLM may need',
+      assessments: 'An array of any other text that should be sent to the LLM with the prompt'
+    };
   }
 
   // This method executes the command.
@@ -37,9 +36,7 @@ class ThoughtGeneratorPlugin {
     console.log('thinking...');
 
     // Get the LLM from the command arguments or use the agent default
-    if (command.args.model) {
      const llm = this.agent?.agentManager.modelManager.getModel(command.args.model) || agent.model();
-    }
 
     if (!llm) {
       return {outcome: 'FAILURE', results: {error:'No model was provided to Think'}};
@@ -72,17 +69,17 @@ class ThoughtGeneratorPlugin {
       output.outcome = 'SUCCESS';
       const reply = response.data.choices[0].text || '{\n \"thoughts\": {\n    \"text\": \"Error\"}}';
       let replyJSON = {};
-      if (typeof(reply) === String) { replyJSON = JSON.parse(reply); } else { replyJSON = reply }
+      if (typeof(reply) === 'string') { replyJSON = JSON.parse(reply); } else { replyJSON = reply }
 
       output.text = Strings.textify(replyJSON);
       //Create a new think task for each step in the plan
       //We are creating one per command, but could combine all commands for a single action into one task.
       const actions = replyJSON.thoughts.actions;
       const plan = replyJSON.commands;
-      for (var i = 0; i < plan.length; i++) {
-        let thisStep = plan[i];
-        if (thisStep.model) { thisStep.args['model'] = thisStep.model}
-        const t = new Task(this.task.agent,
+      output.tasks = [];
+      for (const thisStep of plan) {
+        if (thisStep.model) { thisStep.args['model'] = thisStep.model }
+        const t = new Task(task.agent,
               "Follow up", 'a task created by the model',
               actions[thisStep.action], [{name: thisStep.name, model: thisStep.model||false, args:thisStep.args}],
               {from: this, returned: output}, []);

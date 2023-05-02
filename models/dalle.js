@@ -9,8 +9,6 @@ const { Configuration, OpenAIApi } = require("openai");
 
 class DallE extends Model {
 
-  // The name of the model.
-  name = 'DallE';
 
   // The OpenAI API configuration.
   configuration;
@@ -20,6 +18,8 @@ class DallE extends Model {
 
   constructor(apiKey) {
     super();
+    // The name of the model.
+    this.name = 'DallE';
     this.configuration = new Configuration({
       apiKey,
     });

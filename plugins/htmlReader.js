@@ -9,19 +9,19 @@ const Task = require('./../managers/task.js');
 
 class HTMLReaderPlugin {
 
-  // The version of the plugin.
-  version= 1.0;
-
-  // The name of the command.
-  command= 'ReadHtml';
-
-  // The arguments for the command.
-  args= {
-    url: 'The URL of the web page to read',
-  };
-
   constructor() {
+    // The version of the plugin.
+    this.version= 1.0;
 
+    // The name of the command.
+    this.command= 'ReadHtml';
+
+    this.description = 'Gets the body section of any webpage';
+
+    // The arguments for the command.
+    this.args= {
+      url: 'The URL of the web page to read',
+    };
   }
 
   // This method executes the command.

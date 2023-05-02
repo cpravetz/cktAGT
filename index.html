@@ -20,6 +20,7 @@
     </div>
 </div>
 <div id="runBox">
+    <div id="getApproval"> <b>The agent needs approval to continue.</b></div>
     <input type="checkbox" id="continuous" name="continuous" value="continuous">
     <label for="continuous">Continuous Run or </label>
     <input type="number" id="steps" name="steps" value="1">
@@ -28,7 +29,7 @@
 </div>
 <div id="inputBox">
     <h3>Your input:</h3>
-    <input type="text" id="inputSpace">
+    <textarea id="inputSpace" placeholder="Enter a message to send to your agent" rows="10" cols="70"></textarea>
     <div id="checkSpace" ></div>
     <fieldset id="radioSpace" ></fieldset>
     <button id="submit">Submit</button>

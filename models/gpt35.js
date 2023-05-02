@@ -9,8 +9,6 @@ const { Configuration, OpenAIApi } = require("openai");
 
 class GPT35 extends Model {
 
-  // The name of the model.
-  name = 'gpt-3.5-turbo';
 
   // The OpenAI API configuration.
   configuration;
@@ -20,6 +18,9 @@ class GPT35 extends Model {
 
   constructor(apiKey) {
     super();
+    // The name of the model.
+    this.name = 'gpt-3.5-turbo';
+
     this.configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     });
@@ -50,6 +51,7 @@ class GPT35 extends Model {
     });
 
     // Return the full message
+    response.data.choices[0].text = response.data.choices[0].message.content;
     return response;
   }
 }

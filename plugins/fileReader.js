@@ -9,23 +9,21 @@ const Task = require('./../managers/task.js');
 
 class FileReaderPlugin {
 
-  // The version of the plugin.
-  version= 1.0;
-
-  // The name of the command.
-  command= 'ReadFile';
-
-  // The description of the command.
-  description= 'Reads a file from disk';
-
-  // The arguments for the command.
-  args= {
-    fileName: 'the name of the file to retrieve',
-    url: 'the location of the file, if it is not stored in our local working directory',
-  };
-
   constructor() {
+    // The version of the plugin.
+    this.version= 1.0;
 
+    // The name of the command.
+    this.command= 'ReadFile';
+
+    // The description of the command.
+    this.description= 'Reads a file from disk';
+
+    // The arguments for the command.
+    this.args= {
+      fileName: 'the name of the file to retrieve',
+      url: 'the location of the file, if it is not stored in our local working directory',
+    };
   }
 
   // This method executes the command.

@@ -61,6 +61,7 @@ class AgentManager {
 
   //Add a think task for feedback from the user
   informTheLLM(input) {
+    console.log('informingLLM:'+input);
     const commands = [{name: "Think", args: {prompt: input}}];
     const task = new Task(this.agent, "User Feedback", "", input, commands, "", []);
     // Add the task to the queue.
@@ -70,11 +71,13 @@ class AgentManager {
 
   // Starts the agent manager.
   startTheAgent() {
+   console.log('starting the agent');
     this.agent.start();
     this.status = Status.running;
   }
 
   createNewAgent(input) {
+    console.log('creating a new agent');
     // Create a new agent.
     this.agent = new Agent(this);
     const commands = [{name: "Think", args: {prompt: input}}];
@@ -87,12 +90,14 @@ class AgentManager {
 
 
   // Ask user, start new agent or load existing agent?
-  beginWithNewGoal(input) {
+  beginWithNewGoal() {
+    console.log('Asking for new goal');
     this.ask(Strings.newAgentMsg);
     this.status = Status.awaitingGoal;
   }
 
   doLoadOrNew(input) {
+   console.log('Responsing to start or load agent'+input);
     if (input.response == Strings.startNewAgent) {
       this.beginWithNewGoal()
     } else {
@@ -102,6 +107,7 @@ class AgentManager {
   }
 
   askLoadOrNew() {
+    console.log('Asking to start or load agent');
     this.userManager.parent = this;
     // Get the user's input.
     const input = this.ask({prompt:Strings.welcome, choices: [Strings.startNewAgent,Strings.restartAgent]});
@@ -142,7 +148,8 @@ class AgentManager {
         this.doLoadOrNew(input);
       } else {
       if (this.status == Status.awaitingGoal) {
-        this.createNewAgent(input)
+        this.createNewAgent(input);
+        this.startTheAgent();
       } else {
         this.informTheLLM(input)
       }
@@ -150,6 +157,7 @@ class AgentManager {
   }
 
   allowMoreSteps(continuous, count) {
+    console.log('Approved to proceed');
     this.continuous = continuous;
     this.remainingSteps += count || 0;
   }

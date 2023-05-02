@@ -8,24 +8,22 @@ const fs = require("fs");
 
 class FileWriterPlugin {
 
-  // The version of the plugin.
-  version= 1.0;
-
-  // The name of the command.
-  command= 'WriteFile';
-
-  // The description of the command.
-  description= 'Writes a file to disk';
-
-  // The arguments for the command.
-  args= {
-    fileName: 'the name of the file to retrieve',
-    content: 'the content of the file to be saved',
-    overwrite: 'boolean true if existing file can be replaced, otherwise false',
-  };
-
   constructor() {
+    // The version of the plugin.
+    this.version= 1.0;
 
+    // The name of the command.
+    this.command= 'WriteFile';
+
+    // The description of the command.
+    this.description= 'Writes a file to disk';
+
+    // The arguments for the command.
+    this.args= {
+      fileName: 'the name of the file to retrieve',
+      content: 'the content of the file to be saved',
+      overwrite: 'boolean true if existing file can be replaced, otherwise false',
+    };
   }
 
   // This method executes the command.

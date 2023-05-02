@@ -10,17 +10,22 @@ const Strings = require("../constants/strings.js");
 
 class PluginBuilderPlugin {
 
-  // The version of the plugin.
-  version= 1.0;
+  constructor() {
+    // The version of the plugin.
+    this.version= 1.0;
 
-  // The name of the command.
-  command= 'CreatePlugin';
+    // The name of the command.
+    this.command= 'CreatePlugin';
 
-  // The arguments for the command.
-  args= {
-    description: 'The description of the plugin',
-    newCommand: 'The name of the new command',
-  };
+    this.description = "Creates new plugins.  If you don't have a plugin for a feature you need, this plugin will create one";
+
+
+    // The arguments for the command.
+    this.args= {
+      description: 'The description of the plugin',
+      newCommand: 'The name of the new command',
+    };
+ }
 
   // This method executes the command.
   async execute(agent, command, task) {

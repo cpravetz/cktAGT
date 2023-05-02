@@ -9,13 +9,13 @@ const transformers = require('jstransformer');
 
 class Bert extends Model {
 
-  // The name of the model.
-  name = 'bert';
 
   LLM;
 
   constructor() {
     super();
+    // The name of the model.
+    this.name = 'bert';
     this.LLM = transformers;
   }
 

@@ -22,8 +22,9 @@ class PluginManager {
     for (const file of fs.readdirSync(pluginsDir)) {
       const pluginPath = path.join(pluginsDir, file);
       if (fs.statSync(pluginPath).isFile() && pluginPath.endsWith(".js")) {
-        const plugin = require(`../${pluginPath}`);
-        this.plugins[plugin.name] = plugin;
+        const code = require(`../${pluginPath}`);
+        const plugin = new code();
+        this.plugins[file] = plugin;
       }
     }
   }
@@ -53,6 +54,17 @@ class PluginManager {
       results.push(result);
     }
     return results;
+  }
+
+  describePlugins() {
+    let response = '';
+    for (const [name, plugin] of Object.entries(this.plugins)) {
+        response += 'Command: '+plugin.command+'\n'
+                 +   '  description:'+(plugin.description || '')
+                 +   '\n    arguments:'+JSON.stringify(plugin.args)
+                 +   '\n';
+    }
+    return response
   }
 }
 

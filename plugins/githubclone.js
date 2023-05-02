@@ -9,20 +9,20 @@ const fs = require("fs");
 
 class GitHubClonePlugin {
 
-  // The version of the plugin.
-  version= 1.0;
-
-  // The name of the command.
-  command= 'CloneGithub';
-
-  // The arguments for the command.
-  args= {
-    repoUrl: 'The URL of the GitHub repository to clone',
-    clonePath: 'The path to the directory where the repository will be cloned',
-  };
-
   constructor() {
+    // The version of the plugin.
+    this.version= 1.0;
 
+    // The name of the command.
+    this.command= 'CloneGithub';
+
+    this.description = 'Clones a github repository to working folder so you can use or modify it';
+
+    // The arguments for the command.
+    this.args= {
+      repoUrl: 'The URL of the GitHub repository to clone',
+      clonePath: 'The path to the directory where the repository will be cloned',
+    };
   }
 
   // This method executes the command.

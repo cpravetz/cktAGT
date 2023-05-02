@@ -65,34 +65,35 @@ const Agent = class {
         this.report('The agent is finished.');
         break;
       }
+      if (task) {
+          // Log the task.
+          this.report(`Starting task: ${task.name || task.id}`);
 
-      // Log the task.
-      this.report(`Starting task: ${task.name || this.id}`);
+          if (this.agentManager.okayToContinue()) {
+            // Try to execute the task.
+            try {
+              this.agentManager.useOneStep();
+              const result = await task.execute();
+              // Report task feedback/errors to user
+              if (result.text) { this.say(result.text) };
+              if (result.results.error) { this.say(result.results.error) };
+              result.forEach(cmdResp => {
+                cmdResp.forEach(plugResp => {
+                  this.say(plugResp.text);
+                  this._addSubTasks(plugResp.tasks);
+                });
+              });
 
-      if (this.agentManager.okayToContinue) {
-        // Try to execute the task.
-        try {
-          this.agentManager.useOneStep();
-          const result = await task.execute();
-          // Report task feedback/errors to user
-          if (result.text) { this.say(result.text) };
-          if (result.results.error) { this.say(result.results.error) };
-          result.forEach(cmdResp => {
-            cmdResp.forEach(plugResp => {
-              this.say(plugResp.text);
-              this._addSubTasks(plugResp.tasks);
-            });
-          });
-
-          // Log the result of the task.
-          this.report(`Finished task: ${task.name || this.id}`);
-          this.taskManager.complete(task);
-          if (this.store) {
-            this.store.save(task);
+              // Log the result of the task.
+              this.report(`Finished task: ${task.name || this.id}`);
+              this.taskManager.complete(task);
+              if (this.store) {
+                this.store.save(task);
+              }
+            } catch (error) {
+              console.error(`Error executing task: ${error}`);
+            }
           }
-        } catch (error) {
-          console.error(`Error executing task: ${error}`);
-        }
       }
     }
   }
