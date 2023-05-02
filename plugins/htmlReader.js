@@ -6,7 +6,6 @@
 
 const cheerio = require("cheerio");
 const Task = require('./../managers/task.js');
-const keyMaker = require('./../constants/keymaker.js');
 
 class HTMLReaderPlugin {
 
@@ -36,7 +35,7 @@ class HTMLReaderPlugin {
     // Get the text of the web page.
     const text = cheer("body").text();
 
-    const t = new Task(agent, keyMaker(),
+    const t = new Task(agent,
               'Html Send', 'sending the html body from file '+command.args.url+' to the LLM',
               'this is the body of '+command.args.url,
               [{name:'Think', model: agent.model||false, args:{prompt:text}}],

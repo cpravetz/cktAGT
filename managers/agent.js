@@ -2,23 +2,25 @@
 //
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-const Agent = class {
-  // This is the agent which executes related tasks, capturing new tasks and reporting status.
-  // TODO Add a mechanism to pause the run loop until the user provides a go signal through sockets.io
+const keyMaker = require('./../constants/keyMaker.js');
 
-  constructor(name, agentManager) {
-    this.name = name;
+// This is the agent which executes related tasks, capturing new tasks and reporting status.
+const Agent = class {
+  constructor(agentManager, name) {
+    this.id = keyMaker();
     this.agentManager = agentManager;
     this.taskManager = agentManager.taskManager;
     this.pluginManager = agentManager.pluginManager;
     this.userManager = agentManager.userManager;
     this.store = agentManager.memoryManager.activeStore;
     this.status = 'pending';
+    //TODO Add a name field with a user provided name that will be used in the store/load functions
+    this.name = name || '';
   }
 
   // Reports a message to the console.
   report(text) {
-    console.log(`Agent ${this.name} reports ${text}`);
+    console.log(`Agent ${this.name || this.id} reports ${text}`);
   }
 
   // Gets the model used by the agent.
@@ -65,7 +67,7 @@ const Agent = class {
       }
 
       // Log the task.
-      this.report(`Starting task: ${task.name}`);
+      this.report(`Starting task: ${task.name || this.id}`);
 
       if (this.agentManager.okayToContinue) {
         // Try to execute the task.
@@ -83,7 +85,7 @@ const Agent = class {
           });
 
           // Log the result of the task.
-          this.report(`Finished task: ${task.name}`);
+          this.report(`Finished task: ${task.name || this.id}`);
           this.taskManager.complete(task);
           if (this.store) {
             this.store.save(task);

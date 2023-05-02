@@ -6,7 +6,6 @@
 
 const fs = require("fs");
 const Task = require('./../managers/task.js');
-const keyMaker = require('./../constants/keymaker.js');
 
 class FileReaderPlugin {
 
@@ -47,7 +46,7 @@ class FileReaderPlugin {
 
     // Read the contents of the file.
     const contents = await fs.readFileSync(filePath);
-    const t = new Task(agent, keyMaker(),
+    const t = new Task(agent,
               'File Send', 'sending the file '+command.args.filename+' to the LLM',
               'this is the file '+command.args.filename, [{name: 'Think', model: agent.model||false, args:{prompt:contents}}],
               {from: this});

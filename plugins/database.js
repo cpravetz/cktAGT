@@ -40,7 +40,7 @@ class DatabasePlugin {
   execute(agent, command, task) {
     this.connect(command.args.host, command.args.port, command.args.database, command.args.username, command.args.password);
     const query = this.connection.query(command.args.query);
-    const t = new Task(this.task.agent, keyMaker(),
+    const t = new Task(this.task.agent,
                   'Query Send', 'sending the query results from '+command.args.query+' to the LLM',
                   'this is the result of '+command.args.query,
                   [{name:'Think', model: thisStep.model||false, args:{prompt:query}}],

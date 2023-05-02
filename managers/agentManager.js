@@ -62,7 +62,7 @@ class AgentManager {
   //Add a think task for feedback from the user
   informTheLLM(input) {
     const commands = [{name: "Think", args: {prompt: input}}];
-    const task = new Task(this.agent, keyMaker(), "User Feedback", "", input, commands, "", []);
+    const task = new Task(this.agent, "User Feedback", "", input, commands, "", []);
     // Add the task to the queue.
     this.taskManager.addTask(task);
     this.say('Understood');
@@ -76,10 +76,10 @@ class AgentManager {
 
   createNewAgent(input) {
     // Create a new agent.
-    this.agent = new Agent(keyMaker(), this) //this.taskManager, this.pluginManager, this.userManager, this.memoryManager.activeStore);
+    this.agent = new Agent(this);
     const commands = [{name: "Think", args: {prompt: input}}];
     // Create a new task.
-    const task = new Task(this.agent, keyMaker(), "Initial Task", "we are processing the goal and constraints", input, commands, "", []);
+    const task = new Task(this.agent, "Initial Task", "we are processing the goal and constraints", input, commands, "", []);
 
     // Add the task to the queue.
     this.taskManager.addTask(task);
@@ -92,7 +92,7 @@ class AgentManager {
     this.status = Status.awaitingGoal;
   }
 
-  doLoadorNew(input) {
+  doLoadOrNew(input) {
     if (input.response == Strings.startNewAgent) {
       this.beginWithNewGoal()
     } else {
@@ -101,7 +101,7 @@ class AgentManager {
 
   }
 
-  askLoadorNew() {
+  askLoadOrNew() {
     this.userManager.parent = this;
     // Get the user's input.
     const input = this.ask({prompt:Strings.welcome, choices: [Strings.startNewAgent,Strings.restartAgent]});
@@ -136,10 +136,10 @@ class AgentManager {
 
     // Deal with input supplied by the user, probably in response to an ask
     if (this.status == Status.launching) {
-        this.askLoadorNew();
+        this.askLoadOrNew();
     } else
       if (this.status == Status.waiting) {
-        this.doLoadorNew(input);
+        this.doLoadOrNew(input);
       } else {
       if (this.status == Status.awaitingGoal) {
         this.createNewAgent(input)

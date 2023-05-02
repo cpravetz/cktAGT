@@ -2,14 +2,16 @@
 //
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
+const keyMaker = require('./../constants/keyMaker.js');
+
 // This module provides a class for representing tasks.
 
 class Task {
 
   // This constructor initializes a task.
-  constructor(agent, id, name, description, goal, commands, context, dependencies) {
+  constructor(agent, name, description, goal, commands, context, dependencies) {
     this.agent = agent;
-    this.id = id;
+    this.id = keyMaker();
     this.name = name;
     this.goal = goal;
     this.context = context || "";

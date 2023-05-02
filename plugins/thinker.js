@@ -4,8 +4,6 @@
 
 // This module provides a class for representing a thought generator plugin.
 
-
-const keyMaker = require("../constants/keymaker.js");
 const Strings = require("../constants/strings.js");
 const Task = require("../managers/task.js");
 
@@ -84,7 +82,7 @@ class ThoughtGeneratorPlugin {
       for (var i = 0; i < plan.length; i++) {
         let thisStep = plan[i];
         if (thisStep.model) { thisStep.args['model'] = thisStep.model}
-        const t = new Task(this.task.agent, keyMaker(),
+        const t = new Task(this.task.agent,
               "Follow up", 'a task created by the model',
               actions[thisStep.action], [{name: thisStep.name, model: thisStep.model||false, args:thisStep.args}],
               {from: this, returned: output}, []);
