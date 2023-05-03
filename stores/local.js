@@ -23,6 +23,8 @@ class LocalJsonFilesBackend {
 
   // Save a task.
   save(task) {
+   task.agentId = task.agent.id;
+   task.agent = null;
     const taskPath = `${this.tasksDir}/${task.id}.json`;
     fs.writeFileSync(taskPath, JSON.stringify(task));
     return task;

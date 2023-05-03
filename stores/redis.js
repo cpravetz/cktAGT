@@ -22,6 +22,7 @@ class RedisBackend {
         this.client = redis.createClient({ username: process.env.REDIS_USERNAME || '',
                                            password: process.env.REDIS_PASSWORD || '',
                                            host: this.host, port: this.port });
+        this.client.on('error', err => console.log('Redis Client Error', err));
       } catch (error) {
         console.log(`Error connecting to redis: ${error}`);
       }
@@ -31,6 +32,8 @@ class RedisBackend {
   // Save a task.
   save(task) {
     try {
+     task.agentId = task.agent.id;
+     task.agent = null;
       this.client.set(`task:${task.id}`, JSON.stringify(task));
     } catch (error) {
       console.error(`Error saving task: ${error}`);

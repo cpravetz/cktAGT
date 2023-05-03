@@ -29,6 +29,8 @@ class MongoDBBackend  {
 
   // Save a task.
   save(task) {
+   task.agentId = task.agent.id;
+   task.agent = null;
     return this.db.collection("tasks").updateOne({
       id: task.id,
     }, {

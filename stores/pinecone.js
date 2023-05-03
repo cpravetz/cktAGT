@@ -16,10 +16,13 @@ class PineconeBackend {
     };
   }
 
-  async save(obj) {
+  async save(task) {
     if (this.apiKey) {
-      const id = obj.id;
-      const body = JSON.stringify(obj);
+     task.agentId = task.agent.id;
+     task.agent = null;
+
+      const id = task.id;
+      const body = JSON.stringify(task);
 
       const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'PUT',
@@ -39,9 +42,9 @@ class PineconeBackend {
     }
   }
 
-  async load(obj) {
+  async load(taskId) {
     if (this.apiKey) {
-      const id = obj.id;
+      const id = taskId;
 
       const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'GET',
@@ -62,9 +65,9 @@ class PineconeBackend {
     }
   }
 
-  async delete(obj) {
+  async delete(taskId) {
     if (this.apiKey) {
-      const id = obj.id;
+      const id = taskId;
 
       const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'DELETE',
