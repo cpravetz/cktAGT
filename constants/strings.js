@@ -71,7 +71,9 @@ Return your response in JSON format as described here:
       "name": the name of the command, taken from the associated plugin (eg: Think, ReadFile),
       "action": the number of the first action above from which this command stems,
       "args": an array of arguments to pass the executing task in the form {"arg name": "value",...},
-      "model": if this is a Think or ProcessText, indentify the LLM best suited to execute the command accurately and cost efficiently
+      "model": if this is a Think or ProcessText, indentify the LLM best suited to execute the command accurately and cost efficiently - the model names I use are
+               bard, bert, DallE, gpt-4, and gpt-3.5-turbo.
+
     }
   ]
 }
