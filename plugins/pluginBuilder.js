@@ -32,8 +32,6 @@ class PluginBuilderPlugin {
     // Get the task description from the task.
     const taskDescription = command.args.description;
 
-    const taskCommand = command.args.newCommand;
-
     // Get the user's input for the plugin code.
     const messages = [{
       role: "user",

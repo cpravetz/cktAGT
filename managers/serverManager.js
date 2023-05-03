@@ -80,12 +80,12 @@ class ServerManager {
       // If allowMultiple is true, then the function creates checkboxes for each item in choices and waits for the user to press the Submit button then submits the text of the checkboxes checked as an array.
       if (allowMultiple) {
         var checkboxes = [];
-        for (var i = 0; i < serverManager.asked.choices.length; i++) {
+        for (const choice of serverManager.asked.choices) {
           var checkbox = document.createElement("input");
           checkbox.name = 'aCheckBox';
           checkbox.type = "checkbox";
-          checkbox.value = serverManager.asked.choices[i];
-          checkbox.textContent = serverManager.asked.choices[i];
+          checkbox.value = choice;
+          checkbox.textContent = choice;
           checkboxes.push(checkbox);
         }
 
@@ -100,8 +100,7 @@ class ServerManager {
       } else {
         // If allowMultiple is false, the function creates a radiobutton type input using the strings in choices as the options and waits for the user to press Submit, then returns the text of the selected option as a string.
         var radioButtons = [];
-     for (var i = 0; i < serverManager.asked.choices.length; i++) {
-        var choice =  serverManager.asked.choices[i];
+     for (const choice of serverManager.asked.choices) {
         var radioButton = document.createElement("input");
         radioButton.type = "radio";
         radioButton.name = "aRadioButton";

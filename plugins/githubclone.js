@@ -5,7 +5,6 @@
 // This module provides a class for representing a GitHub clone plugin.
 
 const Clone = require("git-clone");
-const fs = require("fs");
 
 class GitHubClonePlugin {
 

@@ -36,8 +36,8 @@ class GPT35 extends Model {
     if (typeof(messages === String)) {
         msgs.push({role: 'user', content: messages});
     } else {
-        for (var i = 0; i < messages.length; i++) {
-            msgs.push({role: 'user', content: messages[i]});
+        for (const message of messages) {
+            msgs.push({role: 'user', content: message});
         }
     }
 

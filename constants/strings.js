@@ -91,14 +91,13 @@ Several plugins are available to facilitate your interaction with the world.
     }
     if (obj.thoughts.actions) {
       text += '\n\n\tActions:';
-      for (var i = 0; i < obj.thoughts.actions.length; i++) {
-        text += '\n\t\t' + obj.thoughts.actions[i];
+      for (const action of obj.thoughts.actions) {
+        text += '\n\t\t' + actions;
       }
     }
     if (obj.commands) {
       text += '\n\n\tCommands:';
-      for (var i = 0; i < obj.commands.length; i++) {
-        const cmd = obj.commands[i];
+      for (const cmd of obj.commands) {
         text += '\n\t\t' + cmd.name;
         if (cmd.model) {
           text += '\n\t\t\tModel: ' + cmd.model;

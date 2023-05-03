@@ -45,9 +45,6 @@ class ThoughtGeneratorPlugin {
     // Get the follow-up text.
     const followUpText = Strings.pluginIntro + '\n' + agent.pluginManager.describePlugins();
 
-    // Get the command object.
-    const commandObject = command;
-
     // Get the prompt.
     const prompt = command.args.prompt.response || command.args.prompt || command.args.text;
 
@@ -67,7 +64,7 @@ class ThoughtGeneratorPlugin {
         temperature: 0.7,
       });
       output.outcome = 'SUCCESS';
-      const reply = response.data.choices[0].text || '{\n \"thoughts\": {\n    \"text\": \"Error\"}}';
+      const reply = response.data.choices[0].text || '{\n "thoughts": {\n    "text": "Error"}}';
       let replyJSON = {};
       if (typeof(reply) === 'string') { replyJSON = JSON.parse(reply); } else { replyJSON = reply }
 

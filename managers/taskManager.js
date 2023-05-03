@@ -41,8 +41,7 @@ class TaskManager {
     // Declare a variable to store the first object in the array.
     let firstTask;
 
-    for (let i = 0; i < this.tasks.length; i++) {
-      const task = this.tasks[i];
+    for (const task of this.tasks) {
       if ((task.agent.id === agent.id) && (!status || (task.status == status))) {
         firstTask = task;
         break;

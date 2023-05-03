@@ -41,7 +41,7 @@ class DatabasePlugin {
     const t = new Task(this.task.agent,
                   'Query Send', 'sending the query results from '+command.args.query+' to the LLM',
                   'this is the result of '+command.args.query,
-                  [{name:'Think', model: thisStep.model||false, args:{prompt:query}}],
+                  [{name:'Think', model: agent.model().name, args:{prompt:query}}],
                   {from: this});
         return {
           outcome: 'SUCCESS',

@@ -32,6 +32,7 @@
     "uniqid": "^5.4.0"
   },
   "devDependencies": {
+    "eslint": "^8.39.0",
     "jest": "^28.0.2"
   }
 }
