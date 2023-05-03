@@ -4,12 +4,11 @@
 
 // This module generates a unique key based on the current date and time, and a random number.
 
-const keyMaker = () => {
-  // Get the current date and time.
-  const now = new Date();
+const uniqid = require('uniqid');
 
+const keyMaker = (prefix) => {
   // Generate the string.
-  return `${now.toISOString()}-${Math.floor(Math.random() * 1000)}`;
+  return uniqid(prefix);
 };
 
 module.exports = keyMaker;

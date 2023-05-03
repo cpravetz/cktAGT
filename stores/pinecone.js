@@ -18,11 +18,12 @@ class PineconeBackend {
 
   async save(task) {
     if (this.apiKey) {
-     task.agentId = task.agent.id;
-     task.agent = null;
+      let savedTask = task;
+      savedtask.agentId = task.agent.id;
+      savedTask.agent = null;
 
-      const id = task.id;
-      const body = JSON.stringify(task);
+      const id = savedTask.id;
+      const body = JSON.stringify(savedTask);
 
       const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'PUT',
