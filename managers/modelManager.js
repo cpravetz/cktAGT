@@ -28,8 +28,9 @@ class ModelManager {
     for (const file of fs.readdirSync(modelsDir)) {
       const modelPath = path.join(modelsDir, file);
       if (fs.statSync(modelPath).isFile() && modelPath.endsWith(".js")) {
-        const model = require(`../${modelPath}`);
-        this.models[model.name] = new model();
+        const modelPlugin = require(`../${modelPath}`);
+        const model = new modelPlugin();
+        this.models[model.name] = model;
       }
     }
   }

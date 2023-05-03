@@ -15,7 +15,8 @@ class Model {
   LLM;
 
   constructor(name) {
-    this.name = name;
+    this.name = 'baseModel';
+    this.LLM = false;
   }
 
   // Generate text.

@@ -36,7 +36,7 @@ class ThoughtGeneratorPlugin {
     console.log('thinking...');
 
     // Get the LLM from the command arguments or use the agent default
-     const llm = this.agent?.agentManager.modelManager.getModel(command.args.model) || agent.model();
+     const llm = task.agent?.agentManager.modelManager.getModel(command.args.model) || agent.model();
 
     if (!llm) {
       return {outcome: 'FAILURE', results: {error:'No model was provided to Think'}};
