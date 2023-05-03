@@ -27,7 +27,8 @@ class MemoryManager {
     for (const file of fs.readdirSync(memoryStoresDir)) {
       const memoryStorePath = path.join(memoryStoresDir, file);
       if (fs.statSync(memoryStorePath).isFile() && memoryStorePath.endsWith(".js")) {
-        const memoryStore = require(`../${memoryStorePath}`);
+        const memoryModule = require(`../${memoryStorePath}`);
+        const memoryStore = new memoryModule;
         this.memoryStores[memoryStore.name] = memoryStore;
       }
     }

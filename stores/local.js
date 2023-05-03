@@ -8,16 +8,17 @@ const fs = require("fs");
 
 class LocalJsonFilesBackend {
 
-  name = 'local';
 
   // The directory where tasks are stored.
   tasksDir;
 
   // Constructor.
   constructor(tasksDir) {
+    this.name = 'local';
     this.tasksDir = tasksDir || './../workspace';
-    fs.mkdir(this.tasksDir, (e,r) => {if (e) { console.log(e)}});
-
+    if (!fs.existsSync(this.tasksDir)) {
+      fs.mkdir(this.tasksDir, (e,r) => {if (e) { console.error(e)}});
+    }
   }
 
   // Save a task.

@@ -8,33 +8,56 @@ const redis = require("redis");
 
 class RedisBackend {
 
-  name="redis";
-
   // The Redis client.
   client;
 
   // Constructor.
   constructor() {
-    this.client = new redis.Client();
+    this.name="redis";
+    this.host = process.env.REDIS_HOST || 'localhost';
+    this.port = process.env.REDIS_PORT || '6379';
+    this.memoryIndex = process.env.MEMORY_INDEX || 'cktAGT';
+    if (this.host) {
+      try {
+        this.client = redis.createClient({ username: process.env.REDIS_USERNAME || '',
+                                           password: process.env.REDIS_PASSWORD || '',
+                                           host: this.host, port: this.port });
+      } catch (error) {
+        console.log(`Error connecting to redis: ${error}`);
+      }
+    }
   }
 
   // Save a task.
   save(task) {
-    this.client.set("task:", JSON.stringify(task));
+    try {
+      this.client.set(`task:${task.id}`, JSON.stringify(task));
+    } catch (error) {
+      console.error(`Error saving task: ${error}`);
+    }
   }
 
   // Load a task.
   load(taskId) {
-    const task = JSON.parse(this.client.get("task:"));
-    return task;
+    try {
+      const task = JSON.parse(this.client.get(`task:${taskId}`));
+      return task;
+    } catch (error) {
+      console.error(`Error loading task: ${error}`);
+    }
   }
 
   // Delete a task.
   delete(taskId) {
-    this.client.del("task:");
+    try {
+      this.client.del(`task:${taskId}`);
+    } catch (error) {
+      console.error(`Error deleting task: ${error}`);
+    }
   }
 
 }
 
 
 module.exports = RedisBackend;
+

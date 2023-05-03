@@ -26,7 +26,6 @@
     "mysql": "^2.18.1",
     "openai": "^3.2.0",
     "path": "^0.12.7",
-    "pinecone": "^0.1.0",
     "redis": "^3.0.1",
     "socket.io": "^4.6.1",
     "transformers": "^3.1.0"
