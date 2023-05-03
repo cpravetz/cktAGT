@@ -17,7 +17,7 @@ class FileReaderPlugin {
     this.command= 'ReadFile';
 
     // The description of the command.
-    this.description= 'Reads a file from disk that was previously created by this agent.'';
+    this.description= 'Reads a file from disk that was previously created by this agent.';
 
     // The arguments for the command.
     this.args= {
