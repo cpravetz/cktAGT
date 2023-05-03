@@ -19,7 +19,7 @@ class PineconeBackend {
   async save(task) {
     if (this.apiKey) {
       let savedTask = task;
-      savedtask.agentId = task.agent.id;
+      savedTask.agentId = task.agent.id;
       savedTask.agent = null;
 
       const id = savedTask.id;

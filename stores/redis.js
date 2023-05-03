@@ -33,7 +33,7 @@ class RedisBackend {
   save(task) {
     try {
       let savedTask = task;
-      savedtask.agentId = task.agent.id;
+      savedTask.agentId = task.agent.id;
       savedTask.agent = null;
       this.client.set(`task:${savedTask.id}`, JSON.stringify(savedTask));
     } catch (error) {
