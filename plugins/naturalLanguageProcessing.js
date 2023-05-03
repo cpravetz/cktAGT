@@ -15,7 +15,7 @@ class NaturalLanguageProcessingPlugin {
     // The name of the command.
     this.command= 'ProcessText';
 
-    this.description = 'Interprets text with an LLM';
+    this.description = 'Interprets text with you or another LLM';
 
     // The arguments for the command.
     this.args= {

@@ -19,7 +19,7 @@ class ThoughtGeneratorPlugin {
     this.command= 'Think';
 
     // The description of the plugin.
-    this.description= 'Sends a message to an LLM, likely you';
+    this.description= 'Sends instructions or information in a message to an LLM, likely you';
 
     // The arguments for the command.
     this.args= {

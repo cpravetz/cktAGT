@@ -16,7 +16,7 @@ class FileWriterPlugin {
     this.command= 'WriteFile';
 
     // The description of the command.
-    this.description= 'Writes a file to disk';
+    this.description= 'Writes a file to disk to hold interim or final work products as we create them';
 
     // The arguments for the command.
     this.args= {

@@ -16,7 +16,7 @@ class DatabasePlugin {
     this.command= 'QueryDB';
 
     // The description of the command.
-    this.description= 'Executes SQL commands a given database';
+    this.description= 'Executes SQL commands against a given database that you know exists';
 
     // The arguments for the command.
     this.args= {

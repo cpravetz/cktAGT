@@ -15,7 +15,10 @@ const Strings = {
   goalPrompt: "What is your goal?",
 
   // A message that is displayed when the agent is considering a goal.
-  thoughtPrefix: 'Consider the following goal. If it is immediately resolvable, do so. Otherwise, develop a plan of the steps needed to reach the goal. Use or create plugins for functions that should be completed on my side, or recommend an alternative LLM to use for any activities that would be better performed elsewhere in order to meet the constraints of our primary goal.',
+  thoughtPrefix: `
+Consider the following goal. If it is immediately resolvable, do so. Otherwise, develop a plan of the steps needed to reach the goal.
+Use or create plugins for functions that should be completed on my side, or recommend an alternative LLM to use for any activities that
+would be better performed elsewhere in order to meet the constraints of our primary goal.`,
 
   // A message that is displayed when the agent is considering a task.
   subThoughtPrefix: 'Continuing to work towards our goal, consider the following task. If it is immediately resolvable, do so. Otherwise, develop a plan of the steps needed to complete the task and ultimately reach the goal.',
@@ -61,23 +64,23 @@ Return your response in JSON format as described here:
     "text": "thought",
     "reasoning": reasoning behind your response,
     "actions": a numbered list of items in the long-term plan,
-    "models": recommendations for other LLMs to carry out any of the actions,
   },
   "commands": [
     {
       "id": a sequential number to identify this command from others,
       "name": the name of the command, taken from the associated plugin (eg: Think, ReadFile),
-      "action": the number of the action above which this command stems from,
+      "action": the number of the first action above from which this command stems,
       "args": an array of arguments to pass the executing task in the form {"arg name": "value",...},
-      "model": if this is a Think, the LLM best suited to execute the command accurately and cost efficiently
+      "model": if this is a Think or ProcessText, indentify the LLM best suited to execute the command accurately and cost efficiently
     }
   ]
 }
+
 `,
- pluginIntro : `Several plugins are available to facilitate your interaction with the world.
+ pluginIntro : `
+Several plugins are available to facilitate your interaction with the world.
  These plugins are:
 `,
-
 
   // A function that formats a response from the agent.
   textify: (obj) => {
