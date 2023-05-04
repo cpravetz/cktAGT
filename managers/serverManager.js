@@ -100,7 +100,8 @@ class ServerManager {
       } else {
         // If allowMultiple is false, the function creates a radiobutton type input using the strings in choices as the options and waits for the user to press Submit, then returns the text of the selected option as a string.
         var radioButtons = [];
-     for (const choice of serverManager.asked.choices) {
+     for (let i = 0; i < serverManager.asked.choices.length; i++) {
+        const choice = serverManager.asked.choices[i];
         var radioButton = document.createElement("input");
         radioButton.type = "radio";
         radioButton.name = "aRadioButton";

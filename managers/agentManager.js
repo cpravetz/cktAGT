@@ -110,7 +110,7 @@ class AgentManager {
     console.log('Asking to start or load agent');
     this.userManager.parent = this;
     // Get the user's input.
-    const input = this.ask({prompt:Strings.welcome, choices: [Strings.startNewAgent,Strings.restartAgent]});
+    const input = this.ask({prompt:Strings.welcome, choices: [Strings.startNewAgent,Strings.restartAgent]}, false);
     this.status = Status.waiting;
 
     //create a new agent or load an existing one

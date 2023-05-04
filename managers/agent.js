@@ -18,6 +18,11 @@ const Agent = class {
     this.name = name || '';
   }
 
+  // returns any properties that are not references to other objects
+  getDataProperties() {
+
+  }
+
   // Reports a message to the console.
   report(text) {
     console.log(`Agent ${this.name || this.id} reports ${text}`);

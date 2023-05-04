@@ -17,6 +17,10 @@ class RedisBackend {
     this.host = process.env.REDIS_HOST || 'localhost';
     this.port = process.env.REDIS_PORT || '6379';
     this.memoryIndex = process.env.MEMORY_INDEX || 'cktAGT';
+    this.client = false;
+  }
+
+  connect() {
     if (this.host) {
       try {
         this.client = redis.createClient({ username: process.env.REDIS_USERNAME || '',
@@ -31,6 +35,9 @@ class RedisBackend {
 
   // Save a task.
   save(task) {
+    if (!this.client) {
+        this.connect();
+    }
     try {
       let savedTask = {...task};
       savedTask.agentId = task.agent.id;
@@ -43,6 +50,9 @@ class RedisBackend {
 
   // Load a task.
   load(taskId) {
+    if (!this.client) {
+        this.connect();
+    }
     try {
       const task = JSON.parse(this.client.get(`task:${taskId}`));
       return task;
@@ -53,6 +63,9 @@ class RedisBackend {
 
   // Delete a task.
   delete(taskId) {
+    if (!this.client) {
+        this.connect();
+    }
     try {
       this.client.del(`task:${taskId}`);
     } catch (error) {

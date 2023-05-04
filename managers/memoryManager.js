@@ -28,8 +28,14 @@ class MemoryManager {
       const memoryStorePath = path.join(memoryStoresDir, file);
       if (fs.statSync(memoryStorePath).isFile() && memoryStorePath.endsWith(".js")) {
         const memoryModule = require(`../${memoryStorePath}`);
-        const memoryStore = new memoryModule;
-        this.memoryStores[memoryStore.name] = memoryStore;
+        let memoryStore = new memoryModule;
+        //For now, only save the chosen memory Plugin.  In the future, it may be
+        //useful to have other loaded to support functional plugin access to these
+        //storage systems.
+        if (memoryStore.name == (process.env.MEMORY_STORE || "local")) {
+            if (memoryStore.connect)  { memoryStore.connect() };
+            this.memoryStores[memoryStore.name] = memoryStore;
+        }
       }
     }
   }

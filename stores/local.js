@@ -5,9 +5,9 @@
 // This module provides a class for representing a local JSON files backend.
 
 const fs = require("fs");
+const getDataProperties = require('./../constants/utils.js');
 
 class LocalJsonFilesBackend {
-
 
   // The directory where tasks are stored.
   tasksDir;
@@ -23,9 +23,7 @@ class LocalJsonFilesBackend {
 
   // Save a task.
   save(task) {
-    let savedTask = {...task};
-    savedTask.agentId = task.agent.id;
-    savedTask.agent = null;
+    let savedTask = getDataProperties(task);
     const taskPath = `${this.tasksDir}/${savedTask.id}.json`;
     fs.writeFileSync(taskPath, JSON.stringify(savedTask));
     return task;

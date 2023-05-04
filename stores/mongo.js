@@ -18,6 +18,10 @@ class MongoDBBackend  {
   // Constructor.
   constructor() {
     this.name = "mongodb";
+    this.client = false;
+  }
+
+  connect() {
     this.client = new mongodb.MongoClient(process.env.MONGO_URL);
     this.client.connect((err,db) => {
         if (err) {
@@ -29,6 +33,9 @@ class MongoDBBackend  {
 
   // Save a task.
   save(task) {
+    if (!this.client) {
+        this.connect();
+    }
     let savedTask = {...task};
     savedTask.agentId = task.agent.id;
     savedTask.agent = null;
@@ -42,6 +49,9 @@ class MongoDBBackend  {
 
   // Load a task.
   load(taskId) {
+    if (!this.client) {
+        this.connect();
+    }
     const task = this.db.collection("tasks").findOne({
       id: taskId,
     });
@@ -50,6 +60,9 @@ class MongoDBBackend  {
 
   // Delete a task.
   delete(taskId) {
+    if (!this.client) {
+        this.connect();
+    }
     return this.db.collection("tasks").deleteOne({
       id: taskId,
     });
