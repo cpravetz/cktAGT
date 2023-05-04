@@ -17,7 +17,7 @@ class PluginBuilderPlugin {
     // The name of the command.
     this.command= 'CreatePlugin';
 
-    this.description = "Creates new plugins.  If you don't have a plugin for a feature you need, this plugin will create one";
+    this.description = "Creates new plugins.  If you don't have a plugin for a feature you need, this plugin will create one by asking the model you identify to generate code.";
 
 
     // The arguments for the command.

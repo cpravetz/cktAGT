@@ -41,6 +41,14 @@ class ModelManager {
   getModel(name)  {
     return this.models[name] || false;
   }
+
+  getModelNames() {
+    let result = '';
+    for (const model in this.models) {
+        result += this.models[model].name + ' ';
+    }
+    return result + '.';
+  }
 }
 
 module.exports = ModelManager;

@@ -41,15 +41,20 @@ class Task {
     this.progress = progress;
   }
 
+  dependenciesSatisfied() {
+    // Check if any of the task's dependencies are not finished
+    for (const dependency of this.dependencies) {
+        if (this.agent.taskManager.tasks[dependency].status !== "finished") {
+            return false;
+        }
+    }
+    // All dependencies are finished, so return true
+    return true;
+  }
+
+
   // This method executes the task.
   async execute() {
-    // Check if all dependencies are complete.
-    for (const dependency of this.dependencies) {
-      if (dependency.status !== "complete") {
-        this.status = "awaiting dependencies";
-        return;
-      }
-    }
 
     this.status = "working";
     let responses = [];

@@ -15,7 +15,7 @@ class Model {
   LLM;
 
   constructor(name) {
-    this.name = 'baseModel';
+    this.name = '';
     this.LLM = false;
   }
 

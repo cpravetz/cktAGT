@@ -75,7 +75,7 @@ const Agent = class {
           // Log the task.
           this.report(`Starting task: ${task.name || task.id}`);
 
-          if (this.agentManager.okayToContinue()) {
+          if (this.agentManager.okayToContinue(task)) {
             // Try to execute the task.
             try {
               this.agentManager.useOneStep();

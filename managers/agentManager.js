@@ -175,8 +175,8 @@ class AgentManager {
     this.remainingSteps -= 1;
   }
 
-  okayToContinue() {
-    return this.continuous || (this.remainingSteps > 0);
+  okayToContinue(task) {
+    return (this.continuous || (this.remainingSteps > 0)) && task?.dependenciesSatisfied();
   }
 }
 

@@ -16,10 +16,17 @@ const Strings = {
 
   // A message that is displayed when the agent is considering a goal.
   thoughtPrefix: `
-Consider the following goal. If it is immediately resolvable, do so. Otherwise, develop a plan of the steps needed to reach the goal.
-Use or create plugins for functions that should be completed on my side, or recommend an alternative LLM to use for any activities that
-would be better performed elsewhere in order to meet the constraints of our primary goal.`,
+You are part of an autonomous agent that works toward achieving the goal provided below.  We will work in partnership.  Using functional plugins
+I can perform tasks that require interactions that you are unable to complete yourself.  I can store information for you or to provide work products
+to our end user.
 
+Consider the following goal. If it is immediately resolvable, do so. Otherwise, develop a numbered plan of the steps needed to reach the goal.  Each
+step should be supported by one or more commands for us to execute. The plugins available to us are listed below.  Note that the plugin Think is
+used to send messages/content back to you or to another LLM.
+
+The goal is: `,
+
+  modelListPrompt: 'The LLMs I can interact with are ',
   // A message that is displayed when the agent is considering a task.
   subThoughtPrefix: 'Continuing to work towards our goal, consider the following task. If it is immediately resolvable, do so. Otherwise, develop a plan of the steps needed to complete the task and ultimately reach the goal.',
 
@@ -53,7 +60,7 @@ The plugin should return the following object from the execute function:
 `,
 
   // The default model that is used by the agent.
-  defaultModel: "GPT35",
+  defaultModel: "gpt-3.5-turbo",
 
   // The default response format that is used by the agent.
   defaultResponseFormat: `
@@ -70,10 +77,10 @@ Return your response in JSON format as described here:
       "id": a sequential number to identify this command from others,
       "name": the name of the command, taken from the associated plugin (eg: Think, ReadFile),
       "action": the number of the first action above from which this command stems,
-      "args": an array of arguments to pass the executing task in the form {"arg name": "value",...},
-      "model": if this is a Think or ProcessText, indentify the LLM best suited to execute the command accurately and cost efficiently - the model names I use are
-               bard, bert, DallE, gpt-4, and gpt-3.5-turbo.
-
+      "args": an array of arguments to pass the executing task in the form {"arg name": "value",...}
+	          any argument values that come from another command should be shown as {output:n} where n is the command number rather showing a description of the value,
+      "model": if this is a Think or ProcessText, indentify the LLM best suited to execute the command accurately and cost efficiently.
+      "dependencies": an array of the id numbers of any commands that must preceed this one.
     }
   ]
 }

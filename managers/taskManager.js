@@ -22,7 +22,7 @@ class TaskManager {
 
   // This method adds a task to the queue.
   addTask(task) {
-    this.tasks.push(task);
+    this.tasks[task.id] = task;
     if (this.store) {
       this.store.save(task);
     }
@@ -32,10 +32,7 @@ class TaskManager {
   complete(task) {
     task.status = 'finished';
     this.history.push(task);
-    let i = this.tasks.indexOf(task);
-    if (i > -1) {
-      this.tasks.splice(i, 1);
-    }
+    delete this.tasks[task.id];
   }
 
   // myNextTask returns the next task for the given agent with the status given
@@ -44,7 +41,8 @@ class TaskManager {
     // Declare a variable to store the first object in the array.
     let firstTask;
 
-    for (const task of this.tasks) {
+    for (const key in this.tasks) {
+      const task = this.tasks[key];
       if ((task.agent.id === agent.id) && (!status || (task.status == status))) {
         firstTask = task;
         break;

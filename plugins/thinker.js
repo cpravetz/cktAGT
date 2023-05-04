@@ -25,14 +25,28 @@ class ThoughtGeneratorPlugin {
     this.args= {
       prompt: 'the message to send to the LLM for a response',
       constraints: 'An array of strings describing constraints the LLM should consider',
-      commands: 'An array of commands/instructions to be performed by the LLM',
       resources: 'An array of strings or JSON strings with inputs the LLM may need',
       assessments: 'An array of any other text that should be sent to the LLM with the prompt'
     };
   }
 
+
+
   // This method executes the command.
   async execute(agent, command, task) {
+
+    function replaceOutput(S, idMap) {
+      const regex = /\{output:(\d+)\}/g;
+      return S.replace(regex, (_, n) => idMap[n]);
+    }
+
+    function replaceAllOutputs(obj, idMap) {
+      let result = {}
+      for (const key in obj) {
+        result[key] = replaceOutput(obj[key], idMap)
+      }
+    }
+
     agent.say('thinking...');
 
     // Get the LLM from the command arguments or use the agent default
@@ -52,14 +66,18 @@ class ThoughtGeneratorPlugin {
     const compiledPrompt = llm.compilePrompt(Strings.thoughtPrefix,
         prompt,
         command.args.constraints || [],
-        command.args.commands || [],
         command.args.resources || [],
         command.args.assessments || []);
+
     let output = {}
 
+    const fullPrompt = compiledPrompt
+                        + Strings.modelListPrompt
+                        + agent.agentManager.modelManager.getModelNames()
+                        + followUpText;
     try {
       // Process the prompt with the LLM.
-      const response = await llm.generate(compiledPrompt + followUpText, {
+      const response = await llm.generate(fullPrompt , {
         max_length: 1000,
         temperature: 0.7,
       });
@@ -74,13 +92,23 @@ class ThoughtGeneratorPlugin {
       const actions = replyJSON.thoughts.actions;
       const plan = replyJSON.commands;
       output.tasks = [];
+      let idMap = {};
+      // TODO Add logic to make dependencies and reused output use the Task.Id property
       for (const thisStep of plan) {
         if (thisStep.model) { thisStep.args['model'] = thisStep.model }
         const t = new Task({agent:task.agent,
               name:"Follow up", description:'a task created by the model',
-              prompt:actions[thisStep.action],
-              commands:[{name: thisStep.name, model: thisStep.model||false, args:thisStep.args}],
+              prompt:replaceOutput(actions[thisStep.action],idMap),
+              commands:[{name: replaceOutput(thisStep.name),
+              model: thisStep.model||false,
+              args:replaceAllOutputs(thisStep.args,idMap)}],
+              dependencies: [],
               context:{from: this.id}});
+        for(const dependency in thisStep.dependencies) {
+            t.dependencies.push(idMap[dependency]);
+        };
+        // Capture the id of the Task associated with this command
+        idMap[thisStep.id] = t.id;
         output.tasks.push(t);
       }
     }
