@@ -155,7 +155,7 @@ class AgentManager {
         this.doLoadOrNew(input);
       } else
       if (this.status == Status.naming) {
-        this.agentName = input || false;
+        this.agentName = input.response || 'unnamed';
         this.getNewGoal();
       } else
       if (this.status == Status.awaitingGoal) {

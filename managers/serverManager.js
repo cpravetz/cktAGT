@@ -56,24 +56,23 @@ class ServerManager {
 
   // This function gets a message from the server
   hear(message) {
-    document.getElementById("inputSpace").placeholder = message;
     this.chat(message,'left');
   }
 
   // This function answers sends the server a new request in response to an ask
   answer(msg) {
-    serverManager.asked = {prompt: msg.prompt.prompt || msg.prompt,
+    this.asked = {prompt: msg.prompt.prompt || msg.prompt,
                            choices: msg.prompt.choices || false };
     let allowMultiple = msg.allowMultiple || false;
     this.askId = msg.id;
     // Say the prompt.
-    this.hear(serverManager.asked.prompt);
+    this.hear(this.asked.prompt);
     var inputSpace = document.getElementById("inputSpace");
     var checkSpace = document.getElementById("checkSpace");
     var radioSpace = document.getElementById("radioSpace");
     // If choices is null, make inputSpace a text input and wait for the user to press the Submit button (id="Submit") and return the text in the input field.
-    if (!serverManager.asked.choices) {
-      var inputSpace = document.getElementById("inputSpace");
+    if (!this.asked.choices) {
+      inputSpace.placeholder = this.asked.prompt;
       inputSpace.style.display = 'block';
       checkSpace.style.display = 'none';
       radioSpace.style.display = 'none';
@@ -82,7 +81,7 @@ class ServerManager {
       // If allowMultiple is true, then the function creates checkboxes for each item in choices and waits for the user to press the Submit button then submits the text of the checkboxes checked as an array.
       if (allowMultiple) {
         var checkboxes = [];
-        for (const choice of serverManager.asked.choices) {
+        for (const choice of this.asked.choices) {
           var checkbox = document.createElement("input");
           checkbox.name = 'aCheckBox';
           checkbox.type = "checkbox";
@@ -102,8 +101,8 @@ class ServerManager {
       } else {
         // If allowMultiple is false, the function creates a radiobutton type input using the strings in choices as the options and waits for the user to press Submit, then returns the text of the selected option as a string.
         var radioButtons = [];
-     for (let i = 0; i < serverManager.asked.choices.length; i++) {
-        const choice = serverManager.asked.choices[i];
+     for (let i = 0; i < this.asked.choices.length; i++) {
+        const choice = this.asked.choices[i];
         var radioButton = document.createElement("input");
         radioButton.type = "radio";
         radioButton.name = "aRadioButton";
@@ -134,8 +133,8 @@ socket.on('serverSays', function(msg) {
 
 socket.on('serverFileAdd', function(msg) {
     console.log('new Work File:'+msg);
-    if (msg.fileName) {
-        serverManager.answer(msg)
+    if (!msg.fileName) {
+        serverManager.hear(msg)
     } else {
         serverManager._addFileName(msg.fileName, msg.url);
     }

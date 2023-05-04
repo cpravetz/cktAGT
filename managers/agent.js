@@ -25,7 +25,7 @@ const Agent = class {
 
   // Reports a message to the console.
   report(text) {
-    console.log(`Agent ${this.name || this.id} reports ${text}`);
+    console.log(`Agent `+this.name+` reports ${text}`);
   }
 
   // Gets the model used by the agent.

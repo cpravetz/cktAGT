@@ -50,12 +50,12 @@ class Model {
 
   // Create a full prompt for the given text that is compatible with this mode.
   // This function should be overridden by descendent model interfaces when needed
-  compilePrompt(starter, text, constraints, commands, resources, assessments) {
+  compilePrompt(starter, text, constraints, resources, assessments) {
 
     //takes an array of strings and returns a string with items as a numbered list
     function titledNumberedList(title,list) {
       let response = '\n';
-      if (list.length > 0) {
+      if (list && list.length > 0) {
         response += '\n' + title + '\n';
         for(var i = 0; i < list.length; i++) {
           response += (i+1).toString()+'. '+list[i]+ '\n';
@@ -65,20 +65,20 @@ class Model {
     }
 
     //takes an array of object and returns a string with items as a numbered and formatted list
-    function formattedList(list) {
+    /*function formattedList(list) {
       let response = '\n';
       for(var i = 0; i < list.length; i++) {
         response += (i+1).toString()+'. '+JSON.stringify(list[i])+ '\n';
       }
       return response;
     }
+    */
 
     // Starter is any specific initial string for the prompt
     let response = starter+'\n'+text;
-    response +=  titledNumberedList('Constraints:',constraints)
-        +  titledNumberedList('Commands:',commands)
+    response +=  titledNumberedList('Constraints:', constraints)
         +  titledNumberedList('Resources:',resources)
-        + titledNumberedList('Assessments:',assessments)
+        +  titledNumberedList('Assessments:',assessments)
         + this.responseFormat();
     return response;
   }
