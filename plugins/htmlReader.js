@@ -35,11 +35,11 @@ class HTMLReaderPlugin {
     // Get the text of the web page.
     const text = cheer("body").text();
 
-    const t = new Task(agent,
-              'Html Send', 'sending the html body from file '+command.args.url+' to the LLM',
-              'this is the body of '+command.args.url,
-              [{name:'Think', model: agent.model||false, args:{prompt:text}}],
-              {from: this});
+    const t = new Task({agent:agent,
+              name:'Html Send', description:'sending the html body from file '+command.args.url+' to the LLM',
+              prompt:'this is the body of '+command.args.url,
+              commands:[{name:'Think', model: agent.model||false, args:{prompt:text}}],
+              context:{from: this.id}});
     return {
       outcome: 'SUCCESS',
       results: {

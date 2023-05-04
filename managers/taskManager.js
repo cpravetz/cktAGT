@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 // This module provides a class for managing tasks.
+const keyMaker = require("../constants/keymaker.js");
 
 class TaskManager {
 
@@ -14,6 +15,7 @@ class TaskManager {
 
   // This constructor initializes the task manager.
   constructor(model, datastore) {
+    this.id = keyMaker();
     this.model = model || null;
     this.store = datastore || null;
   }
@@ -28,6 +30,7 @@ class TaskManager {
 
   // This method pops a task from the queue and executes it.
   complete(task) {
+    task.status = 'finished';
     this.history.push(task);
     let i = this.tasks.indexOf(task);
     if (i > -1) {

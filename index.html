@@ -7,6 +7,7 @@
     <script type="text/javascript" src="managers/serverManager.js"></script>
 </head>
 <body>
+
 <div id="container">
     <div id="top">
         <div id="chatBox">
@@ -22,10 +23,13 @@
 <div id="runBox">
     <div id="getApproval"> <b>The agent needs approval to continue.</b></div>
     <input type="checkbox" id="continuous" name="continuous" value="continuous">
-    <label for="continuous">Continuous Run or </label>
-    <input type="number" id="steps" name="steps" value="1">
-    <label for="steps">Steps Approved</label>
-    <button id="stepSubmit">Submit</button>
+    <label for="continuous">Continuous Run </label>
+    <div id="steps">
+        or
+        <input type="number" id="steps" name="steps" value="1">
+        <label for="steps">Steps Approved</label>
+        <button id="stepSubmit">Submit</button>
+    </div>
 </div>
 <div id="inputBox">
     <h3>Your input:</h3>

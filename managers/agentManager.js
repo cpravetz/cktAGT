@@ -14,8 +14,9 @@ const Strings = require("../constants/strings.js");
 const Status = {
     launching : 0,
     waiting : 1,
-    awaitingGoal : 2,
-    running : 3
+    naming: 2,
+    awaitingGoal : 3,
+    running : 4
 }
 // This is the AgentManager class.
 class AgentManager {
@@ -28,6 +29,9 @@ class AgentManager {
 
   // Start off allowing one step
   remainingSteps = 1;
+
+  // Subagents track additional agents launched by the primary or other subagents
+  subAgents = [];
 
   // The plugin manager used by the agent manager.
   pluginManager;
@@ -48,6 +52,7 @@ class AgentManager {
 
   // Creates a new AgentManager instance.
   constructor(userManager, workDirName) {
+    this.id = keyMaker();
     this.pluginManager = new PluginManager();
     this.modelManager = new ModelManager();
     this.memoryManager = new MemoryManager();
@@ -63,7 +68,7 @@ class AgentManager {
   informTheLLM(input) {
     console.log('informingLLM:'+input);
     const commands = [{name: "Think", args: {prompt: input}}];
-    const task = new Task(this.agent, "User Feedback", "", input, commands, "", []);
+    const task = new Task({agent:this.agent, name:"User Feedback", goal:input, commands:commands});
     // Add the task to the queue.
     this.taskManager.addTask(task);
     this.say('Understood');
@@ -80,17 +85,18 @@ class AgentManager {
     console.log('creating a new agent');
     // Create a new agent.
     this.agent = new Agent(this);
+    this.agent.name = this.agentName || this.agent.id;
     const commands = [{name: "Think", args: {prompt: input}}];
     // Create a new task.
-    const task = new Task(this.agent, "Initial Task", "we are processing the goal and constraints", input, commands, "", []);
-
+    const task = new Task({agent:this.agent, name:"Initial Task",
+            description:"we are processing the goal and constraints", goal:input, commands:commands});
     // Add the task to the queue.
     this.taskManager.addTask(task);
   }
 
 
   // Ask user, start new agent or load existing agent?
-  beginWithNewGoal() {
+  getNewGoal() {
     console.log('Asking for new goal');
     this.ask(Strings.newAgentMsg);
     this.status = Status.awaitingGoal;
@@ -99,7 +105,8 @@ class AgentManager {
   doLoadOrNew(input) {
    console.log('Responsing to start or load agent'+input);
     if (input.response == Strings.startNewAgent) {
-      this.beginWithNewGoal()
+      this.status = Status.naming;
+      this.ask('What do you want to name your new agent?');
     } else {
      //Get the name of an agent from the user and TODO restart it
     }
@@ -146,14 +153,16 @@ class AgentManager {
     } else
       if (this.status == Status.waiting) {
         this.doLoadOrNew(input);
-      } else {
+      } else
+      if (this.status == Status.naming) {
+        this.agentName = input || false;
+        this.getNewGoal();
+      } else
       if (this.status == Status.awaitingGoal) {
         this.createNewAgent(input);
         this.startTheAgent();
-      } else {
-        this.informTheLLM(input)
-      }
-    }
+      } else
+        this.informTheLLM(input);
   }
 
   allowMoreSteps(continuous, count) {

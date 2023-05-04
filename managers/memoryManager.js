@@ -4,6 +4,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const keyMaker = require("../constants/keymaker.js");
 
 // This is the MemoryManager class.
 class MemoryManager {
@@ -15,6 +16,7 @@ class MemoryManager {
 
   // This constructor initializes the memory manager.
   constructor() {
+    this.id = keyMaker();
     this.loadMemoryStores();
     this.activeStore = this.getMemoryStore(process.env.MEMORY_STORE || "local");
   }

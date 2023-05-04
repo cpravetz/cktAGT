@@ -94,7 +94,7 @@ Several plugins are available to facilitate your interaction with the world.
     if (obj.thoughts.actions) {
       text += '\n\n\tActions:';
       for (const action of obj.thoughts.actions) {
-        text += '\n\t\t' + actions;
+        text += '\n\t\t' + action;
       }
     }
     if (obj.commands) {
@@ -104,10 +104,12 @@ Several plugins are available to facilitate your interaction with the world.
         if (cmd.model) {
           text += '\n\t\t\tModel: ' + cmd.model;
         }
+        /*
         text += '\n\t\t\tArguments:\n';
-        for (var j = 0; j < cmd.args; j++) {
-          text += '\t\t\t\t' + JSON.stringify(cmd.args[j]) + '\n';
+        for (const arg of cmd.args) {
+          text += '\t\t\t\t' + JSON.stringify(arg) + '\n';
         }
+        */
       }
     }
     return text.trim().replace(/\\t/g, "\t").replace(/\\n/g, "\n");

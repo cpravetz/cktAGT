@@ -37,11 +37,11 @@ class InternetSearchPlugin {
     });
 
     // Return the results.
-    const t = new Task(this.task.agent,
-              'File Send', 'sending the search results to the LLM',
-              'this is the search results for '+command.args.find,
-              [{name:'Think', model: thisStep.model||false, args:{prompt:results}}],
-              {from: this});
+    const t = new Task({agent:this.task.agent,
+              name:'File Send', description:'sending the search results to the LLM',
+              prompt:'this is the search results for '+command.args.find,
+              commands: [{name:'Think', model: thisStep.model||false, args:{prompt:results}}],
+              context:{from: this.id}});
     return {
       outcome: 'SUCCESS',
       results: {

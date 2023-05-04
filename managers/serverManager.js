@@ -50,11 +50,13 @@ class ServerManager {
       message.id = this.askId;
       this.askId = false;
     }
+    document.getElementById("inputSpace").placeholder = "Enter a message for your agents.";
     console.log(socket.emit('userSays', JSON.stringify(message)));
   }
 
   // This function gets a message from the server
   hear(message) {
+    document.getElementById("inputSpace").placeholder = message;
     this.chat(message,'left');
   }
 
@@ -141,6 +143,7 @@ socket.on('serverFileAdd', function(msg) {
 
 socket.on('serverNeedsApproval', function(msg) {
   document.getElementById("getApproval").style.display = 'block';
+  document.getElementById("steps").style.display = 'block';
 });
 
 updateApproval = function() {
@@ -150,6 +153,7 @@ updateApproval = function() {
   // Get the value of the text input field.
   const steps = document.getElementById("steps").value;
   document.getElementById("getApproval").style.display = 'none';
+  document.getElementById("steps").style.display = 'none';
   // Send a socket emit.
   socket.emit("userApproves", {
     continuous: continuous,
@@ -221,3 +225,4 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 });
+

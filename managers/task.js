@@ -9,18 +9,19 @@ const keyMaker = require('./../constants/keyMaker.js');
 class Task {
 
   // This constructor initializes a task.
-  constructor(agent, name, description, goal, commands, context, dependencies) {
-    this.agent = agent;
+  constructor(args) {
+    this.agent = args.agent;
     this.id = keyMaker();
-    this.name = name;
-    this.goal = goal;
-    this.context = context || "";
-    this.dependencies = dependencies || [];
+    this.name = args.name || '';
+    this.description = args.description || '';
+    this.goal = args.goal || '' ;
+    this.context = args.context || "";
+    this.dependencies = args.dependencies || [];
     this.status = "pending";
     this.progress = 0;
     this.createdAt = new Date();
     this.updatedAt = this.createdAt;
-    this.commands = commands;
+    this.commands = args.commands;
     this.result = {};
   }
 
@@ -52,19 +53,21 @@ class Task {
 
     this.status = "working";
     let responses = [];
+    this.result = {};
     // If there is a plugin, execute it.
     for (const command of this.commands) {
       console.log('Calling plugin for '+command.name);
       try {
         const theseResponses = await this.agent.pluginManager.resolveCommand(command, this);
-        responses.push(theseResponses);
+        responses = responses.concat(theseResponses);
       } catch (e) {
         console.log('error in plugins', e);
+        this.result.error = e;
       }
     }
-    this.result = responses;
+    this.result.responses = responses;
     this.updatedAt = new Date();
-    return responses;
+    return this.result;
   }
 
   // This method converts the output from the execute function into workproducts and new tasks.

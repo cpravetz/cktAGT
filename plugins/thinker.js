@@ -33,7 +33,7 @@ class ThoughtGeneratorPlugin {
 
   // This method executes the command.
   async execute(agent, command, task) {
-    console.log('thinking...');
+    agent.say('thinking...');
 
     // Get the LLM from the command arguments or use the agent default
      const llm = task.agent?.agentManager.modelManager.getModel(command.args.model) || agent.model();
@@ -76,10 +76,11 @@ class ThoughtGeneratorPlugin {
       output.tasks = [];
       for (const thisStep of plan) {
         if (thisStep.model) { thisStep.args['model'] = thisStep.model }
-        const t = new Task(task.agent,
-              "Follow up", 'a task created by the model',
-              actions[thisStep.action], [{name: thisStep.name, model: thisStep.model||false, args:thisStep.args}],
-              {from: this, returned: output}, []);
+        const t = new Task({agent:task.agent,
+              name:"Follow up", description:'a task created by the model',
+              prompt:actions[thisStep.action],
+              commands:[{name: thisStep.name, model: thisStep.model||false, args:thisStep.args}],
+              context:{from: this.id}});
         output.tasks.push(t);
       }
     }

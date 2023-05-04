@@ -15,6 +15,7 @@ class UserManager {
     this.io = io;
     this.asks = [];
     this.listeners = [];
+    this.id = keyMaker();
   }
 
   addListener(l) {

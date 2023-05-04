@@ -44,10 +44,11 @@ class FileReaderPlugin {
 
     // Read the contents of the file.
     const contents = await fs.readFileSync(filePath);
-    const t = new Task(agent,
-              'File Send', 'sending the file '+command.args.filename+' to the LLM',
-              'this is the file '+command.args.filename, [{name: 'Think', model: agent.model||false, args:{prompt:contents}}],
-              {from: this});
+    const t = new Task({agent:agent,
+              name:'File Send', description:'sending the file '+command.args.filename+' to the LLM',
+              prompt:'this is the file '+command.args.filename,
+              commands:[{name: 'Think', model: agent.model||false, args:{prompt:contents}}],
+              context:{from: this.id}});
     return {
       outcome: 'SUCCESS',
       results: {

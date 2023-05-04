@@ -5,6 +5,7 @@
 const fs = require("fs");
 const path = require("path");
 const Strings = require("../constants/strings.js");
+const keyMaker = require("../constants/keymaker.js");
 
 // This is the ModelManager class.
 class ModelManager {
@@ -18,6 +19,7 @@ class ModelManager {
 
   // This constructor initializes the model manager.
   constructor() {
+    this.id = keyMaker();
     this.loadModels();
     this.activeModel = this.getModel(process.env.DEFAULT_MODEL || Strings.defaultModel);
   }

@@ -51,8 +51,9 @@ const Agent = class {
   }
 
   // Adds subtasks to the task manager.
-  _addSubTasks(tasks) {
-    for (const task of tasks) {
+  _addSubTasks(newTasks) {
+    for (const task of newTasks) {
+      task.agent = this;
       this.taskManager.addTask(task);
     }
   }
@@ -81,13 +82,12 @@ const Agent = class {
               const result = await task.execute();
               // Report task feedback/errors to user
               if (result.text) { this.say(result.text) };
-              if (result.results.error) { this.say(result.results.error) };
-              result.forEach(cmdResp => {
-                cmdResp.forEach(plugResp => {
-                  this.say(plugResp.text);
-                  this._addSubTasks(plugResp.tasks);
-                });
-              });
+              if (result.error) { this.say(result.error) };
+              for (var i=0; i < result.responses.length; i++) {
+                  const cmdResp = result.responses[i];
+                  if (cmdResp.text) { this.say(cmdResp.text); }
+                  if (cmdResp.tasks) { this._addSubTasks(cmdResp.tasks); }
+              };
 
               // Log the result of the task.
               this.report(`Finished task: ${task.name || this.id}`);

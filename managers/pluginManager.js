@@ -4,6 +4,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const keyMaker = require("../constants/keymaker.js");
 
 // This is the PluginManager class.
 class PluginManager {
@@ -13,7 +14,9 @@ class PluginManager {
 
   // This constructor initializes the plugin manager.
   constructor() {
+    this.id = keyMaker();
     this.loadPlugins();
+    this.pluginDescription = false;
   }
 
   // This method loads the plugins from the `plugins` directory.
@@ -57,14 +60,16 @@ class PluginManager {
   }
 
   describePlugins() {
-    let response = '';
-    for (const [name, plugin] of Object.entries(this.plugins)) {
-        response += 'Command: '+plugin.command+'\n'
+    if (!this.pluginDescription) {
+        this.pluginDescription = '';
+        for (const [name, plugin] of Object.entries(this.plugins)) {
+            this.pluginDescription += 'Command: '+plugin.command+'\n'
                  +   '  description:'+(plugin.description || '')
                  +   '\n    arguments:'+JSON.stringify(plugin.args)
                  +   '\n';
+        }
     }
-    return response
+    return this.pluginDescription;
   }
 }
 
