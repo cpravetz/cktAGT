@@ -12,7 +12,10 @@ We have not tagged a stable release as code is changing quite frequently. These 
 You need to install node and the packages listed in package.json.  Settings are stored in a file named .env
 in the root directory and there is a template for that file in env.template.
 
-The command node index.js will start the application.  Open a browser and navigate to //localhost:3000 if running on the same computer.
+The command "node index.js" will start the application.  Open a browser and navigate to //localhost:3000 if running on the same computer.
+
+To prevent the system from running amuck, you can limit the number of tasks the agent completes before requesting approval to process.  The "Run continuous" check box will set the system free, but putting a number into the "Steps approved" nd pressing Submit will allow the system to proceed with that number of steps.
+If you have already approved steps that haven't been used yet, the system will add the new number to the existing approval.  In other words, if you approve 10 steps and after the system has completed one step, you approve 10 again, the system will consider itself as approved for 19 steps.
 
 At the moment, restarting and continuing an agent has not been implemented. 
 
