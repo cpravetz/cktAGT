@@ -40,10 +40,21 @@ class ThoughtGeneratorPlugin {
       return S.replace(regex, (_, n) => idMap[n]);
     }
 
-    function replaceAllOutputs(obj, idMap) {
-      let result = {}
-      for (const key in obj) {
-        result[key] = replaceOutput(obj[key], idMap)
+    function replaceAllOutputs(Obj, idMap) {
+      for (const key in Obj) {
+        if (typeof Obj[key] === "string") {
+          Obj[key] = replaceOutput(Obj[key], idMap);
+        } else if (typeof Obj[key] === "object") {
+          replaceAllOutputs(Obj[key], idMap);
+        } else if (Array.isArray(Obj[key])) {
+          for (const i = 0; i < Obj[key].length; i++) {
+            if (typeof Obj[key][i] === "string") {
+              Obj[key][i] = replaceOutput(Obj[key][i], idMap);
+            } else if (typeof Obj[key][i] === "object") {
+              replaceAllOutputs(Obj[key][i], idMap);
+            }
+          }
+        }
       }
     }
 
@@ -81,6 +92,7 @@ class ThoughtGeneratorPlugin {
         max_length: 1000,
         temperature: 0.7,
       });
+
       output.outcome = 'SUCCESS';
       const reply = response.data.choices[0].text || '{\n "thoughts": {\n    "text": "Error"}}';
       let replyJSON = {};
