@@ -29,10 +29,8 @@ class Bard extends Model {
 
     // Send the request and get the response.
     const response = await fetch(request);
-    const data = await response.json();
+    return response.text();
 
-    // Return the responses.
-    return data.responses;
   }
 
 }

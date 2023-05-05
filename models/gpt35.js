@@ -50,9 +50,7 @@ class GPT35 extends Model {
       max_tokens: max_length,
     });
 
-    // Return the full message
-    response.data.choices[0].text = response.data.choices[0].message.content;
-    return response;
+    return response.data.choices[0].message.content;
   }
 }
 

@@ -24,6 +24,7 @@ class PluginBuilderPlugin {
     this.args= {
       description: 'The description of the plugin',
       newCommand: 'The name of the new command',
+      executeDoes: 'An explanation of the expected output of the execute() function of the new plugin'
     };
  }
 
@@ -35,16 +36,15 @@ class PluginBuilderPlugin {
     // Get the user's input for the plugin code.
     const messages = [{
       role: "user",
-      prompt: `Create a JavaScript function that ${taskDescription}.`
+      prompt: `Create a JavaScript function that ${(command.args.executeDoes || command.args.description)}.`
     }, {
       role: "user",
       prompt: Strings.pluginBuilderPrompt
     }];
-    const completions = await agent.taskManager.model.generate(messages, {
+    const text = await agent.taskManager.model.generate(messages, {
       maxTokens: 1024,
       n: 1
     });
-    const text = completions.choices[0];
 
     // Create a new file with the name of the task.
     const filePath = `./plugins/${task.command}+'Plugin'.js`;

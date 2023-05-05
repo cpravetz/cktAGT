@@ -88,13 +88,12 @@ class ThoughtGeneratorPlugin {
                         + followUpText;
     try {
       // Process the prompt with the LLM.
-      const response = await llm.generate(fullPrompt , {
+      const reply = await llm.generate(fullPrompt , {
         max_length: 1000,
         temperature: 0.7,
       });
 
       output.outcome = 'SUCCESS';
-      const reply = response.data.choices[0].text || '{\n "thoughts": {\n    "text": "Error"}}';
       let replyJSON = {};
       if (typeof(reply) === 'string') { replyJSON = JSON.parse(reply); } else { replyJSON = reply }
 

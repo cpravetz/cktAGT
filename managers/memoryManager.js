@@ -42,24 +42,29 @@ class MemoryManager {
     }
   }
 
-  // This method gets a memory store by name.
-  getMemoryStore(name) {
-    return this.memoryStores[name];
-  }
-
-  // Saves the task.
   save(task) {
-    this.activeStore.save(task);
+      if (this.activeStore) {
+          return this.activeStore.save(task);
+      }
   }
 
-  // Loads the task.
   load(taskId) {
-    return this.activeStore.load(taskId);
+      if (this.activeStore) {
+          return this.activeStore.load(task);
+      }
   }
 
   // Deletes the task.
   delete(taskId) {
-    this.activeStore.delete(taskId);
+    if (this.activeStore) {
+        this.activeStore.delete(taskId);
+    }
+  }
+
+
+  // This method gets a memory store by name.
+  getMemoryStore(name) {
+    return this.memoryStores[name];
   }
 
 }

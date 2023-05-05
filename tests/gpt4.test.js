@@ -15,7 +15,7 @@ describe("GPT-4 Model", () => {
     const model = new GPT4("YOUR_API_KEY");
 
     // Check that the model instance is not null.
-    expect(model).not.toBeNull();
+    expect(model).not.to.be.null;
   });
 
   // This test ensures that the model can generate text.
@@ -36,7 +36,7 @@ describe("GPT-4 Model", () => {
     const response = await model.generate(prompt, options);
 
     // Check that the response is not null.
-    expect(response).not.toBeNull();
+    expect(response).not.to.be.null;
 
     // Check that the response is not empty.
     expect(response.length).toBeGreaterThan(0);

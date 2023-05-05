@@ -15,7 +15,7 @@ describe("Bard Model", () => {
     const model = new Bard();
 
     // Check that the model instance is not null.
-    expect(model).not.toBeNull();
+    expect(model).not.to.be.null;
   });
 
   // This test ensures that the model can generate text.
@@ -41,7 +41,7 @@ describe("Bard Model", () => {
     const responses = await model.generate(messages, options);
 
     // Check that the responses are not null.
-    expect(responses).not.toBeNull();
+    expect(responses).not.to.be.null;
 
     // Check that the responses are not empty.
     expect(responses.length).toBeGreaterThan(0);

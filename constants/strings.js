@@ -32,14 +32,18 @@ The goal is: `,
 
   // A message that is displayed when the agent is asked to wrap a function in a class template.
   pluginBuilderPrompt: `
-Wrap this function in the following class template:
+Return your new code without any surrounding text, just the contents of a js file with your plugin
+Wrap this javascript function in the following class template:
 
-`+'  class ${taskCommand}Plugin {'+`
-  version: "1.0";
-`+'  command: "${taskCommand}";'+`
-  description: "A description of the plugin";
-  args: a JSON object with key/value pairs for each input as name: description
-  constructor() { // constructor goes here
+class [task.args.command]Plugin {
+
+  constructor() {
+    this.version = 1.0;
+	this.command =  "[task.args.command]";'
+    this.description: "[task.args.description]";
+	this.args: a JSON object with key/value pairs for each input needed by execute() with argName as the key and a description as the value
+
+	//Any other initialization code can go here, but no parameters are passed to the constructor
   }
 
   execute(agent, command, task) {
@@ -47,13 +51,39 @@ Wrap this function in the following class template:
   }
 }
 
+The execute() inputs are:
+	agent ( a class with the following properties:
+		agentManager: (an object with a dictionary of agents.  If you create a new agent, call agentManager.addSubAgent(newAgent,start) - if start is true, the newAgent will be started )
+		taskManager: (an object with a list of all Tasks.  Use add(newTask) to add a task to the queue for either the passed agent or a new one created in the execute() )
+		pluginManager: (an object with a dictionary of existing plugins.  getPluginsFor(commandName) will return an array of plugins that handle commandName.
+		memoryManager: (a data object for tasks.  use load(taskId) to get and save(task) to put tasks.
+		userManager: (a user interface, call say(msg) to send a msg to the user and ask(prompt, choices, allowMultiple) to ask for input.
+				Prompt is shown to the user, choices is an array of strings and allow Multiple indicates how may choices can be selected
+		store : The LLM object being used as the default for the system.
+		)
+	command (the command the new plugin will execute with the properties:
+		name: the name of the command, usually a verb or verbNoun
+		args: the arg value for the args structure you defined for the class definition
+		)
+	task (the task object that is initiating the call to this plugin.)
+
+The input task or tasks you create have the following key properties:
+		agent : the agent owning the task
+		id : a unique id
+		name : a short name for task
+		description : one-line description of the tasks purpose
+		goal: a string with the objective of the task in a manner an LLM would understand
+		context: an array of strings that would help frame the goal
+		commands: an array of the commands that should be passed to plugins Using the command format shown above.
+
+If the plugin will create a new task, call new Task(...) with an object containing the properties described above (excluding the Id
+To create a new agent, call new Agent(agent.agentManager) inside the execute function
+
 The plugin should return the following object from the execute function:
 
 {
   outcome: either "SUCCESS" or "FAILURE",
-  command: the command object passed to the function,
-  task: the associated task passed to the function,
-  text: a string to show the human user via the say() function in the agent,
+  text: a string to show the human user via the say() function once the plugin execute completes
   results: {an object with command specific results, for failures will have error: with an error message},
   tasks: [an array of new tasks to be launched]
 }

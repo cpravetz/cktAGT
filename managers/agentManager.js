@@ -64,6 +64,19 @@ class AgentManager {
     }
   }
 
+
+  //adds a new Agent to the subAgent dictionary
+  addSubAgent(agent, start) {
+    this.subAgents[agent.id] = agent;
+    if (start) {
+        agent.start();
+    }
+  }
+
+  getSubAgent(agentId) {
+    return this.subAgents[agentId] || false;
+  }
+
   //Add a think task for feedback from the user
   informTheLLM(input) {
     console.log('informingLLM:'+input);
@@ -81,7 +94,7 @@ class AgentManager {
     this.status = Status.running;
   }
 
-  createNewAgent(input) {
+  createFirstAgent(input) {
     console.log('creating a new agent');
     // Create a new agent.
     this.agent = new Agent(this);
@@ -159,7 +172,7 @@ class AgentManager {
         this.getNewGoal();
       } else
       if (this.status == Status.awaitingGoal) {
-        this.createNewAgent(input);
+        this.createFirstAgent(input);
         this.startTheAgent();
       } else
         this.informTheLLM(input);

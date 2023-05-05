@@ -39,8 +39,7 @@ class GPT4 extends Model {
     });
 
     // Return the full message
-    response.data.choices[0].text = response.data.choices[0].message.content;
-    return response;
+    return response.data.choices[0].message.content;
   }
 }
 
