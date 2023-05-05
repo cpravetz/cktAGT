@@ -10,7 +10,9 @@
   "author": "Seakaytee, Inc.",
   "license": "MIT",
   "dependencies": {
+    "@tensorflow/tfjs": "^4.5.0",
     "@tensorflow/tfjs-core": "^4.4.0",
+    "@tensorflow/tfjs-layers": "^4.5.0",
     "chai": "^4.3.7",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.0.0",

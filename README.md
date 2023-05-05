@@ -42,11 +42,10 @@ You can simply delete any plugins that you are not comfortable deploying.  The p
 
     the outputObject is
     {
-        outcome: either 'SUCCESS' or 'FAILURE',
-        command: the initiating command object,
-        task: the associated task,
-        text: a string to show the human user via the say() function in the agent,
+        outcome: either "SUCCESS" or "FAILURE",
+        text: a string to show the human user via the say() function once the plugin execute completes
         results: {an object with command specific results, for failures will have error: with an error message},
         tasks: [an array of new tasks to be launched]
     }
+
 

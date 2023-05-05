@@ -16,7 +16,7 @@ class GPT35 extends Model {
   // The OpenAI API instance.
   LLM;
 
-  constructor(apiKey) {
+  constructor() {
     super();
     // The name of the model.
     this.name = 'gpt-3.5-turbo';
