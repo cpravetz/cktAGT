@@ -18,11 +18,6 @@ in the root directory and there is a template for that file in env.template.
 
 The command "node index.js" will start the application.  Open a browser and navigate to //localhost:3000 if running on the same computer.
 
-bert.js
-Because of @xenova/transformers, this system requires node 14.15.0 or higher, but without the bert.js code, you can run on 14.0.0 or higher.
-There is a very small bug in transformers and unless you want clone to our patched version of it, I'd recommend just deleting bert.js from your
-cktAGT instance.
-
 To prevent cktAGT from running amuck, you can limit the number of tasks the agent completes before requesting approval to process.  The "Run continuous" check box will set the system free, but putting a number into the "Steps approved" nd pressing Submit will allow the system to proceed with that number of steps.
 If you have already approved steps that haven't been used yet, the system will add the new number to the existing approval.  In other words, if you approve 10 steps and after the system has completed one step, you approve 10 again, the system will consider itself as approved for 19 steps.
 

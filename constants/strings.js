@@ -30,6 +30,8 @@ The goal is: `,
   // A message that is displayed when the agent is considering a task.
   subThoughtPrefix: 'Continuing to work towards our goal, consider the following task. If it is immediately resolvable, do so. Otherwise, develop a plan of the steps needed to complete the task and ultimately reach the goal.',
 
+
+
   // A message that is displayed when the agent is asked to wrap a function in a class template.
   pluginBuilderPrompt: `
 Return your new code without any surrounding text, just the contents of a js file with your plugin
@@ -50,6 +52,9 @@ class [task.args.command]Plugin {
     // New function goes here
   }
 }
+
+Include any imports/requires for node packages.  Configuration costants like username and password should come from
+process.env properties.
 
 The execute() inputs are:
 	agent ( a class with the following properties:
