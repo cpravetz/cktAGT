@@ -1,4 +1,4 @@
-const huggingface = require("huggingface");
+const huggingface = require("@huggingface/inference");
 
 class HuggingfacePlugin {
   constructor() {
@@ -23,10 +23,10 @@ class HuggingfacePlugin {
 
     try {
       // Create a Huggingface client
-      const client = new huggingface.Client();
+      const client = new HFInference(process.env.HUGGINGFACE_TOKEN);
 
       // Send the prompt to the model
-      const response = client.request(model, prompt);
+      const response = client.textGeneration({model:model, inputs:prompt});
 
       // Return the response
       return {
