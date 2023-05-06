@@ -36,10 +36,7 @@ class PluginBuilderPlugin {
     // Get the user's input for the plugin code.
     const messages = [{
       role: "user",
-      prompt: `Create a JavaScript function that ${(command.args.executeDoes || command.args.description)}.`
-    }, {
-      role: "user",
-      prompt: Strings.pluginBuilderPrompt
+      prompt: Strings.pluginBuilderPrompt.replaceAll('[t.a.c]', commands.args.command).replaceAll('[t.a.d]', command.args.description);
     }];
     const text = await agent.taskManager.model.generate(messages, {
       maxTokens: 1024,

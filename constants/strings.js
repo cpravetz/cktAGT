@@ -34,15 +34,17 @@ The goal is: `,
 
   // A message that is displayed when the agent is asked to wrap a function in a class template.
   pluginBuilderPrompt: `
-Return your new code without any surrounding text, just the contents of a js file with your plugin
-Wrap this javascript function in the following class template:
+Write a javascript plugin to [t.a.d]. Return your new code without any surrounding text, just the contents of a js file with your plugin.  Precede the class with any require()
+statements for package the plugin will use.
+
+Wrap this node/javascript function in the following class template:
 
 class [task.args.command]Plugin {
 
   constructor() {
     this.version = 1.0;
-	this.command =  "[task.args.command]";'
-    this.description: "[task.args.description]";
+	this.command =  '[t.a.c]';
+    this.description: '[t.a.d]';
 	this.args: a JSON object with key/value pairs for each input needed by execute() with argName as the key and a description as the value
 
 	//Any other initialization code can go here, but no parameters are passed to the constructor
@@ -63,13 +65,15 @@ The execute() inputs are:
 		pluginManager: (an object with a dictionary of existing plugins.  getPluginsFor(commandName) will return an array of plugins that handle commandName.
 		memoryManager: (a data object for tasks.  use load(taskId) to get and save(task) to put tasks.
 		userManager: (a user interface, call say(msg) to send a msg to the user and ask(prompt, choices, allowMultiple) to ask for input.
-				Prompt is shown to the user, choices is an array of strings and allow Multiple indicates how may choices can be selected
+				Prompt is shown to the user, choices is an array of strings and allow Multiple indicates how may choices can be selected)
 		store : The LLM object being used as the default for the system.
 		)
+
 	command (the command the new plugin will execute with the properties:
 		name: the name of the command, usually a verb or verbNoun
-		args: the arg value for the args structure you defined for the class definition
+		args: the arg value for the args structure you defined for the class definition, these are the arguments your plugin will process in execute()
 		)
+
 	task (the task object that is initiating the call to this plugin.)
 
 The input task or tasks you create have the following key properties:
@@ -87,10 +91,10 @@ To create a new agent, call new Agent(agent.agentManager) inside the execute fun
 The plugin should return the following object from the execute function:
 
 {
-  outcome: either "SUCCESS" or "FAILURE",
-  text: a string to show the human user via the say() function once the plugin execute completes
-  results: {an object with command specific results, for failures will have error: with an error message},
-  tasks: [an array of new tasks to be launched]
+  outcome: "SUCCESS" or "FAILURE",
+  text: string to show the user via the say() function once the execute() completes
+  results: {object with command specific results, for failures will have error: with an error message},
+  tasks: [array of new tasks to be launched]
 }
 `,
 
