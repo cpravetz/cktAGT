@@ -7,12 +7,12 @@ const getDataProperties = require('./../constants/utils.js');
 
 class PineconeBackend {
 
-  constructor(apiKey, indexName) {
-    this.apiKey = process.env.PINECONE_API_KEY || false;
+  constructor() {
+    const apiKey = process.env.PINECONE_API_KEY || false;
     this.indexName = 'cktAgtTasks';
     this.apiUrl = `https://api.pinecone.io/v1/indexes/cktAgtTasks/objects`;
     this.headers = {
-      'Authorization': `API-Key ${this.apiKey}`,
+      'Authorization': `API-Key ${apiKey}`,
       'Content-Type': 'application/json'
     };
     this.agentIndexName = 'cktAgents';
