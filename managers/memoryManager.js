@@ -35,7 +35,7 @@ class MemoryManager {
         //useful to have other loaded to support functional plugin access to these
         //storage systems.
         if (memoryStore.name == (process.env.MEMORY_STORE || "local")) {
-            if (memoryStore.connect)  { memoryStore.connect() };
+            if (memoryStore.connect)  { memoryStore.connect() }
             this.memoryStores[memoryStore.name] = memoryStore;
         }
       }
@@ -50,7 +50,7 @@ class MemoryManager {
 
   load(taskId) {
       if (this.activeStore) {
-          return this.activeStore.load(task);
+          return this.activeStore.load(taskId);
       }
   }
 
