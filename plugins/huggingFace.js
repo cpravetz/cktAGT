@@ -4,7 +4,7 @@ class HuggingfacePlugin {
   constructor() {
     this.version = 1.0;
     this.command = "huggingface";
-    this.description = "Send a prompt to Huggingface and return the response";
+    this.description = "Send a prompt to Huggingface and return a textGeneration() response";
     this.args = {
       prompt: {
         description: "The prompt to send to Huggingface",

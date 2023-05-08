@@ -7,8 +7,9 @@
 const Strings = {
   // A message that is displayed when the agent manager is ready.
   welcome: 'Your agent manager is now ready. Do you want to start a new agent or continue with an existing agent?',
-  restartAgent: 'Restart an existing agent',
-  startNewAgent: 'Start a new agent with a new goal',
+
+  startLoadAsk : {start: 'Start a new agent with a new goal', load: 'Restart an existing agent'},
+
   newAgentMsg:'Begin by providing a set of instructions for the agent to tackle. Begin with a goal, then add any constraints or parameters that might apply. Remember that this is experimental software and could waste your time and your money.',
 
   // A message that is displayed when the agent is asked for its goal.
@@ -34,8 +35,8 @@ The goal is: `,
 
   // A message that is displayed when the agent is asked to wrap a function in a class template.
   pluginBuilderPrompt: `
-Write a javascript plugin to [t.a.d]. Return your new code without any surrounding text, just the contents of a js file with your plugin.  Precede the class with any require()
-statements for package the plugin will use.
+Write a javascript plugin to [t.a.d]. Return your new code without any surrounding text, just the contents of the js file.  Precede the class with any require()
+statements for packages the plugin uses.
 
 Wrap this node/javascript function in the following class template:
 
@@ -45,7 +46,7 @@ class [task.args.command]Plugin {
     this.version = 1.0;
 	this.command =  '[t.a.c]';
     this.description: '[t.a.d]';
-	this.args: a JSON object with key/value pairs for each input needed by execute() with argName as the key and a description as the value
+	this.args: JSON object with key/value pairs for each input needed by execute() with argName as the key and a description as the value
 
 	//Any other initialization code can go here, but no parameters are passed to the constructor
   }
@@ -55,40 +56,39 @@ class [task.args.command]Plugin {
   }
 }
 
-Include any imports/requires for node packages.  Configuration costants like username and password should come from
-process.env properties.
+Configuration constants like username and password should come from process.env properties.
 
 The execute() inputs are:
-	agent ( a class with the following properties:
-		agentManager: (an object with a dictionary of agents.  If you create a new agent, call agentManager.addSubAgent(newAgent,start) - if start is true, the newAgent will be started )
-		taskManager: (an object with a list of all Tasks.  Use add(newTask) to add a task to the queue for either the passed agent or a new one created in the execute() )
-		pluginManager: (an object with a dictionary of existing plugins.  getPluginsFor(commandName) will return an array of plugins that handle commandName.
-		memoryManager: (a data object for tasks.  use load(taskId) to get and save(task) to put tasks.
-		userManager: (a user interface, call say(msg) to send a msg to the user and ask(prompt, choices, allowMultiple) to ask for input.
+	agent ( class with the following properties:
+		agentManager: (object with a dictionary of agents.  If you create a new agent, call agentManager.addSubAgent(newAgent,start) - if start is true, the newAgent will be started )
+		taskManager: (object with a list of all Tasks.  Use add(newTask) to add a task to the queue for either the passed agent or a new one created in the execute() )
+		pluginManager: (object with a dictionary of existing plugins.  getPluginsFor(commandName) will return an array of plugins that handle commandName.
+		memoryManager: (data object for tasks.  use load(taskId) to get and save(task) to put tasks.
+		userManager: (user interface, call say(msg) to send a msg to the user and ask(prompt, choices, allowMultiple) to ask for input.
 				Prompt is shown to the user, choices is an array of strings and allow Multiple indicates how may choices can be selected)
-		store : The LLM object being used as the default for the system.
+		store : LLM object being used as the default for the system.
 		)
 
 	command (the command the new plugin will execute with the properties:
-		name: the name of the command, usually a verb or verbNoun
+		name: the command name, a verb or verbNoun
 		args: the arg value for the args structure you defined for the class definition, these are the arguments your plugin will process in execute()
 		)
 
-	task (the task object that is initiating the call to this plugin.)
+	task (the task object initiating the call to this plugin.)
 
-The input task or tasks you create have the following key properties:
-		agent : the agent owning the task
+The input task and any tasks you create have the following properties:
+		agent : agent owning the task
 		id : a unique id
-		name : a short name for task
+		name : short name for task
 		description : one-line description of the tasks purpose
-		goal: a string with the objective of the task in a manner an LLM would understand
-		context: an array of strings that would help frame the goal
-		commands: an array of the commands that should be passed to plugins Using the command format shown above.
+		goal: string with the objective of the task in a manner an LLM would understand
+		context: array of strings that would help frame the goal
+		commands: array of the commands, using the above format, that will be passed to plugins.
 
-If the plugin will create a new task, call new Task(...) with an object containing the properties described above (excluding the Id
+If the plugin creates a new task, call new Task(...) with an object containing the properties described above (excluding the Id)
 To create a new agent, call new Agent(agent.agentManager) inside the execute function
 
-The plugin should return the following object from the execute function:
+The plugin execute() returns the following object:
 
 {
   outcome: "SUCCESS" or "FAILURE",
@@ -125,9 +125,10 @@ Return your response in JSON format as described here:
 }
 
 `,
+
+
  pluginIntro : `
-Several plugins are available to facilitate your interaction with the world.
- These plugins are:
+Several plugins are available to facilitate your interaction with the world, they are:
 `,
 
   // A function that formats a response from the agent.

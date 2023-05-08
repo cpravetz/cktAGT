@@ -15,8 +15,9 @@ const Status = {
     launching : 0,
     waiting : 1,
     naming: 2,
-    awaitingGoal : 3,
-    running : 4
+    gettingName: 3,
+    awaitingGoal : 4,
+    running : 5
 }
 // This is the AgentManager class.
 class AgentManager {
@@ -92,6 +93,7 @@ class AgentManager {
    console.log('starting the agent');
     this.agent.start();
     this.status = Status.running;
+    this.memoryManager.activeStore.saveAgent(this.agent);
   }
 
   createFirstAgent(input) {
@@ -105,6 +107,7 @@ class AgentManager {
             description:"we are processing the goal and constraints", goal:input, commands:commands});
     // Add the task to the queue.
     this.taskManager.addTask(task);
+    this.memoryManager.activeStore.saveAgent(this.agent);
   }
 
 
@@ -116,12 +119,13 @@ class AgentManager {
   }
 
   doLoadOrNew(input) {
-   console.log('Responsing to start or load agent'+input);
-    if (input.response == Strings.startNewAgent) {
+   console.log('Responding to start or load agent'+input);
+    if (input.response == 'start') {
       this.status = Status.naming;
       this.ask('What do you want to name your new agent?');
     } else {
-     //Get the name of an agent from the user and TODO restart it
+        this.status = Status.gettingName;
+        this.ask({prompt:'What agent do you want to load?', choices: this.memoryManager.activeStore.getAgentNames(), allowMultiple:false});
     }
 
   }
@@ -130,10 +134,8 @@ class AgentManager {
     console.log('Asking to start or load agent');
     this.userManager.parent = this;
     // Get the user's input.
-    const input = this.ask({prompt:Strings.welcome, choices: [Strings.startNewAgent,Strings.restartAgent]}, false);
+    const input = this.ask({prompt:Strings.welcome, choices: Strings.startLoadAsk, allowMultiple:false});
     this.status = Status.waiting;
-
-    //create a new agent or load an existing one
   }
 
 
@@ -170,6 +172,10 @@ class AgentManager {
       if (this.status == Status.naming) {
         this.agentName = input.response || 'unnamed';
         this.getNewGoal();
+      } else
+      if (this.status == Status.gettingName) {
+        this.agentId = input.response || 'unnamed';
+        //TODO Load the agent and get running
       } else
       if (this.status == Status.awaitingGoal) {
         this.createFirstAgent(input);

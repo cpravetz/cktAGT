@@ -5,6 +5,7 @@
 // This module provides a class for representing a Redis backend.
 
 const redis = require("redis");
+const getDataProperties = require('./../constants/utils.js');
 
 class RedisBackend {
 
@@ -16,7 +17,6 @@ class RedisBackend {
     this.name="redis";
     this.host = process.env.REDIS_HOST || 'localhost';
     this.port = process.env.REDIS_PORT || '6379';
-    this.memoryIndex = process.env.MEMORY_INDEX || 'cktAGT';
     this.client = false;
   }
 
@@ -39,9 +39,7 @@ class RedisBackend {
         this.connect();
     }
     try {
-      let savedTask = {...task};
-      savedTask.agentId = task.agent.id;
-      savedTask.agent = null;
+      let savedTask = getDataProperties(task);
       this.client.set(`task:${savedTask.id}`, JSON.stringify(savedTask));
     } catch (error) {
       console.error(`Error saving task: ${error}`);
@@ -70,6 +68,51 @@ class RedisBackend {
       this.client.del(`task:${taskId}`);
     } catch (error) {
       console.error(`Error deleting task: ${error}`);
+    }
+  }
+
+
+  async getAgentNames() {
+    if (!this.client) {
+      this.connect();
+    }
+    try {
+      const keys = await this.client.keys('agent:*');
+      const activeAgents = {};
+      for (let i = 0; i < keys.length; i++) {
+        const agent = JSON.parse(this.client.get(keys[i]));
+        if (agent.status !== 'finished') {
+          activeAgents[agent.id] = agent.name;
+        }
+      }
+      return activeAgents;
+    } catch (error) {
+      console.error(`Error getting active agents: ${error}`);
+    }
+  }
+
+  saveAgent(agent) {
+    if (!this.client) {
+        this.connect();
+    }
+    try {
+      let savedAgent = getDataProperties(agent);
+      this.client.set(`agent:${savedAgent.id}`, JSON.stringify(savedAgent));
+    } catch (error) {
+      console.error(`Error saving agent: ${error}`);
+    }
+  }
+
+  // Load a task.
+  load(agentId) {
+    if (!this.client) {
+        this.connect();
+    }
+    try {
+      const agent = JSON.parse(this.client.get(`agent:${agentId}`));
+      return agent;
+    } catch (error) {
+      console.error(`Error loading agent: ${error}`);
     }
   }
 

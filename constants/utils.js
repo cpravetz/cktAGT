@@ -1,3 +1,6 @@
+// This function replaces object references with Id strings to allow saving/deleting
+// without circular reference issues.
+
 function getDataProperties(obj) {
   const newObj = {};
   for (const key in obj) {

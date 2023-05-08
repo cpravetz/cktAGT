@@ -29,7 +29,7 @@ class DockerPlugin {
 
   execute(agent, command, task) {
     const image = command.args.image;
-    const command = command.args.command;
+    const thisCommand = command.args.command;
     const args = command.args.args;
 
     try {
@@ -39,7 +39,7 @@ class DockerPlugin {
       // Create a new container
       const container = client.createContainer({
         image,
-        command,
+        thisCommand,
         args,
       });
 

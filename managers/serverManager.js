@@ -59,10 +59,12 @@ class ServerManager {
     this.chat(message,'left');
   }
 
-  // This function answers sends the server a new request in response to an ask
-  answer(msg) {
-    this.asked = {prompt: msg.prompt.prompt || msg.prompt,
-                           choices: msg.prompt.choices || false };
+// This function answers sends the server a new request in response to an ask
+answer(msg) {
+    this.asked = {
+        prompt: msg.prompt.prompt || msg.prompt,
+        choices: msg.prompt.choices || false,
+    };
     let allowMultiple = msg.allowMultiple || false;
     this.askId = msg.id;
     // Say the prompt.
@@ -81,11 +83,11 @@ class ServerManager {
       // If allowMultiple is true, then the function creates checkboxes for each item in choices and waits for the user to press the Submit button then submits the text of the checkboxes checked as an array.
       if (allowMultiple) {
         var checkboxes = [];
-        for (const choice of this.asked.choices) {
+        for (const [id, choice] of Object.entries(this.asked.choices)) {
           var checkbox = document.createElement("input");
           checkbox.name = 'aCheckBox';
           checkbox.type = "checkbox";
-          checkbox.value = choice;
+          checkbox.value = id;
           checkbox.textContent = choice;
           checkboxes.push(checkbox);
         }
@@ -101,26 +103,25 @@ class ServerManager {
       } else {
         // If allowMultiple is false, the function creates a radiobutton type input using the strings in choices as the options and waits for the user to press Submit, then returns the text of the selected option as a string.
         var radioButtons = [];
-     for (let i = 0; i < this.asked.choices.length; i++) {
-        const choice = this.asked.choices[i];
-        var radioButton = document.createElement("input");
-        radioButton.type = "radio";
-        radioButton.name = "aRadioButton";
-        radioButton.value = choice;
-        radioButtons.push(radioButton);
-        radioSpace.appendChild(radioButton);
-        var label = document.createElement("label");
-        label.innerHTML = choice+ '<br/>';
-        label.for = i.toString();
-        radioButtons.push(label);
-        radioSpace.appendChild(label);
-     }
-     inputSpace.style.display = 'none';
-     checkSpace.style.display = 'none';
-     radioSpace.style.display = 'block';
+        for (const [id, choice] of Object.entries(this.asked.choices)) {
+          var radioButton = document.createElement("input");
+          radioButton.type = "radio";
+          radioButton.name = id;
+          radioButton.value = id;
+          radioButtons.push(radioButton);
+          radioSpace.appendChild(radioButton);
+          var label = document.createElement("label");
+          label.innerHTML = choice+ '<br/>';
+          label.for = id;
+          radioButtons.push(label);
+          radioSpace.appendChild(label);
+        }
+        inputSpace.style.display = 'none';
+        checkSpace.style.display = 'none';
+        radioSpace.style.display = 'block';
+      }
     }
   }
- }
 }
 
 socket.on('serverSays', function(msg) {

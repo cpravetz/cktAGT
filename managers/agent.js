@@ -69,6 +69,7 @@ const Agent = class {
       if (!task && !this.taskManager.myNextTask(this)) {
         this.status = 'finished';
         this.report('The agent is finished.');
+        this.agentManager.memoryManager.activeStore.saveAgent(this);
         break;
       }
       if (task) {
