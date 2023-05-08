@@ -92,7 +92,7 @@ answer(msg) {
           checkboxes.push(checkbox);
         }
 
-        for (box of checkboxes) {
+        for (const box of checkboxes) {
           checkSpace.appendChild(box);
         }
 
@@ -146,7 +146,7 @@ socket.on('serverNeedsApproval', function(msg) {
   document.getElementById("steps").style.display = 'block';
 });
 
-updateApproval = function() {
+function updateApproval() {
   // Get the value of the checkbox.
   const continuous = document.getElementById("continuous").checked;
 
@@ -161,7 +161,7 @@ updateApproval = function() {
   });
 }
 
-sendInputData = function() {
+function sendInputData() {
     var inputSpace = document.getElementById("inputSpace");
     var checkSpace = document.getElementById("checkSpace");
     var radioSpace = document.getElementById("radioSpace");

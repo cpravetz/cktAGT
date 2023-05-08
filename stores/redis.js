@@ -124,7 +124,7 @@ class RedisBackend {
   }
 
   // Load a task.
-  load(agentId) {
+  loadAgent(agentId) {
     if (!this.client) {
         this.connect();
     }

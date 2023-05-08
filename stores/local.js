@@ -84,7 +84,7 @@ class LocalJsonFilesBackend {
   }
 
   loadAgent(agentId) {
-    const agentPath = `${this.agentDir}/${taskId}.json`;
+    const agentPath = `${this.agentDir}/${agentId}.json`;
     const agent = JSON.parse(fs.readFileSync(agentPath));
     return agent;
   }

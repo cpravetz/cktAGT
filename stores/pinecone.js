@@ -10,13 +10,13 @@ class PineconeBackend {
   constructor(apiKey, indexName) {
     this.apiKey = process.env.PINECONE_API_KEY || false;
     this.indexName = 'cktAgtTasks';
-    this.apiUrl = `https://api.pinecone.io/v1/indexes/${this.indexName}/objects`;
+    this.apiUrl = `https://api.pinecone.io/v1/indexes/cktAgtTasks/objects`;
     this.headers = {
       'Authorization': `API-Key ${this.apiKey}`,
       'Content-Type': 'application/json'
     };
-    this.agentIndexName = 'cgtAgents';
-    this.agentUrl = `https://api.pinecone.io/v1/indexes/${this.agentIndexName}/objects`;
+    this.agentIndexName = 'cktAgents';
+    this.agentUrl = `https://api.pinecone.io/v1/indexes/cktAgents/objects`;
   }
 
 
@@ -28,16 +28,13 @@ class PineconeBackend {
 
       if (response.ok) {
         const result = await response.json();
-        console.log(`Object with ID ${id} has been loaded.`, result);
         return result;
       } else {
-        console.error(`Failed to load object with ID ${id}.`, response);
         return null;
       }
   }
 
   async _put(url, obj) {
-    const id = obj.id;
     const body = JSON.stringify(obj);
 
     const response = await fetch(url, {
@@ -49,39 +46,33 @@ class PineconeBackend {
     if (response.ok) {
       const result = await response.json();
       return result;
-      console.log(`Object with ID ${id} has been saved.`, result);
     } else {
-      console.error(`Failed to save object with ID ${id}.`, response);
+      console.error(`Failed to save object with ID ${obj.id}.`, response);
     }
   }
 
   async save(task) {
     if (this.apiKey) {
       let savedTask = getDataProperties(task);
-      return this._put(`${this.apiUrl}/${id}`,savedTask);
+      return this._put(`${this.apiUrl}/${task.id}`,savedTask);
     }
   }
 
   async load(taskId) {
     if (this.apiKey) {
-      const id = taskId;
-      return await this._grab(`${this.apiUrl}/${id}`);
+      return await this._grab(`${this.apiUrl}/${taskId}`);
     }
   }
 
   async delete(taskId) {
     if (this.apiKey) {
-      const id = taskId;
-
-      const response = await fetch(`${this.apiUrl}/${id}`, {
+      const response = await fetch(`${this.apiUrl}/${taskId}`, {
         method: 'DELETE',
         headers: this.headers
       });
 
-      if (response.ok) {
-        console.log(`Object with ID ${id} has been deleted.`);
-      } else {
-        console.error(`Failed to delete object with ID ${id}.`, response);
+      if (!response.ok) {
+        console.error(`Failed to delete object with ID ${taskId}.`, response);
       }
     } else {
         return false;
@@ -129,13 +120,12 @@ class PineconeBackend {
   async saveAgent(agent) {
     if (this.apiKey) {
       let savedAgent = getDataProperties(agent);
-      return this._put(`${this.agentUrl}/${id}`,savedAgent);
+      return this._put(`${this.agentUrl}/${agent.id}`,savedAgent);
     }
   }
 
   async loadAgent(agentId) {
     if (this.apiKey) {
-      const id = agentId;
       return await this._grab(`${this.apiUrl}/${agentId}`);
     }
   }
