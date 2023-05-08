@@ -8,7 +8,6 @@ const keyMaker = require("../constants/keymaker.js");
 
 class UserManager {
 
-
   // This constructor initializes the user manager.
   constructor(app, io) {
     this.app = app;
@@ -49,6 +48,11 @@ class UserManager {
     for (const listener of this.listeners) {
       listener.hear(msg);
     }
+  }
+
+  requestStepApproval() {
+    console.log('Requested step approval');
+    this.io.emit('serverNeedsApproval', {});
   }
 
   // This method asks the user a question.

@@ -23,13 +23,13 @@ const Status = {
 class AgentManager {
 
   // The current status of the agent manager.
-  status = Status.launching;
+  status;
 
   //Don't go continuous unless instructed by the user
-  continuous = false;
+  continuous;
 
   // Start off allowing one step
-  remainingSteps = 1;
+  remainingSteps;
 
   // Subagents track additional agents launched by the primary or other subagents
   subAgents = [];
@@ -54,6 +54,9 @@ class AgentManager {
   // Creates a new AgentManager instance.
   constructor(userManager, workDirName) {
     this.id = keyMaker();
+    this.status = Status.launching;
+    this.continuous = false;
+    this.remainingSteps = 0;
     this.pluginManager = new PluginManager();
     this.modelManager = new ModelManager();
     this.memoryManager = new MemoryManager();
@@ -200,7 +203,12 @@ class AgentManager {
   allowMoreSteps(continuous, count) {
     console.log('Approved to proceed');
     this.continuous = continuous;
+    if (typeof(count) == 'string') { count = Number(count)}
     this.remainingSteps += count || 0;
+    this.requestedStepApproval = false;
+    if (this.agent.status == 'paused') {
+        this.agent.start();
+    }
   }
 
   useOneStep() {
@@ -208,7 +216,13 @@ class AgentManager {
   }
 
   okayToContinue(task) {
-    return (this.continuous || (this.remainingSteps > 0)) && task?.dependenciesSatisfied();
+    const hasSteps = (this.continuous || (this.remainingSteps > 0));
+    if (!hasSteps && !this.requestedStepApproval) {
+        this.agent.status = 'paused';
+        this.userManager.requestStepApproval();
+        this.requestedStepApproval = true;
+    }
+    return hasSteps && task?.dependenciesSatisfied();
   }
 }
 

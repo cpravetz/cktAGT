@@ -71,7 +71,8 @@ io.on("connection", (socket) => {
     agentManager.hear(msg);
   });
   socket.on("userApproves", (msg) => {
-    agentManager.allowMoreSteps(msg.continuous, msg.steps);
+    console.log('User approves proceeding');
+    agentManager.allowMoreSteps(msg.continuous, msg.steps || 0);
   })
 });
 

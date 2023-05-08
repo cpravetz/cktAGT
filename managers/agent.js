@@ -56,22 +56,20 @@ const Agent = class {
   // Runs the agent loop.
   async _run() {
     this.status = 'running';
-    while (true) {
+    while (!(this.status == 'paused' || this.status == 'finished')) {
       // Get the next task.
-      const task = await this.taskManager.myNextTask(this, 'pending');
-
+      const task = this.taskManager.myNextTask(this, 'pending');
       // If there are no more tasks, stop.
-      if (!task && !this.taskManager.myNextTask(this)) {
+      if (!task && (this.taskManager.tasks.length == 0)) {
         this.status = 'finished';
         this.report('The agent is finished.');
         this.store.saveAgent(this);
         break;
       }
       if (task) {
-          // Log the task.
-          this.report(`Starting task: ${task.name || task.id}`);
-
           if (this.agentManager.okayToContinue(task)) {
+            // Log the task.
+            this.report(`Starting task: ${task.name || task.id}`);
             // Try to execute the task.
             try {
               this.agentManager.useOneStep();
@@ -98,6 +96,7 @@ const Agent = class {
       }
     }
   }
-};
+
+}
 
 module.exports = Agent;

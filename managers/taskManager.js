@@ -40,7 +40,6 @@ class TaskManager {
   myNextTask(agent, status) {
     // Declare a variable to store the first object in the array.
     let firstTask;
-
     for (const key in this.tasks) {
       const task = this.tasks[key];
       if ((task.agent.id === agent.id) && (!status || (task.status == status))) {

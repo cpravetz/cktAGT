@@ -4,8 +4,21 @@
 
 const keyMaker = require('./../constants/keyMaker.js');
 
-// This module provides a class for representing tasks.
+// Eliminates all instances of a given property from an object and it's object properties
+function removeProperty(obj, property) {
+  if (obj !== null && typeof obj === 'object') {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key) && key === property) {
+        delete obj[key];
+      } else if (typeof obj[key] === 'object') {
+        removeProperty(obj[key], property);
+      }
+    }
+  }
+  return obj;
+}
 
+// This module provides a class for representing tasks.
 class Task {
 
   // This constructor initializes a task.
@@ -14,13 +27,14 @@ class Task {
     this.id = keyMaker();
     this.name = args.name || '';
     this.description = args.description || '';
-    this.goal = args.goal || '' ;
+    this.goal = args.goal.response || removeProperty(args.goal,'id') ;
     this.context = args.context || "";
     this.dependencies = args.dependencies || [];
     this.status = "pending";
     this.progress = 0;
     this.createdAt = new Date();
     this.updatedAt = this.createdAt;
+    removeProperty(args.commands, 'id');
     this.commands = args.commands;
     this.result = {};
   }
