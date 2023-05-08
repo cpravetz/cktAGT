@@ -206,7 +206,7 @@ class AgentManager {
     if (typeof(count) == 'string') { count = Number(count)}
     this.remainingSteps += count || 0;
     this.requestedStepApproval = false;
-    if (this.agent.status == 'paused') {
+    if (this.agent?.status == 'paused') {
         this.agent.start();
     }
   }
