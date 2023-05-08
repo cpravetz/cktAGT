@@ -61,7 +61,29 @@ class MemoryManager {
     }
   }
 
+  saveAgent(agent) {
+      if (this.activeStore) {
+          return this.activeStore.saveAgent(agent);
+      }
+  }
 
+  loadAgent(agentId, agentManager) {
+    if (this.activeStore) {
+      const savedAgent = this.activeStore.loadAgent(agentId);
+      //Expand savedAgent, connect to Managers
+      savedAgent.agentManager = agentManager;
+      savedAgent.taskManager = agentManager.taskManager;
+      savedAgent.pluginManager = agentManager.pluginManager;
+      savedAgent.userManager = agentManager.userManager;
+      savedAgent.store = this.activeStore;
+      //Load tasks for this agent
+      const agentTasks = this.activeStore.loadTasksForAgent(savedAgent.id);
+        for (const t in agentTasks) {
+            t.agent = savedAgent;
+            agentManager.taskManager.addTask(t);
+        }
+    }
+  }
   // This method gets a memory store by name.
   getMemoryStore(name) {
     return this.memoryStores[name];

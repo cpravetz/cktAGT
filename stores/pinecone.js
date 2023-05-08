@@ -88,6 +88,25 @@ class PineconeBackend {
     }
   }
 
+  async getTasksForAgent(agentId) {
+    try {
+      const response = await fetch(this.apiUrl, {
+        headers: this.headers
+      });
+      const data = await response.json();
+      const tasks = [];
+      for (const task of data) {
+        if (task.status != 'finished' && task.agentId == agentId) {
+          tasks.push(task);
+        }
+      }
+      return tasks;
+    } catch (error) {
+      console.error(error);
+      return false
+    }
+  }
+
   async getAgentNames() {
     try {
       const response = await fetch(this.agentUrl, {

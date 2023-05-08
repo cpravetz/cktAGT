@@ -71,6 +71,26 @@ class RedisBackend {
     }
   }
 
+ async loadTasksForAgent(agentId) {
+    if (!this.client) {
+      this.connect();
+    }
+    try {
+      const keys = await this.client.keys('task:*');
+      const tasks = [];
+      for (let i = 0; i < keys.length; i++) {
+        const task = JSON.parse(this.client.get(keys[i]));
+        if (task.status !== 'finished' && task.agentId == agentId) {
+          tasks.push(task)
+        }
+      }
+      return tasks;
+    } catch (error) {
+      console.error(`Error getting active agents: ${error}`);
+      return false;
+    }
+
+ }
 
   async getAgentNames() {
     if (!this.client) {

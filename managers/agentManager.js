@@ -88,12 +88,25 @@ class AgentManager {
     this.say('Understood');
   }
 
+
   // Starts the agent manager.
   startTheAgent() {
    console.log('starting the agent');
     this.agent.start();
     this.status = Status.running;
-    this.memoryManager.activeStore.saveAgent(this.agent);
+    this.memoryManager.saveAgent(this.agent);
+  }
+
+
+  loadAnAgent(id) {
+    if (!id) {
+      console.log('No id passed to agentManager to load');
+      return false;
+    }
+    this.agent = this.memoryManager.loadAgent(id);
+    if (this.agent) {
+        this.startTheAgent();
+    }
   }
 
   createFirstAgent(input) {
@@ -107,7 +120,7 @@ class AgentManager {
             description:"we are processing the goal and constraints", goal:input, commands:commands});
     // Add the task to the queue.
     this.taskManager.addTask(task);
-    this.memoryManager.activeStore.saveAgent(this.agent);
+    this.memoryManager.saveAgent(this.agent);
   }
 
 
@@ -174,8 +187,8 @@ class AgentManager {
         this.getNewGoal();
       } else
       if (this.status == Status.gettingName) {
-        this.agentId = input.response || 'unnamed';
-        //TODO Load the agent and get running
+        this.agentId = input.response || false;
+        this.loadAnAgent(this.agentId);
       } else
       if (this.status == Status.awaitingGoal) {
         this.createFirstAgent(input);

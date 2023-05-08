@@ -67,8 +67,18 @@ class MongoDBBackend  {
     });
   }
 
+  async loadTasksForAgent(agentId) {
+    if (!this.client) {
+        this.connect();
+    }
+    const tasks = await this.db.collection("tasks").find({
+      agentId: agentId, status: {$not: 'finished'}
+    });
+    return tasks;
+  }
+
   // return an array of names
-  getAgentNames() {
+  async getAgentNames() {
     if (!this.client) {
         this.connect();
     }

@@ -33,11 +33,6 @@ const Agent = class {
     return this.taskManager.model;
   }
 
-  // Gets the memory store used by the agent.
-  store() {
-    return this.taskManager.store;
-  }
-
   // Starts the agent.
   start() {
     this._run();
@@ -69,7 +64,7 @@ const Agent = class {
       if (!task && !this.taskManager.myNextTask(this)) {
         this.status = 'finished';
         this.report('The agent is finished.');
-        this.agentManager.memoryManager.activeStore.saveAgent(this);
+        this.store.saveAgent(this);
         break;
       }
       if (task) {

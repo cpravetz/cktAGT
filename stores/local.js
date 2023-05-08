@@ -47,6 +47,19 @@ class LocalJsonFilesBackend {
     fs.unlinkSync(taskPath);
   }
 
+  async loadTasksForAgent(agentId) {
+    const tasks = [];
+    for (const file of fs.readdirSync(this.taskDir)) {
+      if (file.endsWith('.json')) {
+        const task = JSON.parse(fs.readFileSync(path.join(this.taskDir, file)));
+        if (task.status != 'finished' && task.agentId == agentId) {
+          tasks.push(task);
+        }
+      }
+    }
+    return tasks;
+  }
+
 
   // return an array of names
   getAgentNames() {
