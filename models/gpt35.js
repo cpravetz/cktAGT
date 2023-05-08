@@ -33,7 +33,7 @@ class GPT35 extends Model {
     const temperature = options.temperature || 0.7;
 
     let msgs = [];
-    if (typeof(messages === String)) {
+    if (typeof(messages === 'string')) {
         msgs.push({role: 'user', content: messages});
     } else {
         for (const message of messages) {
