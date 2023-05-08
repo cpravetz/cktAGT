@@ -65,11 +65,11 @@ The execute() inputs are:
 		pluginManager: (object with a dictionary of existing plugins.  getPluginsFor(commandName) will return an array of plugins that handle commandName.
 		memoryManager: (data object for tasks.  use load(taskId) to get and save(task) to put tasks.
 		userManager: (user interface, call say(msg) to send a msg to the user and ask(prompt, choices, allowMultiple) to ask for input.
-				Prompt is shown to the user, choices is an array of strings and allow Multiple indicates how may choices can be selected)
+				Prompt is shown to the user, choices is a dictionary of value:displayText and allowMultiple=true or false)
 		store : LLM object being used as the default for the system.
 		)
 
-	command (the command the new plugin will execute with the properties:
+	command (object the new plugin will execute against with the properties:
 		name: the command name, a verb or verbNoun
 		args: the arg value for the args structure you defined for the class definition, these are the arguments your plugin will process in execute()
 		)

@@ -110,7 +110,7 @@ class ThoughtGeneratorPlugin {
         const t = new Task({agent:task.agent,
               name:"Follow up", description:'a task created by the model',
               prompt:replaceOutput(actions[thisStep.action],idMap),
-              commands:[{name: replaceOutput(thisStep.name),
+              commands:[{name: replaceOutput(thisStep.name, idMap),
               model: thisStep.model||false,
               args:replaceAllOutputs(thisStep.args,idMap)}],
               dependencies: [],
