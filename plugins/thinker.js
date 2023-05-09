@@ -7,6 +7,31 @@
 const Strings = require("../constants/strings.js");
 const Task = require("../managers/task.js");
 
+const replaceOutput = function(S, idMap) {
+      const regex = /\{output:(\d+)\}/g;
+      return S.replace(regex, (_, n) => idMap[n]);
+    }
+
+const replaceAllOutputs = function(Obj, idMap) {
+      const newObj = Obj;
+      for (const key in newObj) {
+        if (typeof newObj[key] === "string") {
+          newObj[key] = replaceOutput(newObj[key], idMap);
+        } else if (typeof newObj[key] === "object") {
+          newObj[key] = replaceAllOutputs(newObj[key], idMap);
+        } else if (Array.isArray(newObj[key])) {
+          for (const i = 0; i < newObj[key].length; i++) {
+            if (typeof newObj[key][i] === "string") {
+              newObj[key][i] = replaceOutput(newObj[key][i], idMap);
+            } else if (typeof newObj[key][i] === "object") {
+              newObj[key][i] = replaceAllOutputs(newObj[key][i], idMap);
+            }
+          }
+        }
+      }
+      return newObj;
+    }
+
 class ThoughtGeneratorPlugin {
 
   constructor(agent) {
@@ -34,30 +59,6 @@ class ThoughtGeneratorPlugin {
 
   // This method executes the command.
   async execute(agent, command, task) {
-
-    function replaceOutput(S, idMap) {
-      const regex = /\{output:(\d+)\}/g;
-      return S.replace(regex, (_, n) => idMap[n]);
-    }
-
-    function replaceAllOutputs(Obj, idMap) {
-      for (const key in Obj) {
-        if (typeof Obj[key] === "string") {
-          Obj[key] = replaceOutput(Obj[key], idMap);
-        } else if (typeof Obj[key] === "object") {
-          replaceAllOutputs(Obj[key], idMap);
-        } else if (Array.isArray(Obj[key])) {
-          for (const i = 0; i < Obj[key].length; i++) {
-            if (typeof Obj[key][i] === "string") {
-              Obj[key][i] = replaceOutput(Obj[key][i], idMap);
-            } else if (typeof Obj[key][i] === "object") {
-              replaceAllOutputs(Obj[key][i], idMap);
-            }
-          }
-        }
-      }
-    }
-
     agent.say('thinking...');
 
     // Get the LLM from the command arguments or use the agent default
@@ -89,7 +90,7 @@ class ThoughtGeneratorPlugin {
     try {
       // Process the prompt with the LLM.
       const reply = await llm.generate(fullPrompt , {
-        max_length: 1000,
+        max_length: 1500,
         temperature: 0.7,
       });
 
@@ -107,14 +108,16 @@ class ThoughtGeneratorPlugin {
       // TODO Add logic to make dependencies and reused output use the Task.Id property
       for (const thisStep of plan) {
         if (thisStep.model) { thisStep.args['model'] = thisStep.model }
+        const prompt = thisStep.action ? replaceOutput(actions[thisStep.action],idMap)  : thisStep.args.prompt;
+        thisStep.args = replaceAllOutputs(thisStep.args,idMap);
         const t = new Task({agent:task.agent,
               name:"Follow up", description:'a task created by the model',
-              prompt:replaceOutput(actions[thisStep.action],idMap),
+              prompt: prompt || '',
               commands:[{name: replaceOutput(thisStep.name, idMap),
-              model: thisStep.model||false,
-              args:replaceAllOutputs(thisStep.args,idMap)}],
+                         model: thisStep.model||false,
+                         args: thisStep.args}],
               dependencies: [],
-              context:{from: this.id}});
+              context:{from: task.id}});
         for(const dependency in thisStep.dependencies) {
             t.dependencies.push(idMap[dependency]);
         };
