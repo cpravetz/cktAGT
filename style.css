@@ -44,6 +44,12 @@ body {
   width: 30%;
   border: 1px solid black;
   padding: 10px;
+  display: flex;
+  align-items: flex-end;
+}
+
+#filesText {
+    margin-top: auto;
 }
 
 #inputBox {
