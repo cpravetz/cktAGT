@@ -8,7 +8,7 @@ const keyMaker = require("../constants/keymaker.js");
 class TaskManager {
 
   // This is a queue of open tasks.
-  tasks = [];
+  tasks = {};
 
   // History has completed tasks
   history = [];

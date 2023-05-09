@@ -60,7 +60,7 @@ const Agent = class {
       // Get the next task.
       const task = this.taskManager.myNextTask(this, 'pending');
       // If there are no more tasks, stop.
-      if (!task && (this.taskManager.tasks.length == 0)) {
+      if (!task && (Object.keys(this.taskManager.tasks).length == 0)) {
         this.status = 'finished';
         this.report('The agent is finished.');
         this.store.saveAgent(this);

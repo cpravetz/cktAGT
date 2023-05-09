@@ -143,7 +143,7 @@ socket.on('serverFileAdd', function(msg) {
 
 socket.on('serverNeedsApproval', function(msg) {
   document.getElementById("getApproval").style.display = 'block';
-  document.getElementById("steps").style.display = 'block';
+  document.getElementById("stepsBox").style.display = 'block';
 });
 
 function updateApproval() {
@@ -153,7 +153,7 @@ function updateApproval() {
   // Get the value of the text input field.
   const steps = document.getElementById("steps").value;
   document.getElementById("getApproval").style.display = 'none';
-  document.getElementById("steps").style.display = 'none';
+  document.getElementById("stepsBox").style.display = 'none';
   // Send a socket emit.
   socket.emit("userApproves", {
     continuous: continuous,
