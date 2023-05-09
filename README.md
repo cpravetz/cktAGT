@@ -36,7 +36,7 @@ You can simply delete any plugins that you are not comfortable deploying.  The p
 
     the commandObject is
     {
-        name: the name for this instaance of a command,
+        name: the name for this instance of a command,
         args: { an object with the arguments required for this particular command }
     }
 
