@@ -27,7 +27,7 @@ class Task {
     this.id = keyMaker();
     this.name = args.name || '';
     this.description = args.description || '';
-    this.goal = args.goal?.response : removeProperty(args.goal || {},'id') ;
+    this.goal = args.goal?.response || removeProperty(args.goal || {},'id') ;
     this.context = args.context || "";
     this.dependencies = args.dependencies || [];
     this.status = "pending";
