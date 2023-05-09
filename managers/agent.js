@@ -53,6 +53,17 @@ const Agent = class {
     }
   }
 
+  // Process the results of a task
+  _processResult(result) {
+    // Report task feedback/errors to user
+    if (result.text) { this.say(result.text) };
+    if (result.error) { this.say(result.error) };
+    for (const cmdResp of result.responses) {
+      if (cmdResp.text) { this.say(cmdResp.text); }
+      if (cmdResp.tasks) { this._addSubTasks(cmdResp.tasks); }
+    };
+  }
+
   // Runs the agent loop.
   async _run() {
     this.status = 'running';
@@ -74,17 +85,10 @@ const Agent = class {
             try {
               this.agentManager.useOneStep();
               const result = await task.execute();
-              // Report task feedback/errors to user
-              if (result.text) { this.say(result.text) };
-              if (result.error) { this.say(result.error) };
-              for (var i=0; i < result.responses.length; i++) {
-                  const cmdResp = result.responses[i];
-                  if (cmdResp.text) { this.say(cmdResp.text); }
-                  if (cmdResp.tasks) { this._addSubTasks(cmdResp.tasks); }
-              };
+              this._processResult(result);
 
               // Log the result of the task.
-              this.report(`Finished task: ${task.name || this.id}`);
+              this.report(`Finished task: ${task.name || task.id}`);
               this.taskManager.complete(task);
               if (this.store) {
                 this.store.save(task);

@@ -29,11 +29,11 @@ class GPT35 extends Model {
 
   async generate(messages, options) {
     // Set the max_length and temperature parameters.
-    const max_length = options.max_length || 100;
+    const max_length = options.max_length || 2000;
     const temperature = options.temperature || 0.7;
 
     let msgs = [];
-    if (typeof(messages === 'string')) {
+    if (typeof(messages) === 'string') {
         msgs.push({role: 'user', content: messages});
     } else {
         for (const message of messages) {
@@ -41,16 +41,17 @@ class GPT35 extends Model {
         }
     }
 
+    try {
+      // Generate the text using the GPT-3.5-Turbo model.
+      const response = await this.LLM.createChatCompletion({
+        model: this.name,
+        messages: msgs,
+        temperature: temperature,
+        max_tokens: max_length,
+      });
 
-    // Generate the text using the GPT-3.5-Turbo model.
-    const response = await this.LLM.createChatCompletion({
-      model: this.name,
-      messages: msgs,
-      temperature: temperature,
-      max_tokens: max_length,
-    });
-
-    return response.data.choices[0].message.content;
+      return response.data.choices[0].message.content;
+    } catch (error) { {console.error(error)} }
   }
 }
 

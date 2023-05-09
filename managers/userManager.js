@@ -35,8 +35,8 @@ class UserManager {
     let msg;
     try {
       msg = JSON.parse(message);
-    } catch {
-      msg = message;
+    } catch (error) {
+      msg = error;
     }
     if (msg.id) {
       const index = this.asks.indexOf(ask => ask.id === msg.id);

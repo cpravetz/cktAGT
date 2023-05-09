@@ -16,18 +16,41 @@ const Strings = {
   goalPrompt: "What is your goal?",
 
   // A message that is displayed when the agent is considering a goal.
-  thoughtPrefix: `
-You are part of an autonomous agent that works toward achieving the goal provided below.  We will work in partnership.  Using functional plugins
-I can perform tasks that require interactions that you are unable to complete yourself.  I can store information for you or to provide work products
-to our end user.
+  thoughtPrefix: `We are an autonomous agent that works toward achieving the goal provided below. I can perform tasks with plugins that require interactions that you are unable to complete yourself.
+  I can store information for you or to provide outputs to our end user.
 
-Consider the following goal. If it is immediately resolvable, do so. Otherwise, develop a numbered plan of the steps needed to reach the goal.  Each
-step should be supported by one or more commands for us to execute. The plugins available to us are listed below.  Note that the plugin Think is
-used to send messages/content back to you or to another LLM.
+Consider the following goal. If you can provide an answer, do so. Otherwise, develop a numbered action plan of logical steps needed to reach the goal.
+  Each step in the action plan should be supported by one or more commands to execute with plugins.
 
 The goal is: `,
 
+  // The default response format that is used by the agent.
+  defaultResponseFormat: `Return your response only in this JSON format:
+
+{
+  thoughts: {
+    text: your thoughts,
+    reasoning: reasoning behind your response,
+    actions: array of strings each a numbered logical step in the plan to achieve the goal,
+  },
+  commands: [
+    {
+      id: sequential number to identify this command from others,
+      name: name of the command, taken from the associated plugin,
+      action: number of the first action in thoughts above from which this command stems,
+      args: array of arguments to pass the executing plugin in the form {"arg name": "value",...}
+	          any argument values that come from another command should be shown as {output:n} where n is the command number creating the input value,
+      model: if this command name is Think or ProcessText, identify the LLM best suited to execute the command accurately and cost efficiently.
+      dependencies: array of the id numbers of any commands that must precede this one.
+    }
+  ]
+}
+
+Those commands are essentially calls to the plugins needed for this plan.  The plugin definitions are below.
+`,
+
   modelListPrompt: 'The LLMs I can interact with are ',
+
   // A message that is displayed when the agent is considering a task.
   subThoughtPrefix: 'Continuing to work towards our goal, consider the following task. If it is immediately resolvable, do so. Otherwise, develop a plan of the steps needed to complete the task and ultimately reach the goal.',
 
@@ -101,34 +124,8 @@ The plugin execute() returns the following object:
   // The default model that is used by the agent.
   defaultModel: "gpt-3.5-turbo",
 
-  // The default response format that is used by the agent.
-  defaultResponseFormat: `
-Return your response in JSON format as described here:
 
-{
-  "thoughts": {
-    "text": "thought",
-    "reasoning": reasoning behind your response,
-    "actions": a numbered list of items in the long-term plan,
-  },
-  "commands": [
-    {
-      "id": a sequential number to identify this command from others,
-      "name": the name of the command, taken from the associated plugin (eg: Think, ReadFile),
-      "action": the number of the first action above from which this command stems,
-      "args": an array of arguments to pass the executing task in the form {"arg name": "value",...}
-	          any argument values that come from another command should be shown as {output:n} where n is the command number rather showing a description of the value,
-      "model": if this is a Think or ProcessText, indentify the LLM best suited to execute the command accurately and cost efficiently.
-      "dependencies": an array of the id numbers of any commands that must preceed this one.
-    }
-  ]
-}
-
-`,
-
-
- pluginIntro : `
-Several plugins are available to facilitate your interaction with the world, they are:
+ pluginIntro : `Several plugins are available to facilitate your interaction with the world, they are:
 `,
 
   // A function that formats a response from the agent.

@@ -8,9 +8,13 @@ const Strings = require("../constants/strings.js");
 const Task = require("../managers/task.js");
 
 const replaceOutput = function(S, idMap) {
+    if ((typeof(S) === 'string')) {
       const regex = /\{output:(\d+)\}/g;
       return S.replace(regex, (_, n) => idMap[n]);
+    } else {
+        return S
     }
+}
 
 const replaceAllOutputs = function(Obj, idMap) {
       const newObj = Obj;
@@ -48,9 +52,8 @@ class ThoughtGeneratorPlugin {
 
     // The arguments for the command.
     this.args= {
-      prompt: 'the message to send to the LLM for a response',
+      prompt: 'a complete message to send to the LLM that adequately but efficiently explains the goal or item to be resolved',
       constraints: 'An array of strings describing constraints the LLM should consider',
-      resources: 'An array of strings or JSON strings with inputs the LLM may need',
       assessments: 'An array of any other text that should be sent to the LLM with the prompt'
     };
   }
@@ -78,20 +81,20 @@ class ThoughtGeneratorPlugin {
     const compiledPrompt = llm.compilePrompt(Strings.thoughtPrefix,
         prompt,
         command.args.constraints || [],
-        command.args.resources || [],
         command.args.assessments || []);
 
     let output = {}
 
-    const fullPrompt = compiledPrompt
+    const fullPrompt = [compiledPrompt
                         + Strings.modelListPrompt
-                        + agent.agentManager.modelManager.getModelNames()
-                        + followUpText;
+                        + agent.agentManager.modelManager.getModelNames(),
+                        followUpText];
+    task.fullPrompt = fullPrompt;
     try {
       // Process the prompt with the LLM.
       const reply = await llm.generate(fullPrompt , {
-        max_length: 1500,
-        temperature: 0.7,
+        max_length: 2000,
+        temperature: Number(process.env.LLM_TEMPERATURE) || 0.7,
       });
 
       output.outcome = 'SUCCESS';
@@ -126,11 +129,10 @@ class ThoughtGeneratorPlugin {
         output.tasks.push(t);
       }
     }
-    catch {error => {
+    catch (error) {
            output.outcome = 'FAILURE';
            output.results = {error: error};
      }
-    }
     return output;
   }
 
