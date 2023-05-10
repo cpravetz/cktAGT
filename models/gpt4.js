@@ -15,11 +15,11 @@ class GPT4 extends Model {
   // The OpenAI API instance.
   openAiApiClient;
 
-  // The name of the model.
-  static name = 'gpt-4';
 
   constructor() {
     super();
+    // The name of the model.
+    this.name = 'gpt-4';
     this.configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     });

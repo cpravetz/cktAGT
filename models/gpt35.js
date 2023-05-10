@@ -21,19 +21,19 @@ class GPT35 extends Model {
    */
   openAiApiClient;
 
-  /**
-   * Default values for max_length and temperature.
-   */
-  static DEFAULT_MAX_LENGTH = 2000;
-  static DEFAULT_TEMPERATURE = 0.7;
-
-  /**
-   * The name of the model.
-   */
-  static name = 'gpt-3.5-turbo';
-
   constructor() {
     super();
+    /**
+     * Default values for max_length and temperature.
+     */
+    this.DEFAULT_MAX_LENGTH = 2000;
+    this.DEFAULT_TEMPERATURE = 0.7;
+
+    /**
+     * The name of the model.
+     */
+    this.name = 'gpt-3.5-turbo';
+
 
     this.configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY

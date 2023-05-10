@@ -5,12 +5,12 @@
 // This module provides a class for representing a thought generator plugin.
 
 const Task = require("../managers/task.js");
+const Strings = require("../constants/strings.js");
 
 
 class ThoughtGeneratorPlugin {
   
   constructor(agent) {
-    this.Strings = require("../constants/strings.js");
 
     // The version of the plugin.
     this.version= 1.0;
@@ -52,7 +52,7 @@ getLLM(agent, command, task) {
 }
 
 getFollowUpText(agent) {
-    const followUpText = ThoughtGeneratorPlugin.Strings.pluginIntro + '\n' + agent.pluginManager.describePlugins();
+    const followUpText = Strings.pluginIntro + '\n' + agent.pluginManager.describePlugins();
     return followUpText;
 }
 
@@ -62,14 +62,14 @@ getPrompt(command) {
 }
 
 getCompiledPrompt(llm, prompt, constraints, assessments) {
-    const compiledPrompt = llm.compilePrompt(ThoughtGeneratorPlugin.Strings.thoughtPrefix, prompt, constraints, assessments);
+    const compiledPrompt = llm.compilePrompt(Strings.thoughtPrefix, prompt, constraints, assessments);
     return compiledPrompt;
 }
 
 async processPrompt(llm, compiledPrompt, followUpText) {
     let output = {outcome: 'SUCCESS', tasks: []};
     try {
-        const reply = await llm.generate([compiledPrompt + ThoughtGeneratorPlugin.Strings.modelListPrompt + llm.modelName, followUpText], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
+        const reply = await llm.generate([compiledPrompt + Strings.modelListPrompt + llm.modelName, followUpText], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
         output = this.processReply(reply);
     } catch (error) {
         output.outcome = 'FAILURE';
@@ -82,7 +82,7 @@ processReply(reply) {
     let output = {outcome: 'SUCCESS', tasks: []};
     let replyJSON = {};
     if (typeof(reply) === 'string') { replyJSON = JSON.parse(reply); } else { replyJSON = reply }
-    output.text = ThoughtGeneratorPlugin.Strings.textify(replyJSON);
+    output.text = Strings.textify(replyJSON);
     const actions = replyJSON.thoughts.actions;
     const plan = replyJSON.commands;
     let idMap = {};

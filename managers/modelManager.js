@@ -36,8 +36,8 @@ class ModelManager {
     for (const modelFile of modelFiles) {
       const modelPath = path.resolve(modelsDir, modelFile);
       const model = new (require(modelPath))();
-      const name = path.basename(modelFile, ".js");
-      this.models[name] = model;
+      model.name = model.name || path.basename(modelFile, ".js");
+      this.models[model.name] = model;
     }
   }
 

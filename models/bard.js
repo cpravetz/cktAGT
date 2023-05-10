@@ -11,16 +11,6 @@ const Model = require('./model.js');
  */
 class Bard extends Model {
 
-  /**
-   * The name of the model.
-   * @type {string}
-   */
-  static name = 'bard';
-  /**
-   * The base URL for the Bard API.
-   * @type {string}
-   */
-  static url = 'https://bard.google.com/v1/generate';
 
 
   /**
@@ -28,6 +18,17 @@ class Bard extends Model {
    */
   constructor() {
     super();
+  /**
+   * The name of the model.
+   * @type {string}
+   */
+  this.name = 'bard';
+  /**
+   * The base URL for the Bard API.
+   * @type {string}
+   */
+  this.url = 'https://bard.google.com/v1/generate';
+
   }
 
   /**
