@@ -85,11 +85,11 @@ class ServerManager {
     const checkSpace = document.getElementById("checkSpace");
     const radioSpace = document.getElementById("radioSpace");
     if (!this.asked.choices) {
-      createTextInput(inputSpace, this.asked.prompt);
+      this.createTextInput(inputSpace, this.asked.prompt);
     } else if (allowMultiple) {
-      createCheckboxesInput(checkSpace, this.asked.choices);
+      this.createCheckboxesInput(checkSpace, this.asked.choices);
     } else {
-      createRadioButtonsInput(radioSpace, this.asked.choices);
+      this. createRadioButtonsInput(radioSpace, this.asked.choices);
     }
   }
 
@@ -102,7 +102,7 @@ class ServerManager {
   }
   
   createCheckboxesInput(checkSpace, choices) {
-    const checkboxes = createCheckboxes(choices);
+    const checkboxes = this.createCheckboxes(choices);
     for (const box of checkboxes) {
       checkSpace.appendChild(box);
     }
@@ -112,7 +112,7 @@ class ServerManager {
   }
   
   createRadioButtonsInput(radioSpace, choices) {
-    const radioButtons = createRadioButtons(choices);
+    const radioButtons = this.createRadioButtons(choices);
     for (const button of radioButtons) {
       radioSpace.appendChild(button);
     }
