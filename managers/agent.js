@@ -72,7 +72,7 @@ class Agent {
     this.status = 'running';
     while (!['paused', 'finished'].includes(this.status)) {
       const task = this.taskManager.myNextTask(this, 'pending');
-      if (!task && Object.keys(this.taskManager.tasks).length == 0) {
+      if (!task && this.taskManager.tasks.size == 0) {
         this.status = 'finished';
         this.report('The agent is finished.');
         this.store.saveAgent(this);

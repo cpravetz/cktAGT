@@ -11,20 +11,18 @@ function replaceObjectReferencesWithIds(obj) {
     const newObj = {};
     Object.keys(obj).forEach(key => {
       const value = obj[key];
-      switch (true) {
-        case typeof value !== "object":
+      if  (typeof(value) !== "object") {
           newObj[key] = value;
-          break;
-        case value instanceof Set || value instanceof Map:
-          newObj[key] = replaceObjectReferencesWithIds(value);
-          break;
-        case Array.isArray(value):
-          newObj[key] = value.map(replaceObjectReferencesWithIds);
-          break;  
-        case value?.id:
+      } else  
+      if  (value?.id) {
           newObj[`${key}Id`] = value.id;
-          break;
-        default:
+      } else
+      if ((value instanceof Set) || (value instanceof Map)) {
+          newObj[key] = replaceObjectReferencesWithIds(value);
+      } else
+      if (Array.isArray(value)) {
+          newObj[key] = value.map(replaceObjectReferencesWithIds);
+      } else {
           newObj[key] = replaceObjectReferencesWithIds(value);
       }
     });  
