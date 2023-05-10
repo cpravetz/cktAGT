@@ -29,6 +29,7 @@
     "path": "^0.12.7",
     "redis": "^3.0.1",
     "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
     "transformers": "^3.1.0",
     "uniqid": "^5.4.0"
   },
