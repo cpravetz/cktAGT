@@ -3,7 +3,7 @@
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 const keyMaker = require('./../constants/keymaker.js');
-const removeProperties = require('./../constants/properties.js');
+const removeProperty = require('./../constants/properties.js');
 
 // Eliminates all instances of a given property from an object and it's object properties
 
@@ -23,8 +23,7 @@ class Task {
     this.progress = 0;
     this.createdAt = new Date();
     this.updatedAt = this.createdAt;
-    removeProperty(args.commands, 'id');
-    this.commands = args.commands;
+    this.commands = removeProperty(args.commands, 'id');
     this.result = {};
   }
 

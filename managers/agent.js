@@ -8,6 +8,7 @@ const keyMaker = require('./../constants/keymaker.js');
  * This is the agent which executes related tasks, capturing new tasks and reporting status.
  */
 class Agent {
+
   constructor(agentManager, name = '') {
     this.id = keyMaker();
     this.agentManager = agentManager;
@@ -97,3 +98,6 @@ class Agent {
     }
   }
 }
+
+
+module.exports = Agent;

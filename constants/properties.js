@@ -17,3 +17,4 @@ function removeProperty(obj, property) {
     return obj;
   }
   
+  module.exports = removeProperty;

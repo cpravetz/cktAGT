@@ -113,10 +113,8 @@ class AgentManager {
   }
 
   createFirstAgent(input) {
-    console.log('creating a new agent');
     // Create a new agent.
-    this.agent = new Agent(this);
-    this.agent.name = this.agentName || this.agent.id;
+    this.agent = new Agent(this, this.agentName || this.agent.id);
     const commands = [{name: "Think", args: {prompt: input}}];
     // Create a new task.
     const task = new Task({agent:this.agent, name:"Initial Task",
