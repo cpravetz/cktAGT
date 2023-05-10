@@ -10,7 +10,7 @@ const Strings = require("../constants/strings.js");
 
 class ThoughtGeneratorPlugin {
   
-  constructor(agent) {
+  constructor() {
 
     // The version of the plugin.
     this.version= 1.0;
@@ -28,11 +28,13 @@ class ThoughtGeneratorPlugin {
       assessments: 'An array of any other text that should be sent to the LLM with the prompt'
     };
 
-    this.agent = agent || null;
   }
 
   async execute(agent, command, task) {
+
     agent.say('thinking...');
+
+    this.parentTask = task;
 
     const llm = this.getLLM(agent, command, task);
     if (!llm) {
@@ -127,13 +129,13 @@ replaceAllOutputs(Obj, idMap) {
 
 createTask(thisStep, prompt, idMap) {
     const t = new Task({
-        agent: task.agent,
+        agent: this.parentTask.agent,
         name: "Follow up",
         description: 'a task created by the model',
         prompt: prompt || '',
         commands: [{name: this.replaceOutput(thisStep.name, idMap), model: thisStep.model || false, args: thisStep.args}],
         dependencies: [],
-        context: {from: task.id}
+        context: {from: this.parentTask.id}
     });
     for (const dependency in thisStep.dependencies) {
         t.dependencies.push(idMap[dependency]);
