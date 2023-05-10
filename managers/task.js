@@ -57,7 +57,7 @@ class Task {
   async execute() {
 
     this.status = "working";
-    const responses = [];
+    let responses = [];
     this.result = {};
     // If there is a plugin, execute it.
     for (const command of this.commands) {
