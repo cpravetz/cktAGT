@@ -9,23 +9,25 @@ const path = require('path');
 
 class FileWriterPlugin {
 
+
+  constructor() {  
     // The version of the plugin.
-    static version = 1.0;
+    this.version = 1.0;
 
     // The name of the command.
-    static command = 'WriteFile';
+    this.command = 'WriteFile';
 
     // The description of the command.
-    static description = 'Writes a file to disk to hold interim or final work products as we create them';
+    this.description = 'Writes a file to disk to hold interim or final work products as we create them';
 
     // The arguments for the command.
-  static args = {
+    this.args = {
       fileName: 'the name of the file to retrieve',
       content: 'the content of the file to be saved',
       overwrite: 'boolean true if existing file can be replaced, otherwise false',
     };
 
-  constructor() {  }
+  }
 
   // This method executes the command.
   async execute(agent, command, task) {

@@ -50,6 +50,7 @@ class Task {
         return false;
       }
     }
+    return true;
   }
 
   // This method executes the task.

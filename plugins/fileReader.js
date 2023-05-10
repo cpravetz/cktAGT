@@ -9,16 +9,18 @@ const Task = require('./../managers/task.js');
 const path = require('path');
 
 class FileReaderPlugin {
-  static version = 1.0;
-  static command = 'ReadFile';
-  static description = 'Reads a file from disk that was previously created by this agent.';
-  static args = {
-    fileName: 'the name of the file to retrieve',
-    url: 'the location of the file, if it is not stored in our local working directory',
-    sendToLLM: 'if true, generates a new task to send the file content to you or another LLM'
-  };
 
-  constructor() {}
+  constructor() {
+    this.version = 1.0;
+    this.command = 'ReadFile';
+    this.description = 'Reads a file from disk that was previously created by this agent.';
+    this.args = {
+      fileName: 'the name of the file to retrieve',
+      url: 'the location of the file, if it is not stored in our local working directory',
+      sendToLLM: 'if true, generates a new task to send the file content to you or another LLM'
+    };
+  
+  }
 
   async execute(agent, command, task) {
     const fileName = command.args.fileName;

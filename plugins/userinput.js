@@ -6,22 +6,23 @@
 
 class UserInputPlugin  {
 
+
+  constructor() {
     // The version of the plugin.
-    static version= 1.0;
+    this.version= 1.0;
 
     // The name of the command.
-    static command= 'AskUser';
+    this.command= 'AskUser';
 
-    static description = 'Gets input back from the system user';
+    this.description = 'Gets input back from the system user';
 
     // The arguments for the command.
-    static args= {
+    this.args= {
       prompt: 'the message to send to the user',
       choices: 'An array of strings with possible answers',
       required: 'A boolean indicating whether the user is required to answer'
     };
 
-  constructor() {
   }
 
   // This method executes the command.

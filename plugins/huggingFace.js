@@ -8,24 +8,26 @@ const huggingface = require("@huggingface/inference");
 
 class HuggingfacePlugin {
 
-  static version = 1.0;
 
-  static command = "huggingface";
+  constructor() {  
+    this.version = 1.0;
 
-  static description = "Send a prompt to Huggingface and return a textGeneration() response";
-
-  static args = {
-    prompt: {
-      description: "The prompt to send to Huggingface",
-      type: "string",
-    },
-    model: {
-      description: "The name of the Huggingface model to use",
-      type: "string",
-    },
-  };
-
-  constructor() {  }
+    this.command = "huggingface";
+  
+    this.description = "Send a prompt to Huggingface and return a textGeneration() response";
+  
+    this.args = {
+      prompt: {
+        description: "The prompt to send to Huggingface",
+        type: "string",
+      },
+      model: {
+        description: "The name of the Huggingface model to use",
+        type: "string",
+      },
+    };
+  
+  }
 
   execute(agent, command, task) {
     const prompt = command.args.prompt;

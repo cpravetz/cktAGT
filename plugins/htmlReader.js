@@ -9,21 +9,23 @@ const Task = require('./../managers/task.js');
 
 class HTMLReaderPlugin {
 
+
+  constructor() {  
     // The version of the plugin.
-  static version = 1.0;
+    this.version = 1.0;
 
     // The name of the command.
-  static command = 'ReadHtml';
+  this.command = 'ReadHtml';
 
-  static description = 'Gets the body section of any webpage';
+  this.description = 'Gets the body section of any webpage';
 
     // The arguments for the command.
-  static args = {
+  this.args = {
       url: 'The URL of the web page to read',
       sendToLLM: 'if true, generates a new task to send the file content to you or another LLM'
     };
 
-  constructor() {  }
+  }
 
   // This method executes the command.
   async execute(agent, command, task) {

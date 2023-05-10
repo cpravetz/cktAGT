@@ -8,25 +8,26 @@ const Task = require("../managers/task.js");
 
 
 class ThoughtGeneratorPlugin {
-  static Strings = require("../constants/strings.js");
-
-      // The version of the plugin.
-  static version= 1.0;
-
-      // The name of the command.
-  static command= 'Think';
-  
-      // The description of the plugin.
-  static description= 'Sends instructions or information in a message to an LLM, likely you';
-  
-      // The arguments for the command.
-  static args= {
-        prompt: 'a complete message to send to the LLM that adequately but efficiently explains the goal or item to be resolved',
-        constraints: 'An array of strings describing constraints the LLM should consider',
-        assessments: 'An array of any other text that should be sent to the LLM with the prompt'
-      };
   
   constructor(agent) {
+    this.Strings = require("../constants/strings.js");
+
+    // The version of the plugin.
+    this.version= 1.0;
+
+    // The name of the command.
+    this.command= 'Think';
+
+    // The description of the plugin.
+    this.description= 'Sends instructions or information in a message to an LLM, likely you';
+
+    // The arguments for the command.
+    this.args= {
+      prompt: 'a complete message to send to the LLM that adequately but efficiently explains the goal or item to be resolved',
+      constraints: 'An array of strings describing constraints the LLM should consider',
+      assessments: 'An array of any other text that should be sent to the LLM with the prompt'
+    };
+
     this.agent = agent || null;
   }
 

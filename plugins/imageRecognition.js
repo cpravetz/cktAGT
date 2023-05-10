@@ -8,20 +8,22 @@ const vision = require("@tensorflow/tfjs-core");
 
 class ImageRecognitionPlugin {
 
+  constructor() {  
     // The version of the plugin.
-  static version = 1.0;
+    this.version = 1.0;
 
     // The name of the command.
-  static command = 'RecognizeImage';
+  this.command = 'RecognizeImage';
 
-  static description = 'Gets a textual description of an image';
+  this.description = 'Gets a textual description of an image';
 
     // The arguments for the command.
-  static args = {
+  this.args = {
       image: 'The image to be recognized',
   };
 
-  constructor() {  }
+
+  }
 
   // This method executes the command.
   async execute(agent, command, task) {
