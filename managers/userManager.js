@@ -12,14 +12,14 @@ class UserManager {
   constructor(app, io) {
     this.app = app;
     this.io = io;
-    this.asks = [];
-    this.listeners = [];
+    this.asks = new Map();
+    this.listeners = new Set();
     this.id = keyMaker();
   }
 
-  addListener(l) {
-   if (typeof(l.hear) === 'function') {
-     this.listeners.push(l);
+  addListener(listener) {
+   if (listener && (typeof(listener.hear) === 'function')) {
+     this.listeners.add(listener);
    }
   }
 
@@ -36,13 +36,11 @@ class UserManager {
     try {
       msg = JSON.parse(message);
     } catch (error) {
-      msg = error;
+      console.error('Error parsing JSON:', error);
+      return error;
     }
     if (msg.id) {
-      const index = this.asks.indexOf(ask => ask.id === msg.id);
-      if (index >= 0) {
-        this.asks.splice(index, 1);
-      }
+      this.asks.delete(msg.id);
     }
 
     for (const listener of this.listeners) {
@@ -65,7 +63,7 @@ class UserManager {
       allowMultiple: allowMultiple
     };
     this.say(lastAsk);
-    this.asks.push(lastAsk);
+    this.asks.set(lastAsk.id, lastAsk);
   }
 
   // This method announces a new file to the server.
@@ -73,5 +71,6 @@ class UserManager {
     this.io.emit('serverFileAdd', { name: name, url: url });
   }
 }
+
 
 module.exports = UserManager;

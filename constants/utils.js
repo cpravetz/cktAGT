@@ -1,22 +1,32 @@
 // This function replaces object references with Id strings to allow saving/deleting
 // without circular reference issues.
 
-function getDataProperties(obj) {
+/**
+ * Replaces object references with Id strings to allow saving/deleting without circular reference issues.
+ * @param {Object} obj - The object to replace references in.
+ * @returns {Object} - The new object with references replaced with Id strings.
+ */
+function replaceObjectReferencesWithIds(obj) {
   const newObj = {};
-  for (const key in obj) {
-    if (typeof obj[key] !== "object") {
-      newObj[key] = obj[key];
-    } else {
-      //if our object contains a key, store that instead of the object itself
-      if (obj[key].id) {
-        newObj[key+'Id'] = obj[key].id || false;
-      } else {
-        //if no key, we need to clean the object before storing it in the newObj
-        newObj[key] = getDataProperties(obj[key]);
-      }
+  for (const [key, value] of Object.entries(obj)) {
+    switch (true) {
+      case typeof value !== "object":
+        newObj[key] = value;
+        break;
+      case value instanceof Set || value instanceof Map:
+        newObj[key] = replaceObjectReferencesWithIds(value);
+        break;
+      case Array.isArray(value):
+        newObj[key] = value.map(replaceObjectReferencesWithIds);
+        break;  
+      case value?.id:
+        newObj[`${key}Id`] = value.id;
+        break;
+      default:
+        newObj[key] = replaceObjectReferencesWithIds(value);
     }
   }
   return newObj;
 }
 
-module.exports = getDataProperties;
+module.exports = replaceObjectReferencesWithIds;

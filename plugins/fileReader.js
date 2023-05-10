@@ -6,32 +6,28 @@
 
 const fs = require("fs");
 const Task = require('./../managers/task.js');
+const path = require('path');
 
 class FileReaderPlugin {
+  static version = 1.0;
+  static command = 'ReadFile';
+  static description = 'Reads a file from disk that was previously created by this agent.';
+  static args = {
+    fileName: 'the name of the file to retrieve',
+    url: 'the location of the file, if it is not stored in our local working directory',
+    sendToLLM: 'if true, generates a new task to send the file content to you or another LLM'
+  };
 
-  constructor() {
-    // The version of the plugin.
-    this.version= 1.0;
+  constructor() {}
 
-    // The name of the command.
-    this.command= 'ReadFile';
-
-    // The description of the command.
-    this.description= 'Reads a file from disk that was previously created by this agent.';
-
-    // The arguments for the command.
-    this.args= {
-      fileName: 'the name of the file to retrieve',
-      url: 'the location of the file, if it is not stored in our local working directory',
-    };
-  }
-
-  // This method executes the command.
   async execute(agent, command, task) {
-    // Get the file path from the task.
-    const filePath = (command.args.url || agent.agentManager.workDirName) + command.args.fileName;
+    const fileName = command.args.fileName;
+    const url = command.args.url || agent.agentManager.workDirName;
+    if (path.isAbsolute(fileName) || path.isAbsolute(url) || fileName.includes('..') || url.includes('..')) {
+      throw new Error('Invalid file name or URL');
+    }
+    const filePath = path.join(url, fileName);
 
-    // Check if the file exists.
     if (!fs.existsSync(filePath)) {
       return {
         outcome: 'FAILURE',
@@ -42,22 +38,37 @@ class FileReaderPlugin {
       };
     }
 
-    // Read the contents of the file.
-    const contents = await fs.readFileSync(filePath);
-    const t = new Task({agent:agent,
-              name:'File Send', description:'sending the file '+command.args.filename+' to the LLM',
-              prompt:'this is the file '+command.args.filename,
-              commands:[{name: 'Think', model: agent.model||false, args:{prompt:contents}}],
-              context:{from: this.id}});
+    const contents = await this.readFile(filePath);
+    const tasks = [];
+    if (command.args.sendToLLM) {
+      tasks.push( this.createTask(agent, fileName, contents));
+    }
+
     return {
       outcome: 'SUCCESS',
       results: {
         file: contents,
       },
-      tasks: [t]
+      tasks: tasks
     };
   }
 
+  async readFile(filePath) {
+    return fs.promises.readFile(filePath);
+  }
+
+  createTask(agent, fileName, contents) {
+    return new Task({
+      agent: agent,
+      name: 'File Send',
+      description: 'sending the file ' + fileName + ' to the LLM',
+      prompt: 'this is the file ' + fileName,
+      commands: [{name: 'Think', model: agent.model || false, args: {prompt: contents}}],
+      context: {from: this.id}
+    });
+  }
 }
+
+module.exports = FileReaderPlugin;
 
 module.exports = FileReaderPlugin;

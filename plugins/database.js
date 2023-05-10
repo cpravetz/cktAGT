@@ -8,18 +8,17 @@ const database = require("mysql");
 
 class DatabasePlugin {
 
-  constructor() {
     // The version of the plugin.
-    this.version= 1.0;
+    static version = 1.0;
 
     // The name of the command.
-    this.command= 'QueryDB';
+    static command = 'QueryDB';
 
     // The description of the command.
-    this.description= 'Executes SQL commands against a given database that you know exists';
+    static description = 'Executes SQL commands against a given database that you know exists';
 
     // The arguments for the command.
-    this.args= {
+    static args = {
       host: 'SQL Server URL',
       port: 'SQL Server port',
       database: 'The name of the database',
@@ -27,7 +26,8 @@ class DatabasePlugin {
       password: 'A password to use',
       query: 'The SQL command to be executed',
     };
-  }
+
+  constructor() {  }
 
   // This method connects to the database.
   connect(host, port, database, username, password) {

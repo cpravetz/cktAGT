@@ -8,24 +8,26 @@ const fs = require("fs");
 const pluginManager = require("../managers/pluginManager.js");
 const Strings = require("../constants/strings.js");
 
+
 class PluginBuilderPlugin {
 
-  constructor() {
     // The version of the plugin.
-    this.version= 1.0;
+  static version= 1.0;
 
-    // The name of the command.
-    this.command= 'CreatePlugin';
+  // The name of the command.
+  static command= 'CreatePlugin';
 
-    this.description = "Creates new plugins.  If you don't have a plugin for a feature you need, this plugin will create one by asking the model you identify to generate code.";
+  static description = "Creates new plugins.  If you don't have a plugin for a feature you need, this plugin will create one by asking the model you identify to generate code.";
 
 
-    // The arguments for the command.
-    this.args= {
-      description: 'The description of the plugin',
-      newCommand: 'The name of the new command',
-      executeDoes: 'An explanation of the expected output of the execute() function of the new plugin'
-    };
+  // The arguments for the command.
+  static args= {
+    description: 'The description of the plugin',
+    newCommand: 'The name of the new command',
+    executeDoes: 'An explanation of the expected output of the execute() function of the new plugin'
+  };
+
+  constructor() {
  }
 
   // This method executes the command.
@@ -45,16 +47,18 @@ class PluginBuilderPlugin {
 
     // Create a new file with the name of the task.
     const filePath = `./plugins/${task.command}+'Plugin'.js`;
-    const file = fs.openSync(filePath, "w");
-
-    // Write the plugin code to the file.
-    file.write(text);
-    file.close();
-
-    // Register the plugin with the plugin manager.
-    pluginManager.register(filePath);
+    try {
+      const file = await fs.promises.open(filePath, "w");
+      await file.writeFile(text);
+      await file.close();
+      pluginManager.register(filePath);
+    } catch (err) {
+      console.error(`Error writing plugin file: ${err}`);
+    }
   }
 
 }
+
+module.exports = PluginBuilderPlugin;
 
 module.exports = PluginBuilderPlugin;

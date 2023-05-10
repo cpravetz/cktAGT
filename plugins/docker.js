@@ -7,25 +7,26 @@
 const docker = require("docker");
 
 class DockerPlugin {
-  constructor() {
-    this.version = 1.0;
-    this.command = "docker";
-    this.description = "Interact with Docker containers";
-    this.args = {
-      image: {
-        description: "The name of the Docker image to use",
-        type: "string",
-      },
-      command: {
-        description: "The command to run inside the Docker container",
-        type: "string",
-      },
-      args: {
-        description: "The arguments to pass to the command",
-        type: "array",
-      },
-    };
-  }
+
+  static version = 1.0;
+  static command = "docker";
+  static description = "Interact with Docker containers";
+  static args = {
+    image: {
+      description: "The name of the Docker image to use",
+      type: "string",
+    },
+    command: {
+      description: "The command to run inside the Docker container",
+      type: "string",
+    },
+    args: {
+      description: "The arguments to pass to the command",
+      type: "array",
+    },
+  };
+
+  constructor() {  }
 
   execute(agent, command, task) {
     const image = command.args.image;

@@ -2,21 +2,10 @@
 //
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-const keyMaker = require('./../constants/keyMaker.js');
+const keyMaker = require('./../constants/keymaker.js');
+const removeProperties = require('./../constants/properties.js');
 
 // Eliminates all instances of a given property from an object and it's object properties
-function removeProperty(obj, property) {
-  if (obj !== null && typeof obj === 'object') {
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key) && key === property) {
-        delete obj[key];
-      } else if (typeof obj[key] === 'object') {
-        removeProperty(obj[key], property);
-      }
-    }
-  }
-  return obj;
-}
 
 // This module provides a class for representing tasks.
 class Task {
@@ -58,20 +47,17 @@ class Task {
   dependenciesSatisfied() {
     // Check if any of the task's dependencies are not finished
     for (const dependency of this.dependencies) {
-        if (this.agent.taskManager.tasks[dependency].status !== "finished") {
-            return false;
-        }
+      if (!this.agent.taskManager.tasks[dependency] || this.agent.taskManager.tasks[dependency].status !== "finished") {
+        return false;
+      }
     }
-    // All dependencies are finished, so return true
-    return true;
   }
-
 
   // This method executes the task.
   async execute() {
 
     this.status = "working";
-    let responses = [];
+    const responses = [];
     this.result = {};
     // If there is a plugin, execute it.
     for (const command of this.commands) {

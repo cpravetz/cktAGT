@@ -8,21 +8,21 @@ const Clone = require("git-clone");
 
 class GitHubClonePlugin {
 
-  constructor() {
-    // The version of the plugin.
-    this.version= 1.0;
+      // The version of the plugin.
+  static version = 1.0;
 
-    // The name of the command.
-    this.command= 'CloneGithub';
-
-    this.description = 'Clones a github repository to working folder so you can use or modify it';
-
-    // The arguments for the command.
-    this.args= {
-      repoUrl: 'The URL of the GitHub repository to clone',
-      clonePath: 'The path to the directory where the repository will be cloned',
-    };
-  }
+      // The name of the command.
+  static command = 'CloneGithub';
+  
+  static description = 'Clones a github repository to working folder so you can use or modify it';
+  
+      // The arguments for the command.
+  static args = {
+        repoUrl: 'The URL of the GitHub repository to clone',
+        clonePath: 'The path to the directory where the repository will be cloned',
+      };
+  
+  constructor() {  }
 
   // This method executes the command.
   async execute(agent, command, task) {

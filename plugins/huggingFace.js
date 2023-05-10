@@ -1,21 +1,31 @@
+// Copyright 2023 Seakaytee, Inc.
+//
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+// This module provides a class for representing an HTML reader plugin.
+
 const huggingface = require("@huggingface/inference");
 
 class HuggingfacePlugin {
-  constructor() {
-    this.version = 1.0;
-    this.command = "huggingface";
-    this.description = "Send a prompt to Huggingface and return a textGeneration() response";
-    this.args = {
-      prompt: {
-        description: "The prompt to send to Huggingface",
-        type: "string",
-      },
-      model: {
-        description: "The name of the Huggingface model to use",
-        type: "string",
-      },
-    };
-  }
+
+  static version = 1.0;
+
+  static command = "huggingface";
+
+  static description = "Send a prompt to Huggingface and return a textGeneration() response";
+
+  static args = {
+    prompt: {
+      description: "The prompt to send to Huggingface",
+      type: "string",
+    },
+    model: {
+      description: "The name of the Huggingface model to use",
+      type: "string",
+    },
+  };
+
+  constructor() {  }
 
   execute(agent, command, task) {
     const prompt = command.args.prompt;

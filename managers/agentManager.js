@@ -32,7 +32,7 @@ class AgentManager {
   remainingSteps;
 
   // Subagents track additional agents launched by the primary or other subagents
-  subAgents = [];
+  subAgents = new Map();
 
   // The plugin manager used by the agent manager.
   pluginManager;
@@ -63,27 +63,27 @@ class AgentManager {
     this.taskManager = new TaskManager(this.modelManager.activeModel, this.memoryManager.activeStore);
     this.userManager = userManager;
     this.workDirName = workDirName;
-    if (workDirName[workDirName.length - 1] !== '/') {
-        this.workDirName = this.workDirName + '/'
+    if (!this.workDirName.endsWith('/')) {
+        this.workDirName = `${this.workDirName}/`;
     }
   }
 
 
   //adds a new Agent to the subAgent dictionary
   addSubAgent(agent, start) {
-    this.subAgents[agent.id] = agent;
+    this.subAgents.set(agent.id, agent);
     if (start) {
         agent.start();
     }
   }
 
   getSubAgent(agentId) {
-    return this.subAgents[agentId] || false;
+    return this.subAgents.get(agentId) || false;
   }
 
   //Add a think task for feedback from the user
   informTheLLM(input) {
-    console.log('informingLLM:'+input);
+    console.log(`informingLLM:${input}`);
     const commands = [{name: "Think", args: {prompt: input}}];
     const task = new Task({agent:this.agent, name:"User Feedback", goal:input, commands:commands});
     // Add the task to the queue.
@@ -135,7 +135,7 @@ class AgentManager {
   }
 
   doLoadOrNew(input) {
-   console.log('Responding to start or load agent'+input);
+   console.log(`Responding to start or load agent${input}`);
     if (input.response == 'start') {
       this.status = Status.naming;
       this.ask('What do you want to name your new agent?');
@@ -179,25 +179,28 @@ class AgentManager {
     const input = JSON.parse(msg) || msg;
 
     // Deal with input supplied by the user, probably in response to an ask
-    if (this.status == Status.launching) {
+    switch (this.status) {
+      case Status.launching:
         this.askLoadOrNew();
-    } else
-      if (this.status == Status.waiting) {
+        break;
+      case Status.waiting:
         this.doLoadOrNew(input);
-      } else
-      if (this.status == Status.naming) {
+        break;
+      case Status.naming:
         this.agentName = input.response || 'unnamed';
         this.getNewGoal();
-      } else
-      if (this.status == Status.gettingName) {
+        break;
+      case Status.gettingName:
         this.agentId = input.response || false;
         this.loadAnAgent(this.agentId);
-      } else
-      if (this.status == Status.awaitingGoal) {
+        break;
+      case Status.awaitingGoal:
         this.createFirstAgent(input);
         this.startTheAgent();
-      } else
+        break;
+      default:
         this.informTheLLM(input);
+    }
   }
 
   allowMoreSteps(continuous, count) {

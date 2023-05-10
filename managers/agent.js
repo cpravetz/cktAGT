@@ -2,11 +2,13 @@
 //
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-const keyMaker = require('./../constants/keyMaker.js');
+const keyMaker = require('./../constants/keymaker.js');
 
-// This is the agent which executes related tasks, capturing new tasks and reporting status.
-const Agent = class {
-  constructor(agentManager, name) {
+/**
+ * This is the agent which executes related tasks, capturing new tasks and reporting status.
+ */
+class Agent {
+  constructor(agentManager, name = '') {
     this.id = keyMaker();
     this.agentManager = agentManager;
     this.taskManager = agentManager.taskManager;
@@ -14,93 +16,84 @@ const Agent = class {
     this.userManager = agentManager.userManager;
     this.store = agentManager.memoryManager.activeStore;
     this.status = 'pending';
-    //TODO Add a name field with a user provided name that will be used in the store/load functions
-    this.name = name || '';
+    this.name = name;
   }
 
-  // returns any properties that are not references to other objects
-  getDataProperties() {
-
-  }
-
-  // Reports a message to the console.
   report(text) {
-    console.log(`Agent `+this.name+` reports ${text}`);
+    console.log(`Agent ${this.name} reports ${text}`);
   }
 
-  // Gets the model used by the agent.
+  replaceObjectReferencesWithIds() {}
+
   model() {
     return this.taskManager.model;
   }
 
-  // Starts the agent.
   start() {
-    this._run();
+    try {
+      this._run();
+    } catch (error) {
+      console.error(`Error starting agent: ${error}`);
+    }
   }
 
-  // Says a message to the user.
   say(text) {
     if (this.userManager) {
       this.userManager.say(text);
     }
   }
 
-  // Adds subtasks to the task manager.
   _addSubTasks(newTasks) {
-    for (const task of newTasks) {
+    newTasks.forEach((task) => {
       task.agent = this;
       this.taskManager.addTask(task);
-    }
+    });
   }
 
-  // Process the results of a task
   _processResult(result) {
-    // Report task feedback/errors to user
-    if (result.text) { this.say(result.text) };
-    if (result.error) { this.say(result.error) };
-    for (const cmdResp of result.responses) {
-      if (cmdResp.text) { this.say(cmdResp.text); }
-      if (cmdResp.tasks) { this._addSubTasks(cmdResp.tasks); }
-    };
+    if (result.text) {
+      this.say(result.text);
+    }
+    if (result.error) {
+      this.say(result.error);
+    }
+    result.responses.forEach((cmdResp) => {
+      if (cmdResp.text) {
+        this.say(cmdResp.text);
+      }
+      if (cmdResp.tasks) {
+        this._addSubTasks(cmdResp.tasks);
+      }
+    });
   }
 
-  // Runs the agent loop.
   async _run() {
     this.status = 'running';
-    while (!(this.status == 'paused' || this.status == 'finished')) {
-      // Get the next task.
+    while (!['paused', 'finished'].includes(this.status)) {
       const task = this.taskManager.myNextTask(this, 'pending');
-      // If there are no more tasks, stop.
-      if (!task && (Object.keys(this.taskManager.tasks).length == 0)) {
+      if (!task && Object.keys(this.taskManager.tasks).length == 0) {
         this.status = 'finished';
         this.report('The agent is finished.');
         this.store.saveAgent(this);
         break;
       }
       if (task) {
-          if (this.agentManager.okayToContinue(task)) {
-            // Log the task.
-            this.report(`Starting task: ${task.name || task.id}`);
-            // Try to execute the task.
-            try {
-              this.agentManager.useOneStep();
-              const result = await task.execute();
-              this._processResult(result);
-
-              // Log the result of the task.
-              this.report(`Finished task: ${task.name || task.id}`);
-              this.taskManager.complete(task);
-              if (this.store) {
-                this.store.save(task);
-              }
-            } catch (error) {
-              console.error(`Error executing task: ${error}`);
+        if (this.agentManager.okayToContinue(task)) {
+          this.report(`Starting task: ${task.name || task.id}`);
+          try {
+            this.agentManager.useOneStep();
+            const result = await task.execute();
+            this._processResult(result);
+            this.report(`Finished task: ${task.name || task.id}`);
+            this.taskManager.complete(task);
+            if (this.store) {
+              this.store.save(task);
             }
+          } catch (error) {
+            console.error(`Error executing task: ${error}`);
           }
+        }
       }
     }
   }
-
 }
-
-module.exports = Agent;

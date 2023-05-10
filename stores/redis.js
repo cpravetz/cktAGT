@@ -5,7 +5,7 @@
 // This module provides a class for representing a Redis backend.
 
 const redis = require("redis");
-const getDataProperties = require('./../constants/utils.js');
+const replaceObjectReferencesWithIds = require('./../constants/utils.js');
 
 class RedisBackend {
 
@@ -39,7 +39,7 @@ class RedisBackend {
         this.connect();
     }
     try {
-      let savedTask = getDataProperties(task);
+      let savedTask = replaceObjectReferencesWithIds(task);
       this.client.set(`task:${savedTask.id}`, JSON.stringify(savedTask));
     } catch (error) {
       console.error(`Error saving task: ${error}`);
@@ -116,7 +116,7 @@ class RedisBackend {
         this.connect();
     }
     try {
-      let savedAgent = getDataProperties(agent);
+      let savedAgent = replaceObjectReferencesWithIds(agent);
       this.client.set(`agent:${savedAgent.id}`, JSON.stringify(savedAgent));
     } catch (error) {
       console.error(`Error saving agent: ${error}`);

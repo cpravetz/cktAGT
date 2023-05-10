@@ -6,7 +6,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const getDataProperties = require('./../constants/utils.js');
+const replaceObjectReferencesWithIds = require('./../constants/utils.js');
 
 class LocalJsonFilesBackend {
 
@@ -28,7 +28,7 @@ class LocalJsonFilesBackend {
 
   // Save a task.
   save(task) {
-    let savedTask = getDataProperties(task);
+    let savedTask = replaceObjectReferencesWithIds(task);
     const taskPath = `${this.tasksDir}/${savedTask.id}.json`;
     fs.writeFileSync(taskPath, JSON.stringify(savedTask), {flags: 'w'});
     return task;
@@ -76,7 +76,7 @@ class LocalJsonFilesBackend {
   }
 
   saveAgent(agent) {
-    const savedAgent = getDataProperties(agent);
+    const savedAgent = replaceObjectReferencesWithIds(agent);
     const agentPath = `${this.agentDir}/${savedAgent.id}.json`;
     fs.writeFileSync(agentPath, JSON.stringify(savedAgent), {flags: 'w'});
     return savedAgent;

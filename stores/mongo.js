@@ -5,7 +5,7 @@
 // This module provides a class for representing a MongoDB backend.
 
 const mongodb = require("mongodb");
-const getDataProperties = require("./../constants/utils.js");
+const replaceObjectReferencesWithIds = require("./../constants/utils.js");
 
 class MongoDBBackend  {
 
@@ -37,7 +37,7 @@ class MongoDBBackend  {
     if (!this.client) {
         this.connect();
     }
-    let savedTask = getDataProperties(task);
+    let savedTask = replaceObjectReferencesWithIds(task);
     return this.db.collection("tasks").updateOne({
       id: savedTask.id,
     }, {
@@ -94,7 +94,7 @@ class MongoDBBackend  {
     if (!this.client) {
         this.connect();
     }
-    const savedAgent = getDataProperties(agent);
+    const savedAgent = replaceObjectReferencesWithIds(agent);
     return this.db.collection("agents").updateOne({
       id: agent.id,
     }, {

@@ -10,40 +10,37 @@ let serverManager;
 class ServerManager {
 
   constructor() {
-
+    this.askId = false;
+    this.asked = {};
   }
 
   chat(text, justify) {
-        if (typeof(text) === Object) {
-            text = text.response || text;
-        }
-        var li = document.createElement("li");
-        li.style.justifyContent = justify || 'right';
-
-        // Set the text content of the `li` element.
-        if (!(typeof(text) === 'string')) {
-            text = JSON.stringify(text);
-        }
-        li.innerText = text.trim();
-
-        // Append the `li` element to the list.
-        document.getElementById("chatThread").appendChild(li);
-        window.scrollTo(0, document.body.scrollHeight);
+    if (typeof(text) === Object) {
+      text = text.response || text;
     }
-
-  // This function adds a file name to the list of files.
-  _addFileName(name, url) {
     const li = document.createElement("li");
-    const aTag = document.createElement('a');
-    aTag.href = url;
-    aTag.textContent = name;
-    li.appendChild(aTag);
+    li.style.justifyContent = justify || 'right';
+
+    // Set the text content of the `li` element.
+    if (!(typeof(text) === 'string')) {
+      text = JSON.stringify(text);
+    }
+    li.textContent = sanitize(text.trim());
 
     // Append the `li` element to the list.
+    document.getElementById("chatThread").appendChild(li);
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  _addFileName(name, url) {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = url;
+    a.textContent = name;
+    li.appendChild(a);
     document.getElementById("filesList").appendChild(li);
   }
 
-  // This function sends a request to the server.  Usually triggered by an answer
   say(message) {
     this.chat(message.response || message,'right');
     if (this.askId) {
@@ -51,77 +48,116 @@ class ServerManager {
       this.askId = false;
     }
     document.getElementById("inputSpace").placeholder = "Enter a message for your agents.";
-    console.log(socket.emit('userSays', JSON.stringify(message)));
+    try {
+      socket.emit('userSays', JSON.stringify(message));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  // This function gets a message from the server
   hear(message) {
     this.chat(message,'left');
   }
 
-// This function answers sends the server a new request in response to an ask
-answer(msg) {
+  createCheckboxes(choices) {
+    const checkboxes = [];
+    for (const [id, choice] of Object.entries(choices)) {
+      const checkbox = document.createElement("input");
+      checkbox.name = 'aCheckBox';
+      checkbox.type = "checkbox";
+      checkbox.value = id;
+      checkbox.textContent = choice;
+      checkboxes.push(checkbox);
+    }
+    return checkboxes;
+  }
+
+  answer(msg) {
     this.asked = {
-        prompt: msg.prompt.prompt || msg.prompt,
-        choices: msg.prompt.choices || false,
+      prompt: msg.prompt.prompt || msg.prompt,
+      choices: msg.prompt.choices || false,
     };
-    let allowMultiple = msg.allowMultiple || false;
+    const allowMultiple = msg.allowMultiple || false;
     this.askId = msg.id;
     // Say the prompt.
     this.hear(this.asked.prompt);
-    var inputSpace = document.getElementById("inputSpace");
-    var checkSpace = document.getElementById("checkSpace");
-    var radioSpace = document.getElementById("radioSpace");
-    // If choices is null, make inputSpace a text input and wait for the user to press the Submit button (id="Submit") and return the text in the input field.
+    const inputSpace = document.getElementById("inputSpace");
+    const checkSpace = document.getElementById("checkSpace");
+    const radioSpace = document.getElementById("radioSpace");
     if (!this.asked.choices) {
-      inputSpace.placeholder = this.asked.prompt;
-      inputSpace.style.display = 'block';
-      checkSpace.style.display = 'none';
-      radioSpace.style.display = 'none';
-      inputSpace.value = "";
+      createTextInput(inputSpace, this.asked.prompt);
+    } else if (allowMultiple) {
+      createCheckboxesInput(checkSpace, this.asked.choices);
     } else {
-      // If allowMultiple is true, then the function creates checkboxes for each item in choices and waits for the user to press the Submit button then submits the text of the checkboxes checked as an array.
-      if (allowMultiple) {
-        var checkboxes = [];
-        for (const [id, choice] of Object.entries(this.asked.choices)) {
-          var checkbox = document.createElement("input");
-          checkbox.name = 'aCheckBox';
-          checkbox.type = "checkbox";
-          checkbox.value = id;
-          checkbox.textContent = choice;
-          checkboxes.push(checkbox);
-        }
-
-        for (const box of checkboxes) {
-          checkSpace.appendChild(box);
-        }
-
-        inputSpace.style.display = 'none';
-        checkSpace.style.display = 'block';
-        radioSpace.style.display = 'none';
-
-      } else {
-        // If allowMultiple is false, the function creates a radiobutton type input using the strings in choices as the options and waits for the user to press Submit, then returns the text of the selected option as a string.
-        var radioButtons = [];
-        for (const [id, choice] of Object.entries(this.asked.choices)) {
-          var radioButton = document.createElement("input");
-          radioButton.type = "radio";
-          radioButton.name = id;
-          radioButton.value = id;
-          radioButtons.push(radioButton);
-          radioSpace.appendChild(radioButton);
-          var label = document.createElement("label");
-          label.innerHTML = choice+ '<br/>';
-          label.for = id;
-          radioButtons.push(label);
-          radioSpace.appendChild(label);
-        }
-        inputSpace.style.display = 'none';
-        checkSpace.style.display = 'none';
-        radioSpace.style.display = 'block';
-      }
+      createRadioButtonsInput(radioSpace, this.asked.choices);
     }
   }
+
+  createTextInput(inputSpace, prompt) {
+    inputSpace.placeholder = prompt;
+    inputSpace.style.display = 'block';
+    checkSpace.style.display = 'none';
+    radioSpace.style.display = 'none';
+    inputSpace.value = "";
+  }
+  
+  createCheckboxesInput(checkSpace, choices) {
+    const checkboxes = createCheckboxes(choices);
+    for (const box of checkboxes) {
+      checkSpace.appendChild(box);
+    }
+    inputSpace.style.display = 'none';
+    checkSpace.style.display = 'block';
+    radioSpace.style.display = 'none';
+  }
+  
+  createRadioButtonsInput(radioSpace, choices) {
+    const radioButtons = createRadioButtons(choices);
+    for (const button of radioButtons) {
+      radioSpace.appendChild(button);
+    }
+    inputSpace.style.display = 'none';
+    checkSpace.style.display = 'none';
+    radioSpace.style.display = 'block';
+  }
+  
+  createCheckboxes(choices) {
+    const checkboxes = [];
+    for (const [id, choice] of Object.entries(choices)) {
+      const checkbox = document.createElement("input");
+      checkbox.name = 'aCheckBox';
+      checkbox.type = "checkbox";
+      checkbox.value = id;
+      checkbox.textContent = choice;
+      checkboxes.push(checkbox);
+    }
+    return checkboxes;
+  }
+  
+  createRadioButtons(choices) {
+    const radioButtons = [];
+    for (const [id, choice] of Object.entries(choices)) {
+      const radioButton = document.createElement("input");
+      radioButton.type = "radio";
+      radioButton.name = id;
+      radioButton.value = id;
+      radioButtons.push(radioButton);
+      const label = document.createElement("label");
+      label.innerHTML = `${choice}<br/>`;
+      label.for = id;
+      radioButtons.push(label);
+    }
+    return radioButtons;
+  }
+  
+
+}
+
+
+function sanitize(text) {
+  const element = document.createElement('div');
+  element.textContent = text;
+  return element.innerHTML;
 }
 
 socket.on('serverSays', function(msg) {
@@ -225,4 +261,3 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 });
-

@@ -9,34 +9,40 @@ const { Configuration, OpenAIApi } = require("openai");
 
 class GPT4 extends Model {
 
-
   // The OpenAI API configuration.
   configuration;
 
   // The OpenAI API instance.
-  LLM;
+  openAiApiClient;
+
+  // The name of the model.
+  static name = 'gpt-4';
 
   constructor() {
     super();
-    // The name of the model.
-    this.name = 'gpt-4';
     this.configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     });
-    this.LLM = new OpenAIApi(this.configuration);
+    this.openAiApiClient = new OpenAIApi(this.configuration);
   }
 
   async generate(prompt, options) {
-    // Set the max_length and temperature parameters.
-    const max_length = options.max_length || 100;
-    const temperature = options.temperature || 0.7;
+    // Validate input parameters
+    const max_length = typeof options.max_length === 'number' && options.max_length > 0 ? options.max_length : 100;
+    const temperature = typeof options.temperature === 'number' && options.temperature >= 0 && options.temperature <= 1 ? options.temperature : 0.7;
 
-    // Generate the text using the GPT-4 model.
-    const response = await this.LLM.createCompletion({
-      prompt,
-      max_tokens: max_length,
-      temperature,
-    });
+    // Add error handling for the API call
+    let response;
+    try {
+      response = await this.openAiApiClient.createCompletion({
+        prompt,
+        max_tokens: max_length,
+        temperature,
+      });
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
 
     // Return the full message
     return response.data.choices[0].message.content;

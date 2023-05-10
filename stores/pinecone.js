@@ -3,7 +3,7 @@
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 // This module provides a class for representing a Pinecone backend.
-const getDataProperties = require('./../constants/utils.js');
+const replaceObjectReferencesWithIds = require('./../constants/utils.js');
 
 class PineconeBackend {
 
@@ -53,7 +53,7 @@ class PineconeBackend {
 
   async save(task) {
     if (this.apiKey) {
-      let savedTask = getDataProperties(task);
+      let savedTask = replaceObjectReferencesWithIds(task);
       return this._put(`${this.apiUrl}/${task.id}`,savedTask);
     }
   }
@@ -119,7 +119,7 @@ class PineconeBackend {
 
   async saveAgent(agent) {
     if (this.apiKey) {
-      let savedAgent = getDataProperties(agent);
+      let savedAgent = replaceObjectReferencesWithIds(agent);
       return this._put(`${this.agentUrl}/${agent.id}`,savedAgent);
     }
   }

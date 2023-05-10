@@ -7,11 +7,13 @@ const path = require("path");
 const Strings = require("../constants/strings.js");
 const keyMaker = require("../constants/keymaker.js");
 
-// This is the ModelManager class.
+/**
+This is the ModelManager class.
+ */
 class ModelManager {
 
   // This is a dictionary of available models.
-  models = {}  //{ [key: string]: any } = {};
+  models;
 
   //The activeModel is the default model identified in environment variables.
   //This one gets the initial task for a new agent, and other tasks not assigned a specific model
@@ -20,20 +22,22 @@ class ModelManager {
   // This constructor initializes the model manager.
   constructor() {
     this.id = keyMaker();
+    this.models = {};
     this.loadModels();
     this.activeModel = this.getModel(process.env.DEFAULT_MODEL || Strings.defaultModel);
   }
 
   // This method loads the models from the `models` directory.
   loadModels() {
+//    const modelsDir = path.join(__dirname, "./../models");
     const modelsDir = "./models";
-    for (const file of fs.readdirSync(modelsDir)) {
-      const modelPath = path.join(modelsDir, file);
-      if (fs.statSync(modelPath).isFile() && modelPath.endsWith(".js")) {
-        const modelPlugin = require(`../${modelPath}`);
-        const model = new modelPlugin();
-        this.models[model.name] = model;
-      }
+
+    const modelFiles = fs.readdirSync(modelsDir);
+    for (const modelFile of modelFiles) {
+      const modelPath = path.resolve(modelsDir, modelFile);
+      const model = new (require(modelPath))();
+      const name = path.basename(modelFile, ".js");
+      this.models[name] = model;
     }
   }
 
@@ -42,13 +46,14 @@ class ModelManager {
     return this.models[name] || false;
   }
 
-  getModelNames() {
-    let result = '';
-    for (const model in this.models) {
-        result += this.models[model].name + ' ';
-    }
-    return result + '.';
+  get ModelNames() {
+    const modelNames = Object.values(this.models).map(model => model.name);
+    return `${modelNames.join(' ')}.`;
   }
 }
+
+module.exports = ModelManager;
+
+module.exports = ModelManager;
 
 module.exports = ModelManager;
