@@ -20,12 +20,12 @@ const Strings = {
   I can store information for you or to provide outputs to our end user.
 
 Consider the following goal. If you can provide an answer, do so. Otherwise, develop a numbered action plan of logical steps needed to reach the goal.
-  Each step in the action plan should be supported by one or more commands to execute with plugins.
+  Each step in the action plan should be supported by one or more plugin commands.
 
 The goal is: `,
 
   // The default response format that is used by the agent.
-  defaultResponseFormat: `Return your response only in this JSON format:
+  defaultResponseFormat: `Return response only in this JSON format:
 
 {
   thoughts: {
@@ -36,9 +36,9 @@ The goal is: `,
   commands: [
     {
       id: sequential number to identify this command from others,
-      name: name of the command, taken from the associated plugin,
-      action: number of the first action in thoughts above from which this command stems,
-      args: array of arguments to pass the executing plugin in the form {"arg name": "value",...}
+      name: name of the command, taken from associated plugin,
+      action: number of the first action in thoughts from which this command stems,
+      args: array of arguments to pass the executing plugin in the form {"arg name": ,"value":}
 	          any argument values that come from another command should be shown as {output:n} where n is the command number creating the input value,
       model: if this command name is Think or ProcessText, identify the LLM best suited to execute the command accurately and cost efficiently.
       dependencies: array of the id numbers of any commands that must precede this one.
@@ -46,7 +46,7 @@ The goal is: `,
   ]
 }
 
-Those commands are essentially calls to the plugins needed for this plan.  The plugin definitions are below.
+Commands are calls to the plugins needed for this plan.  Plugin definitions are below.
 `,
 
   modelListPrompt: 'The LLMs I can interact with are ',
