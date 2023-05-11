@@ -57,18 +57,22 @@ class MemoryManager {
 
   saveAgent(agent) {
     if (this.activeStore) {
-      return this.activeStore.saveAgent(agent);
+      const chatThread = agent.store.getCache ? agent.store.getCache() : [];
+      const saveObject = {id: agent.id, agent: agent, thread: chatThread};
+      return this.activeStore.saveAgent(saveObject);
     }
   }
 
   async loadAgent(agentId, agentManager) {
     if (this.activeStore) {
-      const savedAgent = await this.activeStore.loadAgent(agentId);
+      const loadObject = await this.activeStore.loadAgent(agentId);
+      const savedAgent = loadObject.agent;
       savedAgent.agentManager = agentManager;
       savedAgent.taskManager = agentManager.taskManager;
       savedAgent.pluginManager = agentManager.pluginManager;
       savedAgent.userManager = agentManager.userManager;
       savedAgent.store = this.activeStore;
+      savedAgent.store.setCache(loadObject.thread);
       const agentTasks = await this.activeStore.loadTasksForAgent(savedAgent.id);
       for (const t of Object.values(agentTasks)) {
         t.agent = savedAgent;

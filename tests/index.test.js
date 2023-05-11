@@ -8,7 +8,7 @@ const expect = chai.expect;
 const http = require('http');
 const dotenv = require("dotenv").config();
 const AgentManager = require('./../managers/agentManager.js');
-
+const process = require('jest');
 const index = require('./../index.js');
 
 // This is the Mocha test suite.

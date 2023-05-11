@@ -21,6 +21,7 @@ Fields:
 - id: A unique identifier for the ModelManager instance.
 */
 
+const process = require('jest');
 
 
 describe('ModelManager_class', () => {

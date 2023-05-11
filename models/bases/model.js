@@ -4,7 +4,7 @@
 
 // This module provides a class for representing a model.
 
-const Strings = require("../constants/strings.js");
+const Strings = require("../../constants/strings.js");
 
 class Model {
 

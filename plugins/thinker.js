@@ -84,7 +84,7 @@ processReply(reply) {
     let output = {outcome: 'SUCCESS', tasks: []};
     let replyJSON = {};
     if (typeof(reply) === 'string') { replyJSON = JSON.parse(reply); } else { replyJSON = reply }
-    output.text = Strings.textify(replyJSON);
+    output.text = Strings.textify(replyJSON.thoughts || replyJSON);
     const actions = replyJSON.thoughts.actions;
     const plan = replyJSON.commands;
     let idMap = {};

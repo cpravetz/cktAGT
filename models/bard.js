@@ -4,7 +4,7 @@
 
 // This module provides a class for representing a Bard model.
 
-const Model = require('./model.js');
+const Model = require('./bases/model.js');
 
 /**
  * Represents a Bard model.

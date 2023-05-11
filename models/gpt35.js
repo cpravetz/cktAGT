@@ -4,96 +4,18 @@
 
 // This module provides a class for representing a GPT-3.5-Turbo model.
 
-const Model = require('./model.js');
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require('./bases/openai.js');
 
 /**
  * A class representing the GPT-3.5-Turbo model.
  */
-class GPT35 extends Model {
-  /**
-   * The OpenAI API configuration.
-   */
-  configuration;
-
-  /**
-   * The OpenAI API instance.
-   */
-  openAiApiClient;
+class GPT35 extends OpenAI {
 
   constructor() {
     super();
-    /**
-     * Default values for max_length and temperature.
-     */
-    this.DEFAULT_MAX_LENGTH = 2000;
-    this.DEFAULT_TEMPERATURE = 0.7;
-
-    /**
-     * The name of the model.
-     */
     this.name = 'gpt-3.5-turbo';
-
-
-    this.configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY
-    });
-    this.openAiApiClient = new OpenAIApi(this.configuration);
   }
 
-  /**
-   * Generates text using the GPT-3.5-Turbo model.
-   * @param {string|string[]} messages - The input messages.
-   * @param {object} options - The generation options.
-   * @param {number} [options.max_length=2000] - The maximum length of the generated text.
-   * @param {number} [options.temperature=0.7] - The temperature of the generation process.
-   * @returns {string} The generated text.
-   * @throws {TypeError} If the input messages are invalid.
-   */
-  async generate(messages, options) {
-    // Set the max_length and temperature parameters.
-    const max_length = options.max_length || GPT35.DEFAULT_MAX_LENGTH;
-    const temperature = options.temperature || GPT35.DEFAULT_TEMPERATURE;
-
-    // Check for invalid input type for messages.
-    if (!messages || (typeof messages !== 'string' && !Array.isArray(messages))) {
-      throw new TypeError('Invalid input type for messages: expected a string or an array of strings.');
-    }
-
-    // Format messages.
-    const formattedMessages = this.formatMessages(messages);
-
-    try {
-      // Generate the text using the GPT-3.5-Turbo model.
-      const response = await this.openAiApiClient.createChatCompletion({
-        model: this.name,
-        messages: formattedMessages,
-        temperature: temperature,
-        max_tokens: max_length,
-      });
-
-      return response.data.choices[0].message.content;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  /**
-   * Formats the input messages.
-   * @param {string|string[]} messages - The input messages.
-   * @returns {object[]} The formatted messages.
-   */
-  formatMessages(messages) {
-    let formattedMessages = [];
-    if (typeof messages === 'string') {
-      formattedMessages.push({ role: 'user', content: messages });
-    } else {
-      for (const message of messages) {
-        formattedMessages.push({ role: 'user', content: message });
-      }
-    }
-    return formattedMessages;
-  }
 }
 
 module.exports = GPT35;

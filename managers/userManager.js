@@ -25,13 +25,11 @@ class UserManager {
 
   // This method sends a message to the server.
   say(text) {
-    console.log('saying ' + JSON.stringify(text));
     this.io.emit('serverSays', text);
   }
 
   // This method handles a message from the server.
   hear(message) {
-    console.log('heard ' + JSON.stringify(message));
     let msg;
     try {
       msg = JSON.parse(message);

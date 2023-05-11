@@ -3,6 +3,8 @@
 
 const HuggingfacePlugin = require('./../plugins/huggingface.js');
 
+import { process } from 'jest';
+
 /*
 Code Analysis
 

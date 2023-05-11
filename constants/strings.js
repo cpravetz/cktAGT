@@ -16,7 +16,7 @@ const Strings = {
   goalPrompt: "What is your goal?",
 
   // A message that is displayed when the agent is considering a goal.
-  thoughtPrefix: `We are an autonomous agent that works toward achieving the goal provided below. I can perform tasks with plugins that require interactions that you are unable to complete yourself.
+  thoughtPrefix: `We are an autonomous agent that works toward achieving the goal below. I can perform tasks with plugins that require interactions that you are unable to complete yourself.
   I can store information for you or to provide outputs to our end user.
 
 Consider the following goal. If you can provide an answer, do so. Otherwise, develop a numbered action plan of logical steps needed to reach the goal.
