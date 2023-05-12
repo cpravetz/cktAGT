@@ -25,7 +25,7 @@ class FileReaderPlugin {
   async execute(agent, command, task) {
     const fileName = command.args.fileName;
     const url = command.args.url || agent.agentManager.workDirName;
-    if (path.isAbsolute(fileName) || path.isAbsolute(url) || fileName.includes('..') || url.includes('..')) {
+    if (path.isAbsolute(fileName) || fileName.includes('..')) {
       throw new Error('Invalid file name or URL');
     }
     const filePath = path.join(url, fileName);
@@ -70,7 +70,5 @@ class FileReaderPlugin {
     });
   }
 }
-
-module.exports = FileReaderPlugin;
 
 module.exports = FileReaderPlugin;

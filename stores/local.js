@@ -14,10 +14,10 @@ class LocalJsonFilesBackend {
   tasksDir;
   agentDir;
   // Constructor.
-  constructor(tasksDir) {
+  constructor(tasksDir = process.env.WORKING_DIR) {
     this.name = 'local';
-    this.tasksDir = tasksDir || './../workspace';
-    this.agentDir = path.join(tasksDir || './../workspace', '/agents');
+    this.tasksDir = tasksDir;
+    this.agentDir = path.join(tasksDir, '/agents');
     if (!fs.existsSync(this.tasksDir)) {
       fs.mkdir(this.tasksDir, (e,r) => {if (e) { console.error(e)}});
     }
@@ -49,9 +49,9 @@ class LocalJsonFilesBackend {
 
   async loadTasksForAgent(agentId) {
     const tasks = [];
-    for (const file of fs.readdirSync(this.taskDir)) {
+    for (const file of fs.readdirSync(this.tasksDir)) {
       if (file.endsWith('.json')) {
-        const task = JSON.parse(fs.readFileSync(path.join(this.taskDir, file)));
+        const task = JSON.parse(fs.readFileSync(path.join(this.tasksDir, file)));
         if (task.status != 'finished' && task.agentId == agentId) {
           tasks.push(task);
         }

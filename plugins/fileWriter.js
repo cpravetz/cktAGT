@@ -79,7 +79,3 @@ class FileWriterPlugin {
 }
 
 module.exports = FileWriterPlugin;
-
-module.exports = FileWriterPlugin;
-
-module.exports = FileWriterPlugin;

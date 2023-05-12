@@ -45,5 +45,4 @@ class UserInputPlugin  {
 
 }
 
-
 module.exports = UserInputPlugin;

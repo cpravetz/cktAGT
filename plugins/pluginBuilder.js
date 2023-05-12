@@ -61,5 +61,3 @@ class PluginBuilderPlugin {
 }
 
 module.exports = PluginBuilderPlugin;
-
-module.exports = PluginBuilderPlugin;
