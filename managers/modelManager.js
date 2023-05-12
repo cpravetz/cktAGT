@@ -28,16 +28,17 @@ class ModelManager {
   }
 
   // This method loads the models from the `models` directory.
-  loadModels() {
-//    const modelsDir = path.join(__dirname, "./../models");
+loadModels() {
     const modelsDir = "./models";
 
     const modelFiles = fs.readdirSync(modelsDir);
     for (const modelFile of modelFiles) {
-      const modelPath = path.resolve(modelsDir, modelFile);
-      const model = new (require(modelPath))();
-      model.name = model.name || path.basename(modelFile, ".js");
-      this.models[model.name] = model;
+        const modelPath = path.resolve(modelsDir, modelFile);
+        if (path.extname(modelPath) === ".js") {
+            const model = new (require(modelPath))();
+            model.name = model.name || path.basename(modelFile, ".js");
+            this.models[model.name] = model;
+        }
     }
   }
 
@@ -51,9 +52,5 @@ class ModelManager {
     return `${modelNames.join(' ')}.`;
   }
 }
-
-module.exports = ModelManager;
-
-module.exports = ModelManager;
 
 module.exports = ModelManager;

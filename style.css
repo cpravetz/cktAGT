@@ -6,15 +6,13 @@ body {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
 }
-#container > button {
-}
 
 #top {
-  width:100%;
+  width: 100%;
   height: 80%;
   display: flex;
   flex-direction: row;
@@ -29,15 +27,16 @@ body {
   list-style-type: none;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
 }
 
 #chatThread > li {
- padding: 0.5rem 1rem;
- display: flex;
+  padding: 0.5rem 1rem;
+  display: flex;
 }
 
 #chatThread > li:nth-child(odd) {
- background: #efefef;
+  background: #efefef;
 }
 
 #filesBox {
@@ -46,14 +45,22 @@ body {
   padding: 10px;
   display: flex;
   align-items: flex-end;
+  overflow-y: auto;
 }
 
 #filesText {
-    margin-top: auto;
+  margin-top: auto;
 }
 
 #inputBox {
   width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  background: #fff;
+  border-radius: 1rem;
 }
 
 #inputSpace, #checkSpace, #radioSpace {
@@ -81,12 +88,44 @@ body {
   color: #fff;
 }
 
-#form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-
 #runBox {
-  margin: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: #333;
+  color: #fff;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+}
+
+#getApproval {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#continuous {
+  margin-right: 10px;
+}
+
+#stepsBox {
+  display: flex;
+  margin-left: 10px;
 }
 
 #steps {
-  margin-left: 40px;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+#stepSubmit {
+  background: #fff;
+  border: 1px solid #333;
+  color: #333;
+  padding: 5px;
+  border-radius: 3px;
 }
