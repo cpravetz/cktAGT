@@ -14,8 +14,8 @@ class Model {
   // The model instance.
   LLM;
 
-  constructor(name) {
-    this.name = '';
+  constructor(name = '') {
+    this.name = name;
     this.LLM = false;
   }
 

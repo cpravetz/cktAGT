@@ -5,6 +5,7 @@
 // This module provides a class for representing a Bard model.
 
 const Model = require('./bases/model.js');
+const fetch =  require('node-fetch');
 
 /**
  * Represents a Bard model.
@@ -40,19 +41,17 @@ class Bard extends Model {
    */
   async generate(messages, options) {
     this.validateInput(messages, options);
-    const request = new Request(this.url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messages,
-        options,
-      }),
-    });
 
     try {
-      const response = await fetch(request);
+      const response = await fetch(this.url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages,
+          options,
+        })});
       if (!response.ok) {
         throw new Error(`Failed to generate message: ${response.status} ${response.statusText}`);
       }

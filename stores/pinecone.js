@@ -4,6 +4,7 @@
 
 // This module provides a class for representing a Pinecone backend.
 const replaceObjectReferencesWithIds = require('./../constants/utils.js');
+const fetch =  require('node-fetch');
 
 class PineconeBackend {
 
