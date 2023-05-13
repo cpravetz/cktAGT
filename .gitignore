@@ -135,4 +135,5 @@ dist
 # working data for this instance
 workspace/
 
+test*.html
 tests/*.txt
