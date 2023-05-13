@@ -66,12 +66,13 @@ describe('UserInputPlugin_class', () => {
 
     // Tests that the version, command, description properties, and args object are correct. 
     it("test_properties_and_args_correctness", () => {
-        expect(UserInputPlugin.version).toBe(1.0);
-        expect(UserInputPlugin.command).toBe('AskUser');
-        expect(UserInputPlugin.description).toBe('Gets input back from the system user');
-        expect(UserInputPlugin.args.prompt).toBe('the message to send to the user');
-        expect(UserInputPlugin.args.choices).toBe('An array of strings with possible answers');
-        expect(UserInputPlugin.args.required).toBe('A boolean indicating whether the user is required to answer');
+        const plugin = new UserInputPlugin();
+        expect(plugin.version).toBe(1.0);
+        expect(plugin.command).toBe('AskUser');
+        expect(plugin.description).toBe('Gets input back from the system user');
+        expect(plugin.args.prompt).toBe('the message to send to the user');
+        expect(plugin.args.choices).toBe('An array of strings with possible answers');
+        expect(plugin.args.required).toBe('A boolean indicating whether the user is required to answer');
     });
 
     // Tests that the execute method handles cases where the required flag is invalid. 

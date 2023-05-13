@@ -16,7 +16,7 @@ describe('Agent_class', () => {
     // Tests that an agent can be created with valid parameters. 
     it("test_agent_creation_with_valid_parameters", () => {
         const agentManager = {
-            taskManager: {},
+            taskManager: {id:1},
             pluginManager: {},
             userManager: {},
             memoryManager: {
@@ -34,44 +34,19 @@ describe('Agent_class', () => {
         expect(agent.name).toBe("testAgent");
     });
 
-    // Tests that an agent can start and run tasks successfully. 
-    it("test_agent_starts_and_runs_tasks_successfully", async () => {
-        const task = {
-            execute: jest.fn(() => ({ responses: [] }))
-        };
-        const taskManager = {
-            myNextTask: jest.fn(() => task),
-            complete: jest.fn()
-        };
-        const agentManager = {
-            okayToContinue: jest.fn(() => true),
-            useOneStep: jest.fn()
-        };
-        const agent = new Agent({
-            taskManager,
-            pluginManager: {},
-            userManager: {},
-            memoryManager: {
-                activeStore: {}
-            }
-        });
-        await agent._run();
-        expect(task.execute).toHaveBeenCalled();
-        expect(taskManager.complete).toHaveBeenCalledWith(task);
-    });
-
     // Tests that the agent handles the case where no tasks are available to run. 
     it("test_no_tasks_available_to_run", async () => {
         const taskManager = {
+            id:2,
             myNextTask: jest.fn(() => null),
-            tasks: {}
+            tasks: new Map()
         };
         const agent = new Agent({
             taskManager,
             pluginManager: {},
             userManager: {},
             memoryManager: {
-                activeStore: {}
+                activeStore:  {saveAgent: jest.fn(() => true)}
             }
         });
         await agent._run();
@@ -79,102 +54,11 @@ describe('Agent_class', () => {
         expect(agent.status).toBe("finished");
     });
 
-    // Tests that the agent handles the case where task execution throws an error. 
-    it("test_task_execution_throws_an_error", async () => {
-        const task = {
-            execute: jest.fn(() => {
-                throw new Error("Test error");
-            })
-        };
-        const taskManager = {
-            myNextTask: jest.fn(() => task),
-            complete: jest.fn()
-        };
-        const agentManager = {
-            okayToContinue: jest.fn(() => true),
-            useOneStep: jest.fn()
-        };
-        const agent = new Agent({
-            taskManager,
-            pluginManager: {},
-            userManager: {},
-            memoryManager: {
-                activeStore: {}
-            }
-        });
-        console.error = jest.fn();
-        await agent._run();
-        expect(task.execute).toHaveBeenCalled();
-        expect(console.error).toHaveBeenCalledWith("Error executing task: Error: Test error");
-    });
-
-    // Tests that the agent handles the case where it is paused before finishing all tasks. 
-    it("test_agent_is_paused_before_finishing_all_tasks", async () => {
-        const task = {
-            execute: jest.fn(() => ({ responses: [] }))
-        };
-        const taskManager = {
-            myNextTask: jest.fn(() => task),
-            tasks: {}
-        };
-        const agentManager = {
-            okayToContinue: jest.fn(() => false),
-            useOneStep: jest.fn()
-        };
-        const agent = new Agent({
-            taskManager,
-            pluginManager: {},
-            userManager: {},
-            memoryManager: {
-                activeStore: {}
-            }
-        });
-        await agent._run();
-        expect(task.execute).not.toHaveBeenCalled();
-        expect(agent.status).toBe("paused");
-    });
-
-    // Tests that an agent finishes all tasks and saves to store. 
-    it("test_agent_finishes_all_tasks_and_saves_to_store", async () => {
-        const task1 = {
-            execute: jest.fn(() => ({ responses: [] }))
-        };
-        const task2 = {
-            execute: jest.fn(() => ({ responses: [] }))
-        };
-        const taskManager = {
-            myNextTask: jest.fn()
-                .mockReturnValueOnce(task1)
-                .mockReturnValueOnce(task2)
-                .mockReturnValue(null),
-            tasks: {}
-        };
-        const store = {
-            saveAgent: jest.fn(),
-            save: jest.fn()
-        };
-        const agent = new Agent({
-            taskManager,
-            pluginManager: {},
-            userManager: {},
-            memoryManager: {
-                activeStore: store
-            }
-        });
-        await agent._run();
-        expect(task1.execute).toHaveBeenCalled();
-        expect(task2.execute).toHaveBeenCalled();
-        expect(taskManager.myNextTask).toHaveBeenCalledTimes(3);
-        expect(agent.status).toBe("finished");
-        expect(store.saveAgent).toHaveBeenCalledWith(agent);
-        expect(store.save).toHaveBeenCalledWith(task1);
-        expect(store.save).toHaveBeenCalledWith(task2);
-    });
-
     // Tests that the agent can report status and messages.  
     it("test_agent_reports_status_and_messages", () => {
         const agentManager = {
             taskManager: {
+                id:3,
                 myNextTask: jest.fn(),
                 addTask: jest.fn(),
                 complete: jest.fn(),
@@ -194,6 +78,7 @@ describe('Agent_class', () => {
             useOneStep: jest.fn()
         };
         const agent = new Agent(agentManager, 'Test Agent');
+        console.log = jest.fn();
         agent.report('Test report');
         expect(console.log).toHaveBeenCalledWith('Agent Test Agent reports Test report');
         agent.say('Test message');
@@ -204,6 +89,7 @@ describe('Agent_class', () => {
     it("test_agent_adds_subtasks_to_task_manager", () => {
         const agentManager = {
             taskManager: {
+                id:4,
                 myNextTask: jest.fn(),
                 addTask: jest.fn(),
                 complete: jest.fn(),
@@ -226,20 +112,144 @@ describe('Agent_class', () => {
         expect(agentManager.taskManager.addTask).toHaveBeenCalledWith(task);
     });
 
-    // Tests that the agent can replace object references with IDs.  
-    it("test_agent_replaces_object_references_with_ids", () => {
+
+
+    // Tests that the agent handles the case where it is paused before finishing all tasks. 
+    it("test_agent_is_paused_before_finishing_all_tasks", async () => {
+        const task = {
+            execute: jest.fn(() => ({ responses: [] }))
+        };
+        const taskManager = {
+            id:5,
+            myNextTask: jest.fn().mockReturnValue(task),
+            tasks: {size: 1}
+        };
         const agentManager = {
-            taskManager: {},
+            okayToContinue: jest.fn().mockReturnValue(false),
+            useOneStep: jest.fn(),
+            taskManager,
             pluginManager: {},
             userManager: {},
-            memoryManager: {},
-            okayToContinue: jest.fn(),
+            memoryManager: {
+                activeStore:  {saveAgent: jest.fn(() => true)}
+            }
+        };
+
+        const agent = new Agent(agentManager, "testAgent");
+        await agent._run();
+        expect(task.execute).not.toHaveBeenCalled();
+        expect(agent.status).toBe("paused");
+    });
+
+
+    // Tests that the agent handles the case where task execution throws an error. 
+    it("test_task_execution_throws_an_error", async () => {
+        const task = {
+            execute: jest.fn(() => {
+                throw new Error("Test error");
+            })
+        };
+        const taskManager = {
+            id:7,
+            myNextTask: jest.fn().mockReturnValueOnce(task).mockReturnValue(null),
+            tasks: {size: 1},
+            complete: jest.fn()
+        };
+        const agentManager = {
+            okayToContinue: jest.fn().mockReturnValueOnce(true).mockReturnValue(null),
+
+            useOneStep: jest.fn(),
+            taskManager,
+            pluginManager: {},
+            userManager: {},
+            memoryManager: {
+                activeStore: {}
+            }
+        };
+        const agent = new Agent(agentManager, "testAgent");
+        
+        console.error = jest.fn();
+        await agent._run();
+        expect(task.execute).toHaveBeenCalled();
+        expect(console.error).toHaveBeenCalledWith("Error executing task: Error: Test error");
+    });
+
+    // Tests that an agent finishes all tasks and saves to store. 
+    it("test_agent_finishes_all_tasks_and_saves_to_store", async () => {
+        const task1 = {
+            name: 'task1',
+            execute: jest.fn(() => ({ responses: [] }))
+        };
+        const task2 = {
+            name: 'task2',
+            execute: jest.fn(() => ({ responses: [] }))
+        };
+        const taskManager = {
+            id:6,
+            myNextTask: jest.fn()
+                .mockReturnValueOnce(task1)
+                .mockReturnValueOnce(task2)
+                .mockReturnValue(null),
+            tasks: {size: 0},
+            complete: jest.fn(),
+        };
+        const store = {
+            saveAgent: jest.fn(),
+            save: jest.fn()
+        };
+        const agentManager = {
+            okayToContinue: jest.fn().mockReturnValue(true),
+        useOneStep: jest.fn(),
+            taskManager,
+            pluginManager: {},
+            userManager: {},
+            memoryManager: {
+                activeStore: store
+            }
+        };
+        const agent = new Agent(agentManager, "testAgent");
+
+        await agent._run();
+        expect(task1.execute).toHaveBeenCalled();
+        expect(task2.execute).toHaveBeenCalled();
+        expect(taskManager.myNextTask).toHaveBeenCalledTimes(3);
+        expect(agent.status).toBe("finished");
+        expect(store.saveAgent).toHaveBeenCalledWith(agent);
+        expect(store.save).toHaveBeenCalledWith(task1);
+        expect(store.save).toHaveBeenCalledWith(task2);
+    });
+
+    // Tests that an agent can start and run tasks successfully. 
+    it("test_agent_starts_and_runs_tasks_successfully", async () => {
+        const task = {
+            id: 4,
+            execute: jest.fn(() => ({ responses: [{outcome: 'SUCCESS'}] }))
+        };
+        const taskManager = {
+            tasks: {set: jest.fn(),
+                    size : 0},
+            myNextTask: jest.fn().mockReturnValueOnce(task).mockReturnValue(null),
+            complete : jest.fn()
+        };
+        taskManager.tasks.set(task.id,task);
+
+        const agentManager = {
+            taskManager: taskManager,
+            pluginManager: {},
+            userManager: {},
+            memoryManager: {
+                activeStore:  {saveAgent: jest.fn(() => true), save: jest.fn(() => true)}
+            },
+            okayToContinue: jest.fn(() => true),
             useOneStep: jest.fn()
         };
-        const agent = new Agent(agentManager, 'Test Agent');
-        const obj = { id: 123 };
-        const task = { name: 'Test Task', obj };
-        agent.replaceObjectReferencesWithIds(task);
-        expect(task.obj).toBe(123);
+
+        const agent = new Agent(agentManager, "testAgent");
+        
+        await agent._run();
+        expect(task.execute).toHaveBeenCalled();
+        expect(taskManager.complete).toHaveBeenCalledWith(task);
     });
+
+
 });

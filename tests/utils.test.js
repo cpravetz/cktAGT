@@ -45,25 +45,25 @@ describe('replaceObjectReferencesWithIds_function', () => {
 
     // Tests that the function correctly replaces object references with Id strings for an object with references. 
     it("test_references_replaced", () => {
-        const obj = { name: "John", address: { city: "New York", country: { name: "USA" } } };
+        const obj = { name: "John", address: { id: 'NY', city: "New York", country: { name: "USA" } } };
         const result = replaceObjectReferencesWithIds(obj);
-        expect(result).toEqual({ name: "John", addressCityId: "New York", addressCountryId: "USA" });
+        expect(result).toEqual({ name: "John", addressId: "NY"});
     });
 
     // Tests that the function correctly handles circular references in an object. 
     it("test_circular_references", () => {
-        const obj = { name: "John", friend: null };
+        const obj = { id:4, name: "John", friend: null };
         obj.friend = obj;
         const result = replaceObjectReferencesWithIds(obj);
-        expect(result).toEqual({ name: "John", friendId: null });
+        expect(result).toEqual({ id:4, name: "John", friendId: 4 });
     });
 
     // Tests that the function correctly handles nested circular references in an object. 
     it("test_nested_circular_references", () => {
-        const obj = { name: "John", friend: { name: "Jane" } };
+        const obj = { id: 'M', name: "John", friend: { id:'F', name: "Jane" } };
         obj.friend.friend = obj;
         const result = replaceObjectReferencesWithIds(obj);
-        expect(result).toEqual({ name: "John", friend: { name: "Jane", friendId: null } });
+        expect(result).toEqual({ id: 'M', name: "John", friendId: 'F'});
     });
 
     // Tests that the function correctly handles null and undefined values in an object. 

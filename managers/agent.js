@@ -24,7 +24,6 @@ class Agent {
     console.log(`Agent ${this.name} reports ${text}`);
   }
 
-  replaceObjectReferencesWithIds() {}
 
   model() {
     return this.taskManager.model;
@@ -79,7 +78,9 @@ class Agent {
         break;
       }
       if (task) {
-        if (this.agentManager.okayToContinue(task)) {
+        if (!this.agentManager.okayToContinue(task)) {
+          this.status = 'paused'
+        } else {
           this.report(`Starting task: ${task.name || task.id}`);
           try {
             this.agentManager.useOneStep();
@@ -92,6 +93,7 @@ class Agent {
             }
           } catch (error) {
             console.error(`Error executing task: ${error}`);
+            break;
           }
         }
       }
