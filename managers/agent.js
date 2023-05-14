@@ -25,7 +25,7 @@ class Agent {
   }
 
 
-  model() {
+  getModel() {
     return this.taskManager.model;
   }
 

@@ -23,7 +23,7 @@ class Task {
     this.progress = 0;
     this.createdAt = new Date();
     this.updatedAt = this.createdAt;
-    this.commands = removeProperty(args.commands, 'id');
+    this.commands = args.commands ? removeProperty(args.commands, 'id') : [];
     this.result = {};
   }
 

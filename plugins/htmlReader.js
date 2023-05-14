@@ -43,7 +43,7 @@ class HTMLReaderPlugin {
       tasks.push( new Task({agent:agent,
               name:'Html Send', description:'sending the html body from file '+command.args.url+' to the LLM',
               prompt:'this is the body of '+command.args.url,
-              commands:[{name:'Think', model: agent.model||false, args:{prompt:text}}],
+              commands:[{name:'Think', model: agent.getModel() ||false, args:{prompt:text}}],
               context:{from: this.id}}));
     }              
     

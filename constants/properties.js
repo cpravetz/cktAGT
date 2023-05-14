@@ -5,7 +5,7 @@
 // This module generates a unique key based on the current date and time, and a random number.
 
 function removeProperty(obj, property) {
-    if (obj !== null && typeof obj === 'object') {
+    if (obj !== null && obj instanceof Object) {
       for (const key in obj) {
         if (obj.hasOwnProperty(key) && key === property) {
           delete obj[key];

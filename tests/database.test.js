@@ -2,6 +2,7 @@
 
 
 const DatabasePlugin = require('./../plugins/database.js');
+const Task = require('./../managers/task.js');
 
 /*
 Code Analysis
@@ -25,57 +26,57 @@ Fields:
 
 describe('DatabasePlugin_class', () => {
 
-    // Tests that the connect method successfully connects to the database with valid credentials. 
-    it("test_connect_to_database_with_valid_credentials", () => {
-        const plugin = new DatabasePlugin();
-        plugin.connect('localhost', '3306', 'mydb', 'user', 'password');
-        expect(plugin.connection).toBeDefined();
-    });
+   // Tests that the connect method connects to the database successfully. 
+   it("test_connect_successfully", () => {
+    const db = new DatabasePlugin();
+    db.connect('localhost', '3306', 'mydb', 'testUser', 'testPwd');
+    jest.runAllTimers().expect(db.connection.state).toBe('authenticated');
+});
 
-    // Tests that the execute method successfully executes a command with all required arguments provided. 
-    it("test_execute_command_with_all_arguments_provided", () => {
-        const plugin = new DatabasePlugin();
-        plugin.connect('localhost', '3306', 'mydb', 'user', 'password');
-        const result = plugin.execute('agent1', {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'user', password: 'password', query: 'SELECT * FROM mytable'}}, {name: 'task1'});
-        expect(result.outcome).toBe('SUCCESS');
-        expect(result.results.file).toBeDefined();
-        expect(result.tasks.length).toBe(1);
-    });
+// Tests that the execute method executes a query successfully. 
+it("test_execute_query_successfully", () => {
+    const db = new DatabasePlugin();
+    const agent = {getModel() {return {name:'modelName'}}};
+    db.connect('localhost', '3306', 'mydb', 'testUser', 'testPwd');
+    const result = db.execute(agent, {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM mytable'}}, new Task({agent:agent}));
+    expect(result.outcome).toBe('SUCCESS');
+    expect(result.results.file).toBeDefined();
+});
 
-    // Tests that the connect method fails to connect to the database with invalid credentials. 
-    it("test_connect_to_database_with_invalid_credentials", () => {
-        const plugin = new DatabasePlugin();
-        expect(() => {
-            plugin.connect('localhost', '3306', 'mydb', 'invalid_user', 'invalid_password');
-        }).toThrow();
-    });
+// Tests that the connect method handles connection errors properly. 
+it("test_connect_error_handling", () => {
+    const db = new DatabasePlugin();
+    expect(() => {
+        db.connect('invalidHost', '3306', 'mydb', 'testUser', 'testPwd');
+    }).toThrow();
+});
 
-    // Tests that the execute method fails to execute a command with missing arguments. 
-    it("test_execute_command_with_missing_arguments", () => {
-        const plugin = new DatabasePlugin();
-        expect(() => {
-            plugin.execute('agent1', {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'user'}}, {name: 'task1'});
-        }).toThrow();
-    });
+// Tests that the execute method handles invalid input for connection parameters properly. 
+it("test_execute_invalid_input", () => {
+    const db = new DatabasePlugin();
+    const agent = {getModel() {return {name:'modelName'}}};
+    expect(() => {
+        db.execute(agent, {args: {host: '', port: '', database: '', username: '', password: '', query: ''}}, new Task({agent:agent}));
+    }).toThrow();
+});
 
-    // Tests that the plugin handles errors and exceptions gracefully. 
-    it("test_handle_errors_and_exceptions_gracefully", () => {
-        const plugin = new DatabasePlugin();
-        expect(() => {
-            plugin.connect('invalid_host', '3306', 'mydb', 'user', 'password');
-        }).toThrow();
-        expect(() => {
-            plugin.execute('agent1', {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'user', password: 'password', query: 'INVALID SQL COMMAND'}}, {name: 'task1'});
-        }).toThrow();
-    });
+// Tests that the execute method handles invalid SQL query syntax properly. 
+it("test_execute_invalid_sql_query", () => {
+    const db = new DatabasePlugin();
+    db.connect('localhost', '3306', 'mydb', 'testUser', 'testPwd');
+    const agent = {getModel() {return {name:'modelName'}}};
+    expect(() => {
+        db.execute(agent, {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'testUser', password: 'testPwd', query: 'INVALID SQL QUERY'}}, new Task({agent:agent}));
+    }).toThrow();
+});
 
-    // Tests that the execute method returns a success outcome and an empty task object when executing a query that returns no results. 
-    it("test_execute_query_with_no_results", () => {
-        const plugin = new DatabasePlugin();
-        plugin.connect('localhost', '3306', 'mydb', 'user', 'password');
-        const result = plugin.execute('agent1', {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'user', password: 'password', query: 'SELECT * FROM mytable WHERE 1=0'}}, {name: 'task1'});
-        expect(result.outcome).toBe('SUCCESS');
-        expect(result.results.file).toBe('');
-        expect(result.tasks.length).toBe(1);
-    });
+// Tests that the execute method properly creates a Task object. 
+it("test_create_task_object", () => {
+    const db = new DatabasePlugin();
+    db.connect('localhost', '3306', 'mydb', 'testUser', 'testPwd');
+    const agent = {getModel() {return {name:'modelName'}}};
+    const result = db.execute(agent, {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM mytable'}}, new Task({agent:agent}));
+    expect(result.tasks.length).toBe(1);
+    expect(result.tasks[0].name).toBe('Query Send');
+});
 });

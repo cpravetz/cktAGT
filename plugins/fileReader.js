@@ -65,7 +65,7 @@ class FileReaderPlugin {
       name: 'File Send',
       description: 'sending the file ' + fileName + ' to the LLM',
       prompt: 'this is the file ' + fileName,
-      commands: [{name: 'Think', model: agent.model || false, args: {prompt: contents}}],
+      commands: [{name: 'Think', model: agent.getModel() || false, args: {prompt: contents}}],
       context: {from: this.id}
     });
   }

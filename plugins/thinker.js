@@ -49,7 +49,7 @@ class ThoughtGeneratorPlugin {
 }
 
 getLLM(agent, command, task) {
-    const llm = task.agent?.agentManager.modelManager.getModel(command.args.model) || agent.model();
+    const llm = task.agent?.agentManager.modelManager.getModel(command.args.model) || agent.getModel();
     return llm;
 }
 

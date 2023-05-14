@@ -4,7 +4,8 @@
 
 // This module provides a class for representing a database plugin.
 
-const database = require("mysql");
+const mySql = require("mysql");
+const Task = require('./../managers/task.js');
 
 class DatabasePlugin {
 
@@ -33,7 +34,8 @@ class DatabasePlugin {
 
   // This method connects to the database.
   connect(host, port, database, username, password) {
-    this.connection = new database.Connection(host, port, database, username, password);
+    this.connection = new mySql.createConnection({host:host, port:port, user: username, password: password});
+    this.connection.connect();
   }
 
   // This method executes a query.
@@ -43,12 +45,12 @@ class DatabasePlugin {
     const t = new Task({agent:agent,
                   name:'Query Send', description:'sending the query results from '+command.args.query+' to the LLM',
                   prompt:'this is the result of '+command.args.query,
-                  commands:[{name:'Think', model: agent.model().name, args:{prompt:query}}],
+                  commands:[{name:'Think', model: agent.getModel().name, args:{prompt:query}}],
                   context:{from: this.id}});
         return {
           outcome: 'SUCCESS',
           results: {
-            file: text,
+            file: query,
           },
           tasks: [t]
         };

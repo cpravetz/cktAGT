@@ -135,5 +135,4 @@ dist
 # working data for this instance
 workspace/
 
-test-report.html
 tests/*.txt
