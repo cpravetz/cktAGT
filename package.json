@@ -21,6 +21,7 @@
     "git-clone": "^0.2.0",
     "github": "^14.0.0",
     "googleapis": "^118.0.0",
+    "jsonrepair": "^3.1.0",
     "lamda": "^0.2.3",
     "mocha": "^10.2.0",
     "mongodb": "^5.3.0",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "eslint": "^8.39.0",
     "jest": "^29.5.0",
-    "jest-html-reporter": "^3.9.0"
+    "jest-html-reporter": "^3.9.0",
+    "typescript": "^5.0.4"
   }
 }

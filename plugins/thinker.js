@@ -6,7 +6,7 @@
 
 const Task = require("../managers/task.js");
 const Strings = require("../constants/strings.js");
-
+const jsonrepair = require('jsonrepair');
 
 class ThoughtGeneratorPlugin {
   
@@ -43,13 +43,13 @@ class ThoughtGeneratorPlugin {
 
     const followUpText = this.getFollowUpText(agent);
     const prompt = this.getPrompt(command);
-    const compiledPrompt = this.getCompiledPrompt(llm, prompt, command.args.constraints || [], command.args.assessments || []);
+    const compiledPrompt = this.getCompiledPrompt(agent, llm, prompt, command.args.constraints || [], command.args.assessments || []);
     const output = await this.processPrompt(llm, compiledPrompt, followUpText);
     return output;
 }
 
 getLLM(agent, command, task) {
-    const llm = task.agent?.agentManager.modelManager.getModel(command.args.model) || agent.getModel();
+    const llm = task.agent?.modelManager().getModel(command.args.model) || agent.getModel();
     return llm;
 }
 
@@ -63,15 +63,15 @@ getPrompt(command) {
     return prompt;
 }
 
-getCompiledPrompt(llm, prompt, constraints, assessments) {
-    const compiledPrompt = llm.compilePrompt(Strings.thoughtPrefix, prompt, constraints, assessments);
+getCompiledPrompt(agent, llm, prompt, constraints, assessments) {
+    const compiledPrompt = llm.compilePrompt(Strings.thoughtPrefix, prompt, constraints, assessments)+ Strings.modelListPrompt + (agent.modelManager().ModelNames|| agent.getModel().getModelName());
     return compiledPrompt;
 }
 
 async processPrompt(llm, compiledPrompt, followUpText) {
     let output = {outcome: 'SUCCESS', tasks: []};
     try {
-        const reply = await llm.generate([compiledPrompt + Strings.modelListPrompt + llm.modelName, followUpText], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
+        const reply = await llm.generate([compiledPrompt, followUpText], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
         output = this.processReply(reply);
     } catch (error) {
         output.outcome = 'FAILURE';
@@ -83,10 +83,12 @@ async processPrompt(llm, compiledPrompt, followUpText) {
 processReply(reply) {
     let output = {outcome: 'SUCCESS', tasks: []};
     let replyJSON = {};
-    if (typeof(reply) === 'string') { replyJSON = JSON.parse(reply); } else { replyJSON = reply }
-    output.text = Strings.textify(replyJSON.thoughts || replyJSON);
-    const actions = replyJSON.thoughts.actions;
-    const plan = replyJSON.commands;
+
+    if (typeof(reply) === 'string') { replyJSON = JSON.parse(jsonrepair.jsonrepair(reply)); } else { replyJSON = reply }
+    output.text = replyJSON.thoughts ? Strings.textify(replyJSON) : JSON.stringify(replyJSON);
+
+    const actions = replyJSON.thoughts ? replyJSON.thoughts.actions : (replyJSON.actions  || []);
+    const plan = replyJSON.commands || [];
     let idMap = {};
     for (const thisStep of plan) {
         if (thisStep.model) { thisStep.args['model'] = thisStep.model }

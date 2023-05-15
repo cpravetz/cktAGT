@@ -29,6 +29,10 @@ class Agent {
     return this.taskManager.model;
   }
 
+  modelManager() {
+    return this.agentManager.modelManager || false;
+  }
+
   start() {
     try {
       this._run();
