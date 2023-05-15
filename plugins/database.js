@@ -35,7 +35,12 @@ class DatabasePlugin {
   // This method connects to the database.
   connect(host, port, database, username, password) {
     this.connection = new mySql.createConnection({host:host, port:port, user: username, password: password});
-    this.connection.connect();
+    this.connection.connect(function(err) {
+      if (err) {
+        console.error('error connecting: ' + err.stack);
+        return;
+      }
+    });
   }
 
   // This method executes a query.
