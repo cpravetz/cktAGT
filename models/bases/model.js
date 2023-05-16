@@ -71,6 +71,15 @@ class Model {
         + this.responseFormat();
     return response;
   }
+
+  getCache() {
+    return false;
+  }
+
+  setCache(cache) {
+    
+  }
+
 }
 
 module.exports = Model;

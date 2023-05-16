@@ -112,7 +112,6 @@ class OpenAI extends Model {
     }
   }
 
-
   getCache() {
     return this.cache;
   }

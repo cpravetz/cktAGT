@@ -9,7 +9,7 @@ const keyMaker = require("../constants/keymaker.js");
 // This is the PluginManager class.
 class PluginManager {
   constructor() {
-    this.plugins = {};
+    this.plugins = new Map();
     this.id = keyMaker();
     this.loadPlugins();
     this.pluginDescription = false;
@@ -24,20 +24,20 @@ class PluginManager {
       if (stats.isFile() && path.extname(pluginPath) === ".js") {
         const code = require(pluginPath);
         const plugin = new code();
-        this.plugins[file] = plugin;
+        this.plugins.set(file, plugin);
       }
     });
     await Promise.all(pluginPromises);
   }
 
   getPlugin(name) {
-    return this.plugins[name];
+    return this.plugins.get(name);
   }
 
   getPluginsFor(command) {
     if (!this.pluginsByCommand) {
       this.pluginsByCommand = {};
-      for (const plugin of Object.values(this.plugins)) {
+      for (let [key,plugin] of this.plugins) {
         if (!this.pluginsByCommand[plugin.command]) {
           this.pluginsByCommand[plugin.command] = [];
         }
@@ -60,8 +60,8 @@ class PluginManager {
   describePlugins() {
     if (!this.pluginDescription) {
         this.pluginDescription = '';
-        for (const plugin of Object.values(this.plugins)) {
-            this.pluginDescription += this.getPluginDescription(plugin);
+        for (let [key,plugin] of this.plugins) {
+          this.pluginDescription += this.getPluginDescription(plugin);
         }
     }
     return this.pluginDescription;

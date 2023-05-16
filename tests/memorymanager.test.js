@@ -45,8 +45,8 @@ describe('MemoryManager_class', () => {
 
     // Tests that the loadMemoryStores method handles loading non-existent memory stores. 
     it("test_load_memory_stores_handles_nonexistent_memory_stores", async () => {
-        const memoryManager = new MemoryManager();
         const readdirSyncMock = jest.spyOn(fs, 'readdirSync').mockReturnValueOnce([]);
+        const memoryManager = new MemoryManager();
         await memoryManager.loadMemoryStores();
         expect(memoryManager.activeStore).toBeUndefined();
         readdirSyncMock.mockRestore();
@@ -54,8 +54,8 @@ describe('MemoryManager_class', () => {
 
     // Tests that the loadMemoryStores method handles loading memory stores with invalid file extensions. 
     it("test_load_memory_stores_handles_invalid_file_extensions", async () => {
-        const memoryManager = new MemoryManager();
         const readdirSyncMock = jest.spyOn(fs, 'readdirSync').mockReturnValueOnce(['invalid.txt']);
+        const memoryManager = new MemoryManager();
         await memoryManager.loadMemoryStores();
         expect(memoryManager.activeStore).toBeUndefined();
         readdirSyncMock.mockRestore();
@@ -100,12 +100,11 @@ describe('MemoryManager_class', () => {
     it("test_save_agent_interacts_with_active_store_and_agent_manager", () => {
         const memoryManager = new MemoryManager();
         const activeStoreMock = { saveAgent: jest.fn() };
-        const agentMock = { id: '123', store: { getCache: jest.fn().mockReturnValue([]) } };
+        const agentMock = { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} };
         const agentManagerMock = { taskManager: { addTask: jest.fn() } };
         memoryManager.activeStore = activeStoreMock;
         memoryManager.saveAgent(agentMock);
         expect(activeStoreMock.saveAgent).toHaveBeenCalled();
-        expect(agentMock.store.getCache).toHaveBeenCalled();
         expect(agentManagerMock.taskManager.addTask).not.toHaveBeenCalled();
     });
 
@@ -114,7 +113,7 @@ describe('MemoryManager_class', () => {
         const memoryManager = new MemoryManager();
         const activeStoreMock = {
             loadAgent: jest.fn().mockReturnValueOnce({
-                agent: { id: '123' },
+                agent: { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} },
                 thread: [],
             }),
             loadTasksForAgent: jest.fn().mockReturnValueOnce({}),

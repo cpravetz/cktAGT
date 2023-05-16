@@ -37,8 +37,10 @@ describe('DatabasePlugin_class', () => {
     // Tests that the execute() method executes a query successfully. 
     it("test_execute_successfully", () => {
         const db = new DatabasePlugin();
+        const agentMock = { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} };
+
         db.connect('localhost', '3306', 'myDB', 'testUser', 'testPwd');
-        const result = db.execute('agent1', {args: {host: 'localhost', port: '3306', database: 'myDB', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task());
+        const result = db.execute(agentMock, {args: { host: 'localhost', port: '3306', database: 'myDB', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task({agent: agentMock}));
         expect(result.outcome).toBe('SUCCESS');
         expect(result.results.file).toBeDefined();
         expect(result.tasks.length).toBe(1);
@@ -75,8 +77,9 @@ describe('DatabasePlugin_class', () => {
     // Tests that the execute() method handles invalid or missing arguments properly. 
     it("test_invalid_arguments_execute", () => {
         const db = new DatabasePlugin();
+        const agentMock = { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} };
         expect(() => {
-            db.execute('agent1', {args: {host: 'localhost', port: '3306', database: '', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task());
+            db.execute(agentMock, {args: {host: 'localhost', port: '3306', database: '', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task({agent: agentMock}));
         }).toThrow();
     });
 
@@ -94,7 +97,8 @@ describe('DatabasePlugin_class', () => {
     it("test_creating_task_object", () => {
         const db = new DatabasePlugin();
         db.connect('localhost', '3306', 'myDB', 'testUser', 'testPwd');
-        const result = db.execute('agent1', {args: {host: 'localhost', port: '3306', database: 'myDB', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task());
+        const agentMock = { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} };
+        const result = db.execute(agentMock, {args: {host: 'localhost', port: '3306', database: 'myDB', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task());
         expect(result.tasks[0].name).toBe('Query Send');
         expect(result.tasks[0].description).toBe('sending the query results from SELECT * FROM myTable to the LLM');
         expect(result.tasks[0].prompt).toBe('this is the result of SELECT * FROM myTable');
@@ -107,7 +111,8 @@ describe('DatabasePlugin_class', () => {
     it("test_returning_correct_outcome", () => {
         const db = new DatabasePlugin();
         db.connect('localhost', '3306', 'myDB', 'testUser', 'testPwd');
-        const result = db.execute('agent1', {args: {host: 'localhost', port: '3306', database: 'myDB', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task());
+        const agentMock = { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} };
+        const result = db.execute(agentMock, {args: {host: 'localhost', port: '3306', database: 'myDB', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task({agent: agentMock}));
         expect(result.outcome).toBe('SUCCESS');
         expect(result.results.file).toBeDefined();
         expect(result.tasks.length).toBe(1);

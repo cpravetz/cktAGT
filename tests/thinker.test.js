@@ -46,12 +46,12 @@ describe('ThoughtGeneratorPlugin_class', () => {
 
     // Tests that the execute method returns successful output. 
     it("test_execute_returns_successful_output", async () => {
-        const agent = {say: jest.fn()};
+        const agent = {say: jest.fn(), getModel() { return {}}};
         const llm = {generate: jest.fn().mockResolvedValue({thoughts: {actions: {}}, commands: []})};
         const task = new Task({agent: agent, name: "testTask"});
         const command = {args: {prompt: "testPrompt"}};
         const plugin = new ThoughtGeneratorPlugin();
-        const output = await plugin.execute(llm, command, task);
+        const output = await plugin.execute(agent, command, task);
         expect(output.outcome).toEqual("SUCCESS");
         expect(output.tasks.length).toEqual(0);
         expect(agent.say).toHaveBeenCalledWith("thinking...");
@@ -59,18 +59,18 @@ describe('ThoughtGeneratorPlugin_class', () => {
 
     // Tests that the execute method handles null or undefined task argument. 
     it("test_execute_handles_null_or_undefined_task_argument", async () => {
-        const agent = {say: jest.fn()};
+        const agent = {say() {}, getModel() { return {}}};
         const llm = {generate: jest.fn().mockResolvedValue({thoughts: {actions: {}}, commands: []})};
         const command = {args: {prompt: "testPrompt"}};
         const plugin = new ThoughtGeneratorPlugin();
-        const output = await plugin.execute(llm, command, null);
+        const output = await plugin.execute(agent, command, null);
         expect(output.outcome).toEqual("FAILURE");
         expect(output.results.error).toEqual("No task was provided to Think");
     });
 
     // Tests that the execute method handles null or undefined command argument. 
     it("test_execute_handles_null_or_undefined_command_argument", async () => {
-        const agent = {say: jest.fn()};
+        const agent = {say() {}, getModel() { return {}}};
         const llm = {generate: jest.fn().mockResolvedValue({thoughts: {actions: {}}, commands: []})};
         const task = new Task({agent: agent, name: "testTask"});
         const plugin = new ThoughtGeneratorPlugin();

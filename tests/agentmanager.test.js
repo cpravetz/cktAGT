@@ -95,7 +95,7 @@ describe('AgentManager_class', () => {
         const userManager = {};
         const workDirName = "testDir/";
         const agentManager = new AgentManager(userManager, workDirName);
-        agentManager.memoryManager.loadAgent = jest.fn(() => ({id: "456", start: jest.fn()}));
+        agentManager.memoryManager.loadAgent = jest.fn(() => ({id: "456", getModel() {return false}, start: jest.fn()}));
         agentManager.loadAnAgent("456");
         expect(agentManager.agent.id).toBe("456");
         expect(agentManager.agent.start).toHaveBeenCalled();
@@ -146,7 +146,7 @@ describe('AgentManager_class', () => {
         agentManager.createFirstAgent("testGoal");
         expect(agentManager.agent).toBeInstanceOf(Agent);
         expect(agentManager.agent.name).toBe("testAgent");
-        expect(agentManager.taskManager.tasks.length).toBe(1);
+        expect(agentManager.taskManager.tasks.size).toBe(1);
         expect(agentManager.memoryManager.saveAgent).toHaveBeenCalledWith(agentManager.agent);
     });
     

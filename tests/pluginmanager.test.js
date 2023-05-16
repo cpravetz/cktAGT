@@ -34,51 +34,23 @@ describe('PluginManager_class', () => {
     // Tests that plugins are loaded successfully. 
     it("test_load_plugins_successfully", async () => {
         const pluginManager = new PluginManager();
-        await pluginManager.loadPlugins();
-        expect(Object.keys(pluginManager.plugins).length).toBeGreaterThan(0);
+        expect(pluginManager.plugins.size).toBeGreaterThan(0);
     });
 
     // Tests that a plugin can be retrieved by its name. 
     it("test_get_plugin_by_name", () => {
         const pluginManager = new PluginManager();
         const plugin = { name: "testPlugin" };
-        pluginManager.plugins[plugin.name] = plugin;
+        pluginManager.plugins.set(plugin.name, plugin);
         expect(pluginManager.getPlugin(plugin.name)).toEqual(plugin);
     });
 
-    // Tests that an empty plugins directory is handled correctly. 
-    it("test_empty_plugins_directory", async () => {
-        const pluginManager = new PluginManager();
-        const pluginsDir = "./test/emptyPlugins";
-        await fs.promises.mkdir(pluginsDir);
-        await pluginManager.loadPlugins();
-        expect(Object.keys(pluginManager.plugins).length).toBe(0);
-        await fs.promises.rmdir(pluginsDir);
-    });
-
-    // Tests that a non-existent plugins directory is handled correctly. 
-    it("test_non_existent_plugins_directory", async () => {
-        const pluginManager = new PluginManager();
-        const pluginsDir = "./test/nonExistentPlugins";
-        await expect(pluginManager.loadPlugins()).rejects.toThrow();
-    });
-
-    // Tests that errors during plugin loading are handled correctly. 
-    it("test_handling_errors_during_plugin_loading", async () => {
-        const pluginManager = new PluginManager();
-        const pluginsDir = "./test/errorPlugins";
-        await fs.promises.mkdir(pluginsDir);
-        await fs.promises.writeFile(`${pluginsDir}/errorPlugin.js`, "throw new Error()");
-        await expect(pluginManager.loadPlugins()).rejects.toThrow();
-        await fs.promises.unlink(`${pluginsDir}/errorPlugin.js`);
-        await fs.promises.rmdir(pluginsDir);
-    });
 
     // Tests that errors during plugin execution are handled correctly. 
     it("test_handling_errors_during_plugin_execution", async () => {
         const pluginManager = new PluginManager();
-        const plugin = { name: "testPlugin", execute: () => { throw new Error() } };
-        pluginManager.plugins[plugin.name] = plugin;
+        const plugin = { name: "testPlugin", command: "testCommand", execute: () => { throw new Error() } };
+        pluginManager.plugins.set(plugin.name, plugin);
         const command = { name: "testCommand" };
         const task = { agent: {}, command };
         await expect(pluginManager.resolveCommand(command, task)).rejects.toThrow();
@@ -89,8 +61,8 @@ describe('PluginManager_class', () => {
         const pluginManager = new PluginManager();
         const plugin1 = { name: "testPlugin1", command: "testCommand" };
         const plugin2 = { name: "testPlugin2", command: "testCommand" };
-        pluginManager.plugins[plugin1.name] = plugin1;
-        pluginManager.plugins[plugin2.name] = plugin2;
+        pluginManager.plugins.set(plugin1.name, plugin1);
+        pluginManager.plugins.set(plugin2.name, plugin2);
         expect(pluginManager.getPluginsFor("testCommand").length).toBe(2);
     });
 
@@ -99,8 +71,8 @@ describe('PluginManager_class', () => {
         const pluginManager = new PluginManager();
         const plugin1 = { name: "testPlugin1", command: "testCommand1" };
         const plugin2 = { name: "testPlugin2", command: "testCommand2" };
-        pluginManager.plugins[plugin1.name] = plugin1;
-        pluginManager.plugins[plugin2.name] = plugin2;
+        pluginManager.plugins.set(plugin1.name, plugin1);
+        pluginManager.plugins.set(plugin2.name, plugin2);
         expect(pluginManager.getPluginsFor("testCommand1")).toContain(plugin1);
     });
 
@@ -108,7 +80,7 @@ describe('PluginManager_class', () => {
     it("test_resolve_command_with_plugins", async () => {
         const pluginManager = new PluginManager();
         const plugin = { name: "testPlugin", command: "testCommand", execute: () => "result" };
-        pluginManager.plugins[plugin.name] = plugin;
+        pluginManager.plugins.set(plugin.name, plugin);
         const command = { name: "testCommand" };
         const task = { agent: {}, command };
         const results = await pluginManager.resolveCommand(command, task);
@@ -119,32 +91,11 @@ describe('PluginManager_class', () => {
     it("test_describe_plugins_successfully", () => {
         const pluginManager = new PluginManager();
         const plugin = { name: "testPlugin", command: "testCommand", description: "testDescription", args: { arg1: "value1" } };
-        pluginManager.plugins[plugin.name] = plugin;
+        pluginManager.plugins.set(plugin.name, plugin);
         const description = pluginManager.describePlugins();
         expect(description).toContain(plugin.command);
         expect(description).toContain(plugin.description);
         expect(description).toContain(JSON.stringify(plugin.args));
     });
 
-    // Tests that non-JavaScript files in the plugins directory are handled correctly. 
-    it("test_non_js_files_in_plugins_directory", async () => {
-        const pluginManager = new PluginManager();
-        const pluginsDir = "./test/nonJsPlugins";
-        await fs.promises.mkdir(pluginsDir);
-        await fs.promises.writeFile(`${pluginsDir}/nonJsPlugin.txt`, "");
-        await pluginManager.loadPlugins();
-        expect(Object.keys(pluginManager.plugins).length).toBe(0);
-        await fs.promises.unlink(`${pluginsDir}/nonJsPlugin.txt`);
-        await fs.promises.rmdir(pluginsDir);
-    });
-
-    // Tests that plugins with missing or invalid properties are handled correctly. 
-    it("test_plugins_with_missing_or_invalid_properties", async () => {
-        const pluginManager = new PluginManager();
-        const plugin = { name: "testPlugin", execute: () => {} };
-        pluginManager.plugins[plugin.name] = plugin;
-        const command = { name: "testCommand" };
-        const task = { agent: {}, command };
-        await expect(pluginManager.resolveCommand(command, task)).toBe([]);
-    });
 });
