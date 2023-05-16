@@ -37,44 +37,35 @@ class ThoughtGeneratorPlugin {
 
     this.parentTask = task;
 
-    const llm = this.getLLM(agent, command, task);
+    const {args, model} = command;
+    const llm = model ? agent.modelManager.getModel(model) : agent.getModel();
     if (!llm) {
         return {outcome: 'FAILURE', results: {error:'No model was provided to Think'}};
     }
 
-    let prompt = this.getPrompt(command);
+    const prompt = this.getPrompt(command);
     let followUpText = '';
 
     if (command.args.fullPrompt) {
         followUpText = this.getFollowUpText(agent);
-        prompt = this.getCompiledPrompt(agent, llm, prompt, command.args.constraints || [], command.args.assessments || []);
+        prompt = this.getCompiledPrompt(agent, llm, prompt, args.constraints || [], args.assessments || []);
     }
 
     const output = await this.processPrompt(llm, prompt, followUpText);
     return output;
 }
 
-getLLM(agent, command, task) {
-    if (command.args?.model) {
-      return agent.modelManager.getModel(command.args?.model)
-    } else {
-      return agent.getModel();  
-    }
-}
-
 getFollowUpText(agent) {
-    const followUpText = Strings.pluginIntro + '\n' + agent.pluginManager.describePlugins();
-    return followUpText;
+    return `${Strings.pluginIntro}\n${agent.pluginManager.describePlugins()}`;    
 }
 
-getPrompt(command) {
-    const prompt =  command.args ? (command.args.prompt?.response || command.args.text || command.args.prompt) : (command.prompt || command.text);
+getPrompt({args, prompt, text}) {
+    const prompt = args ? (args.prompt?.response || args.text || args.prompt) : (prompt || text);
     return prompt;
 }
 
 getCompiledPrompt(agent, llm, prompt, constraints, assessments) {
-    const compiledPrompt = llm.compilePrompt(Strings.thoughtPrefix, prompt, constraints, assessments)+ Strings.modelListPrompt + (agent.modelManager.ModelNames|| llm.getModelName());
-    return compiledPrompt;
+    return `${llm.compilePrompt(Strings.thoughtPrefix, prompt, constraints, assessments)}${Strings.modelListPrompt}${agent.modelManager.ModelNames || llm.getModelName()}`;
 }
 
 async processPrompt(llm, compiledPrompt, followUpText) {
@@ -89,7 +80,7 @@ async processPrompt(llm, compiledPrompt, followUpText) {
     return output;
 }
 
-humanizeOutput(replyJSON){
+humanizeOutput(replyJSON = {}){
     let humanText = '';
     if (replyJSON.thoughts?.text) {
         humanText = replyJSON.thoughts.text+'\n\nReasons:\n';
@@ -111,7 +102,7 @@ humanizeOutput(replyJSON){
 }
 
 processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
-    let replyJSON = {};
+    const replyJSON = {};
 
     try {
         try {

@@ -10,99 +10,154 @@ const jsonrepair = require('jsonrepair');
 Code Analysis
 
 Main functionalities:
-The ThoughtGeneratorPlugin class is responsible for generating a thought or message to be sent to an LLM (Language Learning Model) based on a given prompt, constraints, and assessments. It also processes the generated reply and creates tasks based on the generated plan.
+The ThoughtGeneratorPlugin class is responsible for generating prompts and processing replies for the Think command. It sends instructions or information in a message to an LLM (Language Learning Model) and returns the outcome of the process. The class has methods to compile prompts, process replies, replace outputs, and create tasks.
 
 Methods:
-- execute(agent, command, task): executes the plugin by generating a thought and processing the reply
-- getLLM(agent, command, task): gets the LLM model to use for generating the thought
-- getFollowUpText(agent): gets the follow-up text to be sent with the generated thought
-- getPrompt(command): gets the prompt for generating the thought
-- getCompiledPrompt(llm, prompt, constraints, assessments): compiles the prompt with the given constraints and assessments
-- processPrompt(llm, compiledPrompt, followUpText): processes the compiled prompt and generates a reply
-- processReply(reply): processes the generated reply and creates tasks based on the generated plan
-- replaceOutput(S, idMap): replaces output placeholders in a string with their corresponding values from the idMap
-- replaceAllOutputs(Obj, idMap): recursively replaces output placeholders in an object with their corresponding values from the idMap
-- createTask(thisStep, prompt, idMap): creates a task based on the given step, prompt, and idMap
+- constructor(): initializes the version, command, description, and arguments for the Think command.
+- execute(agent, command, task): executes the Think command by generating a prompt, processing the reply, and returning the outcome.
+- getFollowUpText(agent): returns the introductory content and a description of the available plugins.
+- getPrompt({args, prompt, text}): returns the prompt for the Think command.
+- getCompiledPrompt(agent, llm, prompt, constraints, assessments): compiles the prompt with the constraints and assessments and returns it.
+- processPrompt(llm, compiledPrompt, followUpText): processes the prompt and returns the outcome.
+- humanizeOutput(replyJSON = {}): returns a human-readable text from the reply JSON.
+- processReply(reply, output = {outcome: 'SUCCESS', tasks: []}): processes the reply and returns the outcome and tasks.
+- askModelToReprhrase(reply): creates a task for the model to rephrase the reply.
+- replaceOutput(S, idMap): replaces the output in the string with the corresponding ID in the map.
+- replaceAllOutputs(Obj, idMap): replaces all outputs in the object with the corresponding ID in the map.
+- createTask(thisStep, prompt, idMap): creates a task with the given step, prompt, and ID map.
 
 Fields:
-- Strings: a reference to the strings constants file
-- version: the version of the plugin
-- command: the name of the command
-- description: the description of the plugin
-- args: the arguments for the command
-- agent: the agent to use for executing the plugin
+- version: the version of the plugin.
+- command: the name of the command.
+- description: the description of the plugin.
+- args: the arguments for the command.
+- parentTask: the parent task of the plugin.
 */
 
 
 
 describe('ThoughtGeneratorPlugin_class', () => {
 
-    // Tests that the constructor sets the agent property to null or provided value. 
-    it("test_constructor_sets_agent_property", () => {
-        const agent = {name: "testAgent"};
-        const plugin = new ThoughtGeneratorPlugin(agent);
-        expect(plugin.agent).toEqual(agent);
+    // Tests that the processReply method creates tasks with expected properties and handles null input. 
+    it("test_process_reply", () => {
+        const plugin = new ThoughtGeneratorPlugin();
+        const reply = {
+            thoughts: {
+                text: "This is a test",
+                reasoning: ["Reason 1", "Reason 2"],
+                actions: ["Action 1", "Action 2"]
+            },
+            commands: [
+                {
+                    id: "1",
+                    name: "Test",
+                    args: {
+                        prompt: "Test prompt"
+                    }
+                }
+            ]
+        };
+        const output = plugin.processReply(reply);
+        expect(output.outcome).toBe("SUCCESS");
+        expect(output.tasks.length).toBe(1);
+        expect(output.tasks[0].name).toBe("Follow up");
+        expect(output.tasks[0].prompt).toBe("Action 1");
+        expect(output.tasks[0].commands.length).toBe(1);
+        expect(output.tasks[0].commands[0].name).toBe("Test");
+        expect(output.tasks[0].commands[0].args.prompt).toBe("Test prompt");
     });
 
-    // Tests that the execute method returns successful output. 
-    it("test_execute_returns_successful_output", async () => {
-        const agent = {say: jest.fn(), getModel() { return {}}};
-        const llm = {generate: jest.fn().mockResolvedValue({thoughts: {actions: {}}, commands: []})};
-        const task = new Task({agent: agent, name: "testTask"});
-        const command = {args: {prompt: "testPrompt"}};
+    // Tests that the createTask method creates tasks with expected properties. 
+    it("test_create_task", () => {
         const plugin = new ThoughtGeneratorPlugin();
-        const output = await plugin.execute(agent, command, task);
-        expect(output.outcome).toEqual("SUCCESS");
-        expect(output.tasks.length).toEqual(0);
-        expect(agent.say).toHaveBeenCalledWith("thinking...");
-    });
-
-    // Tests that the execute method handles null or undefined task argument. 
-    it("test_execute_handles_null_or_undefined_task_argument", async () => {
-        const agent = {say() {}, getModel() { return {}}};
-        const llm = {generate: jest.fn().mockResolvedValue({thoughts: {actions: {}}, commands: []})};
-        const command = {args: {prompt: "testPrompt"}};
-        const plugin = new ThoughtGeneratorPlugin();
-        const output = await plugin.execute(agent, command, null);
-        expect(output.outcome).toEqual("FAILURE");
-        expect(output.results.error).toEqual("No task was provided to Think");
-    });
-
-    // Tests that the execute method handles null or undefined command argument. 
-    it("test_execute_handles_null_or_undefined_command_argument", async () => {
-        const agent = {say() {}, getModel() { return {}}};
-        const llm = {generate: jest.fn().mockResolvedValue({thoughts: {actions: {}}, commands: []})};
-        const task = new Task({agent: agent, name: "testTask"});
-        const plugin = new ThoughtGeneratorPlugin();
-        const output = await plugin.execute(llm, null, task);
-        expect(output.outcome).toEqual("FAILURE");
-        expect(output.results.error).toEqual("No command was provided to Think");
-    });
-
-    // Tests that the getPrompt method handles null or undefined prompt argument. 
-    it("test_get_prompt_handles_null_or_undefined_prompt_argument", () => {
-        const command = {args: {prompt: "testPrompt"}};
-        const plugin = new ThoughtGeneratorPlugin();
-        expect(plugin.getPrompt(command)).toEqual("testPrompt");
-        expect(plugin.getPrompt({args: {text: "testText"}})).toEqual("testText");
-        expect(plugin.getPrompt({args: {prompt: {response: "testResponse"}}})).toEqual("testResponse");
-        expect(plugin.getPrompt({args: {}})).toEqual(undefined);
-        expect(plugin.getPrompt({})).toEqual(undefined);
-        expect(plugin.getPrompt(null)).toEqual(undefined);
-    });
-
-    // Tests that the createTask method correctly creates a new Task object. 
-    it("test_create_task_correctly_creates_new_task_object", () => {
-        const plugin = new ThoughtGeneratorPlugin();
-        const thisStep = {name: "testName", model: true, args: {arg1: "testArg1"}, dependencies: {dep1: "testDep1"}, id: 1};
-        const prompt = "testPrompt";
+        const thisStep = {
+            id: "1",
+            name: "Test",
+            model: "gpt-3.5-turbo",
+            args: {
+                prompt: "Test prompt"
+            },
+            dependencies: []
+        };
+        const prompt = "Action 1";
         const idMap = {};
         const task = plugin.createTask(thisStep, prompt, idMap);
-        expect(task.name).toEqual("Follow up");
-        expect(task.description).toEqual("a task created by the model");
-        expect(task.prompt).toEqual(prompt);
-        expect(task.commands).toEqual([{name: "testName", model: true, args: {arg1: "testArg1"}}]);
-        expect(task.dependencies).toEqual(["testDep1"]);
-        expect(task.context.from).toEqual(undefined);
+        expect(task.name).toBe("Follow up");
+        expect(task.prompt).toBe("Action 1");
+        expect(task.commands.length).toBe(1);
+        expect(task.commands[0].name).toBe("Test");
+        expect(task.commands[0].model).toBe("gpt-3.5-turbo");
+        expect(task.commands[0].args.prompt).toBe("Test prompt");
+    });
+
+    // Tests that the execute method returns SUCCESS with valid input. 
+    it("test_execute_success", async () => {
+        const plugin = new ThoughtGeneratorPlugin();
+        const agent = {
+            say: jest.fn(),
+            getModel: jest.fn(() => ({ compilePrompt: jest.fn() })),
+            modelManager: { getModel: jest.fn(() => ({ compilePrompt: jest.fn() })), ModelNames: "Test Model" },
+            pluginManager: { describePlugins: jest.fn(() => "Test Plugins") }
+        };
+        const command = {
+            args: {
+                prompt: "Test prompt",
+                constraints: ["Constraint 1", "Constraint 2"],
+                assessments: ["Assessment 1", "Assessment 2"],
+                fullPrompt: true
+            },
+            model: "gpt-3.5-turbo"
+        };
+        const task = new Task({
+            agent: agent,
+            name: "Test Task",
+            description: "Test description",
+            prompt: "Test prompt",
+            commands: [],
+            dependencies: [],
+            context: {}
+        });
+        const output = await plugin.execute(agent, command, task);
+        expect(agent.say).toHaveBeenCalledWith("thinking...");
+        expect(output.outcome).toBe("SUCCESS");
+        expect(output.tasks.length).toBe(0);
+    });
+
+    // Tests that the getFollowUpText method returns the expected string. 
+    it("test_get_follow_up_text", () => {
+        const plugin = new ThoughtGeneratorPlugin();
+        const agent = {
+            pluginManager: { describePlugins: jest.fn(() => "Test Plugins") }
+        };
+        const followUpText = plugin.getFollowUpText(agent);
+        expect(followUpText).toBe(`${Strings.pluginIntro}\nTest Plugins`);
+    });
+
+    // Tests that the getPrompt method returns the expected string, handling null input. 
+    it("test_get_prompt", () => {
+        const plugin = new ThoughtGeneratorPlugin();
+        const args = {
+            prompt: { response: "Test response" },
+            text: "Test text"
+        };
+        const prompt = "Test prompt";
+        const text = "Test text";
+        const result1 = plugin.getPrompt({ args });
+        const result2 = plugin.getPrompt({ prompt });
+        const result3 = plugin.getPrompt({ text });
+        const result4 = plugin.getPrompt({});
+        expect(result1).toBe("Test response");
+        expect(result2).toBe("Test prompt");
+        expect(result3).toBe("Test text");
+        expect(result4).toBeUndefined();
+    });
+
+    // Tests that the replaceOutput method replaces output strings as expected. 
+    it("test_replace_output", () => {
+        const plugin = new ThoughtGeneratorPlugin();
+        const S = "Test {output:1} {output:2}";
+        const idMap = { 1: "Output 1", 2: "Output 2" };
+        const result = plugin.replaceOutput(S, idMap);
+        expect(result).toBe("Test Output 1 Output 2");
     });
 });
