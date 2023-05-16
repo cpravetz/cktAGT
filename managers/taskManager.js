@@ -20,9 +20,11 @@ class TaskManager {
 
   // This method adds a task to the queue.
   addTask(task) {
-    this.tasks.set(task.id, task);
-    if (this.store) {
-      this.store.save(task);
+    if (task.id) {
+      this.tasks.set(task.id, task);
+      if (this.store) {
+        this.store.save(task);
+      }
     }
   }
 

@@ -42,7 +42,7 @@ class InternetSearchPlugin {
     const t = new Task({agent: task.agent,
               name:'File Send', description:'sending the search results to the LLM',
               prompt:'this is the search results for '+command.args.find,
-              commands: [{name:'Think', model: thisStep.model||false, args:{prompt:results}}],
+              commands: [{name:'Think', model: task.agent.getModel()|| agent.getModel(), args:{prompt:results}}],
               context:{from: task.id}});
     return {
       outcome: 'SUCCESS',

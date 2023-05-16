@@ -2,6 +2,7 @@
 
 
 const GPT4 = require('./../models/gpt4.js');
+const dotenv = require("dotenv").config();
 
 /*
 Code Analysis

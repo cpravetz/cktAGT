@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require('path');
 const Task = require('./../managers/task.js');
+const dotenv = require("dotenv").config();
 
 const FileReaderPlugin = require('./../plugins/fileReader.js');
 
@@ -48,7 +49,7 @@ describe('FileReaderPlugin_class', () => {
     it("test_read_file_failure", async () => {
         const fileReaderPlugin = new FileReaderPlugin();
         const filePath = path.join(__dirname, 'nonexistent.txt');
-        const agent = {agentManager : { workDirName: __dirname }};
+        const agent = {getModel() {return {}}, agentManager : { workDirName: __dirname }};
         const result = await fileReaderPlugin.execute(agent, {args: {fileName: 'nonexistent.txt'}}, {});
         expect(result.outcome).toEqual('FAILURE');
         expect(result.text).toEqual(`File not found: ${filePath}`);
@@ -58,7 +59,7 @@ describe('FileReaderPlugin_class', () => {
     // Tests that the execute method throws an error when the file name or URL is invalid. 
     it("test_invalid_file_name", async () => {
         const fileReaderPlugin = new FileReaderPlugin();
-        const agent = {agentManager : { workDirName: __dirname }};
+        const agent = {getModel() {return {}}, agentManager : { workDirName: __dirname }};
         await expect(fileReaderPlugin.execute(agent, {args: {fileName: '../test_files/test.txt'}}, {})).rejects.toThrowError('Invalid file name or URL');
     });
 
@@ -67,7 +68,7 @@ describe('FileReaderPlugin_class', () => {
         const filePath = path.join(__dirname, 'test.txt');
         await fs.promises.writeFile(filePath, 'This is a test file.');
         const fileReaderPlugin = new FileReaderPlugin();
-        const agent = {agentManager: {workDirName: __dirname}};
+        const agent = {getModel() {return {}}, agentManager: {workDirName: __dirname}};
         const command = {args: {fileName: 'test.txt', sendToLLM: true}};
         const task = {};
         const result = await fileReaderPlugin.execute(agent, command, task);
@@ -80,7 +81,7 @@ describe('FileReaderPlugin_class', () => {
     // Tests that the execute method does not generate a new task when sendToLLM is false. 
     it("test_no_send_to_llm", async () => {
         const fileReaderPlugin = new FileReaderPlugin();
-        const agent = {agentManager: {workDirName: __dirname}};
+        const agent = {getModel() {return {}}, agentManager: {workDirName: __dirname}};
         const command = {args: {fileName: 'test.txt', sendToLLM: false}};
         const filePath = path.join(__dirname, 'test.txt');
         await fs.promises.writeFile(filePath, 'This is a test file.');

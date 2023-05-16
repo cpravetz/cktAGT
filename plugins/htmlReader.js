@@ -6,6 +6,7 @@
 
 const cheerio = require("cheerio");
 const Task = require('./../managers/task.js');
+const fetch =  require('node-fetch');
 
 class HTMLReaderPlugin {
 
@@ -31,30 +32,40 @@ class HTMLReaderPlugin {
   async execute(agent, command, task) {
 
     const url = command.args.url;
+    if (!url) {
+      return {outcome: 'FAILURE', text: 'No url provided'}
+    }
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        return {outcome: 'FAILURE', text: `Failed to generate message: ${response.status} ${response.statusText}`}
+      }
 
-    // Create a new Cheerio instance.
-    const cheer = cheerio.load(url);
+      // Create a new Cheerio instance.
+      const cheer = cheerio.load(response.body);
 
-    // Get the text of the web page.
-    const text = cheer("body").text();
+      // Get the text of the web page.
+      const text = cheer("body").text();
 
-    const tasks = [];
-    if (command.args.sendToLLM) {
-      tasks.push( new Task({agent:agent,
+      const tasks = [];
+      if (command.args.sendToLLM) {
+        tasks.push( new Task({agent:agent,
               name:'Html Send', description:'sending the html body from file '+command.args.url+' to the LLM',
               prompt:'this is the body of '+command.args.url,
               commands:[{name:'Think', model: agent.getModel() ||false, args:{prompt:text}}],
               context:{from: this.id}}));
-    }              
+      }              
     
-    return {
-      outcome: 'SUCCESS',
-      results: {
-        file: text,
-      },
-      tasks: tasks
-    };
-
+      return {
+        outcome: 'SUCCESS',
+        results: {
+          file: text,
+        },
+        tasks: tasks
+      };
+    } catch (error) {
+      return {outcome: 'FAILURE', text: error, results: {error:error}}
+    }
   }
 
 }

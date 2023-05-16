@@ -2,6 +2,9 @@
 
 
 const ThoughtGeneratorPlugin = require('./../plugins/thinker.js');
+const Task = require("./../managers/task.js");
+const Strings = require("./../constants/strings.js");
+const jsonrepair = require('jsonrepair');
 
 /*
 Code Analysis

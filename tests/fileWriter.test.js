@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require('path');
+const dotenv = require("dotenv").config();
 
 const FileWriterPlugin = require('./../plugins/fileWriter.js');
 

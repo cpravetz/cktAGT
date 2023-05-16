@@ -35,11 +35,10 @@ class PluginBuilderPlugin {
   async execute(agent, command, task) {
     // Get the task description from the task.
     const taskDescription = command.args.description;
-
     // Get the user's input for the plugin code.
     const messages = [{
       role: "user",
-      prompt: Strings.pluginBuilderPrompt.replaceAll('[t.a.c]', commands.args.command).replaceAll('[t.a.d]', command.args.description),
+      prompt: Strings.pluginBuilderPrompt.replace(/[t.a.c]/g, command.args.newCommand).replace(/[t.a.d]/g, command.args.description),
     }];
     const text = await agent.taskManager.model.generate(messages, {
       maxTokens: 1024,

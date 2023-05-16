@@ -6,10 +6,11 @@
 const chai = require('chai');
 const expect = chai.expect;
 const http = require('http');
-const dotenv = require("dotenv").config();
 const AgentManager = require('./../managers/agentManager.js');
 const process = require('jest');
 const index = require('./../index.js');
+const dotenv = require("dotenv").config();
+const fetch =  require('node-fetch');
 
 // This is the Mocha test suite.
 describe("AI Agent App", () => {
@@ -17,7 +18,7 @@ describe("AI Agent App", () => {
   it("should be listening on port 3000", async () => {
 
     // Make a request to the server.
-    const request = await new Request("http://localhost:3000/");
+    const request = await fetch("http://localhost:3000/");
 
     // Check that the request was successful.
     expect(request.status).to.equal(200);

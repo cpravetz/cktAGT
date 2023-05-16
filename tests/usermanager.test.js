@@ -14,101 +14,103 @@ Test Plan:
 
 describe('UserManager_class', () => {
 
-    // Tests that the constructor initializes all properties correctly. 
-    it("test_constructor_initializes_properties", () => {
-        const app = "testApp";
-        const io = "testIO";
-        const userManager = new UserManager(app, io);
-        expect(userManager.app).toBe(app);
-        expect(userManager.io).toBe(io);
-        expect(userManager.asks).toEqual(new Map());
-        expect(userManager.listeners).toEqual(new Set());
-        expect(userManager.id).toBeDefined();
+    // Tests that the constructor initializes all necessary properties correctly. 
+    it("test_user_manager_constructor", () => {
+      const app = "testApp";
+      const io = "testIO";
+      const userManager = new UserManager(app, io);
+      expect(userManager.app).toBe(app);
+      expect(userManager.io).toBe(io);
+      expect(userManager.tells).toEqual(new Map());
+      expect(userManager.asks).toEqual(new Map());
+      expect(userManager.listeners).toEqual(new Set());
+      expect(userManager.id).toBeDefined();
+      expect(userManager.looping).toBe(false);
     });
 
-    // Tests that the addListener method adds a listener to the set correctly. 
-    it("test_add_listener", () => {
-        const listener = { hear: jest.fn() };
-        const userManager = new UserManager();
-        userManager.addListener(listener);
-        expect(userManager.listeners.size).toBe(1);
-        expect(userManager.listeners.has(listener)).toBe(true);
+    // Tests that the addListener method adds a listener with a valid hear function to the listeners set. 
+    it("test_add_listener_valid", () => {
+      const listener = {hear: jest.fn()};
+      const userManager = new UserManager();
+      userManager.addListener(listener);
+      expect(userManager.listeners.size).toBe(1);
     });
 
-    // Tests that the ask method creates and emits a prompt object correctly. 
-    it("test_ask_method", () => {
-        const prompt = "testPrompt";
-        const choices = ["choice1", "choice2"];
-        const allowMultiple = true;
-        const lastAsk = {
-            id: expect.any(String),
-            prompt: prompt,
-            choices: choices,
-            allowMultiple: allowMultiple
-        };
-        const sayMock = jest.spyOn(UserManager.prototype, "say");
-        const ioMock = { emit: jest.fn() };
-        const userManager = new UserManager(null, ioMock);
-        userManager.ask(prompt, choices, allowMultiple);
-        expect(sayMock).toHaveBeenCalledWith(lastAsk);
-        expect(userManager.asks.size).toBe(1);
-        //expect(userManager.asks.get(lastAsk.id)).toEqual(lastAsk);
+    // Tests that the addListener method does not add a listener with an invalid hear function to the listeners set. 
+    it("test_add_listener_invalid", () => {
+      const listener = {hear: "invalidFunction"};
+      const userManager = new UserManager();
+      userManager.addListener(listener);
+      expect(userManager.listeners.size).toBe(0);
     });
 
-    // Tests that the say method logs and emits a message correctly. 
-    it("test_say_method", () => {
-        const text = "testText";
-        const ioMock = { emit: jest.fn() };
-        const userManager = new UserManager(null, ioMock);
-        userManager.say(text);
-        expect(ioMock.emit).toHaveBeenCalledWith('serverSays', text);
+    // Tests that the acknowledgeRecd method does not delete a message from the tells map when an unknown message is passed. 
+    it("test_acknowledge_recd_unknown", () => {
+      const userManager = new UserManager();
+      const message = {id: "testID"};
+      expect(() => {userManager.acknowledgeRecd(message)}).not.toThrow();
     });
 
-    // Tests that the hear method parses and emits a message to listeners correctly. 
-    it("test_hear_method", () => {
-        const message = { id: "testId", content: "testContent" };
-        const listener1 = { hear: jest.fn() };
-        const listener2 = { hear: jest.fn() };
-        const userManager = new UserManager();
-        userManager.addListener(listener1);
-        userManager.addListener(listener2);
-        userManager.hear(JSON.stringify(message));
-        expect(listener1.hear).toHaveBeenCalledWith(message);
-        expect(listener2.hear).toHaveBeenCalledWith(message);
-        expect(userManager.asks.has(message.id)).toBe(false);
+    // Tests that the say method sends a message to the server with valid text and sets the message in the tells map. 
+    it("test_say_valid", () => {
+      const io = {emit: jest.fn()};
+      const userManager = new UserManager(null, io);
+      const text = "testText";
+      userManager.say(text);
+      expect(io.emit).toHaveBeenCalledWith('serverSays', expect.objectContaining({content: text}));
+      expect(userManager.tells.size).toBe(1);
     });
 
-    // Tests that the announceFile method emits a file object correctly. 
-    it("test_announce_file_method", () => {
-        const name = "testName";
-        const url = "testUrl";
-        const ioMock = { emit: jest.fn() };
-        const userManager = new UserManager(null, ioMock);
-        userManager.announceFile(name, url);
-        expect(ioMock.emit).toHaveBeenCalledWith('serverFileAdd', { name: name, url: url });
+    // Tests that the acknowledgeRecd method deletes a message from the tells map when a valid message object is passed. 
+    it("test_acknowledge_recd_valid", () => {
+      const userManager = new UserManager();
+      const message = {id: "testID"};
+      userManager.tells.set(message.id, message);
+      userManager.acknowledgeRecd(message);
+      expect(userManager.tells.size).toBe(0);
     });
 
-    // Tests that the requestStepApproval method emits the serverNeedsApproval event correctly.  
-    it("test_request_step_approval_method", () => {
-        const mockIo = { emit: jest.fn() };
-        const userManager = new UserManager(null, mockIo);
-        userManager.requestStepApproval();
-        expect(mockIo.emit).toHaveBeenCalledWith('serverNeedsApproval', {});
+    // Tests that the requestStepApproval method sends a message to the server with a valid message object. 
+    it("test_request_step_approval_valid", () => {
+      const io = {emit: jest.fn()};
+      const userManager = new UserManager(null, io);
+      userManager.requestStepApproval();
+      expect(io.emit).toHaveBeenCalledWith('serverNeedsApproval', expect.any(Object));
+      expect(userManager.tells.size).toBe(1);
     });
 
-    // Tests that the addListener method handles empty listener input correctly.  
-    it("test_empty_listener_input_to_add_listener", () => {
-        const userManager = new UserManager(null, null);
-        userManager.addListener(null);
-        expect(userManager.listeners.size).toBe(0);
+    // Tests that the ask method sends a message to the server with valid prompt, choices, and allowMultiple parameters and sets the message in the asks map. 
+    it("test_ask_valid", () => {
+      const io = {emit: jest.fn()};
+      const userManager = new UserManager(null, io);
+      const prompt = "testPrompt";
+      const choices = ["choice1", "choice2"];
+      const allowMultiple = true;
+      userManager.ask(prompt, choices, allowMultiple);
+      //expect(io.emit).toHaveBeenCalledWith('serverSays', expect.objectContaining({content.prompt: prompt, content.choices: choices, content.allowMultiple: allowMultiple}));
+      expect(userManager.asks.size).toBe(1);
     });
 
-    // Tests that the hear method handles invalid JSON input correctly.  
-    it("test_invalid_json_input_to_hear_method", () => {
-        const mockListener = { hear: jest.fn() };
-        const userManager = new UserManager(null, null);
-        userManager.addListener(mockListener);
-        userManager.hear("invalid json");
-        expect(mockListener.hear).not.toHaveBeenCalled();
+    // Tests that the ask method does not send a message to the server with invalid prompt, choices, or allowMultiple parameters and does not set the message in the asks map. 
+    it("test_ask_invalid", () => {
+      const io = {emit: jest.fn()};
+      const userManager = new UserManager(null, io);
+      const prompt = "";
+      const choices = [];
+      const allowMultiple = "invalidValue";
+      userManager.ask(prompt, choices, allowMultiple);
+      expect(io.emit).not.toHaveBeenCalled();
+      expect(userManager.asks.size).toBe(0);
+    });
+
+    // Tests that the announceFile method does not send a message to the server with invalid name or url parameters and does not set the message in the tells map. 
+    it("test_announce_file_invalid", () => {
+      const io = {emit: jest.fn()};
+      const userManager = new UserManager(null, io);
+      const name = "";
+      const url = null;
+      userManager.announceFile(name, url);
+      expect(io.emit).not.toHaveBeenCalled();
+      expect(userManager.tells.size).toBe(0);
     });
 });

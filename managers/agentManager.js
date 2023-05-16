@@ -175,7 +175,12 @@ class AgentManager {
 
   // Handles input from the user.
   hear(msg) {
-    const input = JSON.parse(msg) || msg;
+    let input = {};
+    try {
+      input = JSON.parse(msg)
+    } catch (e) {
+      input = msg;
+    }
 
     // Deal with input supplied by the user, probably in response to an ask
     switch (this.status) {

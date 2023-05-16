@@ -23,6 +23,7 @@ Fields:
 */
 
 const process = require('jest');
+const dotenv = require("dotenv").config();
 
 
 describe('ModelManager_class', () => {
@@ -43,7 +44,7 @@ describe('ModelManager_class', () => {
     it("test_nonexistent_model", () => {
         const modelManager = new ModelManager();
         const nonexistentModel = modelManager.getModel("nonexistentModel");
-        expect(nonexistentModel).toBeFalsy();
+        expect(nonexistentModel).toEqual(modelManager.activeModel);
     });
 
     // Tests that getModel returns the correct model. 

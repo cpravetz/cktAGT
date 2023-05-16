@@ -2,6 +2,7 @@
 
 
 const GPT35 = require('./../models/gpt35.js');
+const dotenv = require("dotenv").config();
 
 /*
 Code Analysis
