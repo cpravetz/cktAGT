@@ -15,6 +15,7 @@ class Agent {
     this.taskManager = agentManager.taskManager;
     this.pluginManager = agentManager.pluginManager;
     this.userManager = agentManager.userManager;
+    this.modelManager = agentManager.modelManager;
     this.store = agentManager.memoryManager.activeStore;
     this.status = 'pending';
     this.name = name;
@@ -22,15 +23,12 @@ class Agent {
 
   report(text) {
     console.log(`Agent ${this.name} reports ${text}`);
+    this.userManager.say(text);
   }
 
 
   getModel() {
-    return this.taskManager.model;
-  }
-
-  modelManager() {
-    return this.agentManager.modelManager || false;
+    return this.taskManager.model || this.modelManager.activeModel;
   }
 
   start() {
@@ -65,6 +63,9 @@ class Agent {
       if (cmdResp.text) {
         this.say(cmdResp.text);
       }
+      if (cmdResp.error) {
+        this.say(`Error reported: ${cmdResp.error}`);
+      }
       if (cmdResp.tasks) {
         this._addSubTasks(cmdResp.tasks);
       }
@@ -89,7 +90,7 @@ class Agent {
           try {
             this.agentManager.useOneStep();
             const result = await task.execute();
-            this._processResult(result);
+            this._processResult(result || {});
             this.report(`Finished task: ${task.name || task.id}`);
             this.taskManager.complete(task);
             if (this.store) {

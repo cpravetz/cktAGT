@@ -89,6 +89,7 @@ class AgentManager {
     // Add the task to the queue.
     this.taskManager.addTask(task);
     this.say('Understood');
+    this.agent.start();
   }
 
 
@@ -115,7 +116,7 @@ class AgentManager {
   createFirstAgent(input) {
     // Create a new agent.
     this.agent = new Agent(this, this.agentName || this.agent.id);
-    const commands = [{name: "Think", args: {prompt: input}}];
+    const commands = [{name: "Think", args: {prompt: input, fullPrompt: true}}];
     // Create a new task.
     const task = new Task({agent:this.agent, name:"Initial Task",
             description:"we are processing the goal and constraints", goal:input, commands:commands});
@@ -200,6 +201,11 @@ class AgentManager {
         this.informTheLLM(input);
     }
   }
+
+  acknowledgeRecd(msg) {
+    this.userManager.acknowledgeRecd(msg);
+  }
+
 
   allowMoreSteps(continuous, count) {
     console.log('Approved to proceed');

@@ -44,7 +44,7 @@ loadModels() {
 
   // This method gets a model by name.
   getModel(name)  {
-    return this.models[name] || false;
+    return this.models[name] || this.activeModel;
   }
 
   get ModelNames() {

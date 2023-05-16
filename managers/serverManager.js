@@ -55,6 +55,12 @@ class ServerManager {
     }
   }
 
+  acknowledge(message) {
+    if (message.id) {
+      socket.emit('userAck', message.id);
+    }
+  }
+
   hear(message) {
     this.chat(message,'left');
   }
@@ -74,8 +80,8 @@ class ServerManager {
 
   answer(msg) {
     this.asked = {
-      prompt: msg.prompt.prompt || msg.prompt,
-      choices: msg.prompt.choices || false,
+      prompt: msg.content.prompt.prompt || msg.content.prompt,
+      choices: msg.content.prompt.choices || false,
     };
     const allowMultiple = msg.allowMultiple || false;
     this.askId = msg.id;
@@ -150,7 +156,6 @@ class ServerManager {
     return radioButtons;
   }
   
-
 }
 
 
@@ -161,15 +166,17 @@ function sanitize(text) {
 }
 
 socket.on('serverSays', function(msg) {
-    if (msg.prompt) {
+  serverManager.acknowledge(msg);
+  if (msg.content.prompt) {
         serverManager.answer(msg)
     } else {
-        serverManager.hear(msg);
-    }
+        serverManager.hear(msg.content);
+    };
 });
 
 socket.on('serverFileAdd', function(msg) {
-    console.log('new Work File:'+msg);
+  serverManager.acknowledge(msg);
+  console.log('new Work File:'+msg);
     if (!msg.fileName) {
         serverManager.hear(msg)
     } else {
@@ -178,6 +185,7 @@ socket.on('serverFileAdd', function(msg) {
 });
 
 socket.on('serverNeedsApproval', function(msg) {
+  serverManager.acknowledge(msg);
   document.getElementById("getApproval").style.display = 'block';
   document.getElementById("stepsBox").style.display = 'block';
 });
@@ -261,3 +269,5 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 });
+
+

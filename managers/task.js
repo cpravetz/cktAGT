@@ -55,7 +55,6 @@ class Task {
 
   // This method executes the task.
   async execute() {
-
     this.status = "working";
     let responses = [];
     this.result = {};

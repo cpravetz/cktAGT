@@ -19,8 +19,9 @@ class GitHubClonePlugin {
   
       // The arguments for the command.
   this.args = {
-        repoUrl: 'The URL of the GitHub repository to clone',
-        clonePath: 'The path to the directory where the repository will be cloned',
+        repoUrl: 'URL of the GitHub repository to clone',
+        clonePath: 'A path to the folder, relative to our working folder, where the repository will be cloned',
+        options: 'An object with any options to be passed to the Clone function'
       };
   
 

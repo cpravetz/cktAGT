@@ -12,6 +12,7 @@ const Strings = {
 
   newAgentMsg:'Begin by providing a set of instructions for the agent to tackle. Begin with a goal, then add any constraints or parameters that might apply. Remember that this is experimental software and could waste your time and your money.',
 
+  runningAgentMsg:'Enter any information you wish to have sent to the Agent',
   // A message that is displayed when the agent is asked for its goal.
   goalPrompt: "What is your goal?",
 

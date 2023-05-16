@@ -25,7 +25,8 @@ class ThoughtGeneratorPlugin {
     this.args= {
       prompt: 'a complete message to send to the LLM that adequately but efficiently explains the goal or item to be resolved',
       constraints: 'An array of strings describing constraints the LLM should consider',
-      assessments: 'An array of any other text that should be sent to the LLM with the prompt'
+      assessments: 'An array of any other text that should be sent to the LLM with the prompt',
+      fullPrompt: 'if true, wraps the prompt in the introductory content'
     };
 
   }
@@ -41,16 +42,24 @@ class ThoughtGeneratorPlugin {
         return {outcome: 'FAILURE', results: {error:'No model was provided to Think'}};
     }
 
-    const followUpText = this.getFollowUpText(agent);
-    const prompt = this.getPrompt(command);
-    const compiledPrompt = this.getCompiledPrompt(agent, llm, prompt, command.args.constraints || [], command.args.assessments || []);
-    const output = await this.processPrompt(llm, compiledPrompt, followUpText);
+    let prompt = this.getPrompt(command);
+    let followUpText = '';
+
+    if (command.args.fullPrompt) {
+        followUpText = this.getFollowUpText(agent);
+        prompt = this.getCompiledPrompt(agent, llm, prompt, command.args.constraints || [], command.args.assessments || []);
+    }
+
+    const output = await this.processPrompt(llm, prompt, followUpText);
     return output;
 }
 
 getLLM(agent, command, task) {
-    const llm = task.agent?.modelManager().getModel(command.args.model) || agent.getModel();
-    return llm;
+    if (command.args?.model) {
+      return agent.modelManager.getModel(command.args?.model)
+    } else {
+      return agent.getModel();  
+    }
 }
 
 getFollowUpText(agent) {
@@ -59,12 +68,12 @@ getFollowUpText(agent) {
 }
 
 getPrompt(command) {
-    const prompt = command.args.prompt.response || command.args.prompt || command.args.text;
+    const prompt =  command.args ? (command.args.prompt?.response || command.args.text || command.args.prompt) : (command.prompt || command.text);
     return prompt;
 }
 
 getCompiledPrompt(agent, llm, prompt, constraints, assessments) {
-    const compiledPrompt = llm.compilePrompt(Strings.thoughtPrefix, prompt, constraints, assessments)+ Strings.modelListPrompt + (agent.modelManager().ModelNames|| agent.getModel().getModelName());
+    const compiledPrompt = llm.compilePrompt(Strings.thoughtPrefix, prompt, constraints, assessments)+ Strings.modelListPrompt + (agent.modelManager.ModelNames|| llm.getModelName());
     return compiledPrompt;
 }
 
@@ -72,32 +81,77 @@ async processPrompt(llm, compiledPrompt, followUpText) {
     let output = {outcome: 'SUCCESS', tasks: []};
     try {
         const reply = await llm.generate([compiledPrompt, followUpText], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
-        output = this.processReply(reply);
+        output = this.processReply(reply, output);
     } catch (error) {
         output.outcome = 'FAILURE';
-        output.results = {error: error};
+        output.results = {error: error, reply:reply || null};
     }
     return output;
 }
 
-processReply(reply) {
-    let output = {outcome: 'SUCCESS', tasks: []};
+humanizeOutput(replyJSON){
+    let humanText = '';
+    if (replyJSON.thoughts?.text) {
+        humanText = replyJSON.thoughts.text+'\n\nReasons:\n';
+        if (typeof(replyJSON.thoughts.reasoning) === 'string') {
+            humanText += replyJSON.thoughts.reasoning+'\n';
+        }else {
+            replyJSON.thoughts.reasoning?.forEach((reason)=> { humanText+= reason+'\n'});
+        }
+        humanText += '\n\nPlan:\n';
+        if (typeof(replyJSON.thoughts.actions) === 'string') {
+            humanText += replyJSON.thoughts.actions+'\n';
+        }else {
+            replyJSON.thoughts.actions?.forEach((stepText)=> { humanText+= stepText+'\n'});
+        }
+    } else {
+        humanText = JSON.stringify(replyJSON);
+    }
+    return humanText;
+}
+
+processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
     let replyJSON = {};
 
-    if (typeof(reply) === 'string') { replyJSON = JSON.parse(jsonrepair.jsonrepair(reply)); } else { replyJSON = reply }
-    output.text = replyJSON.thoughts ? Strings.textify(replyJSON) : JSON.stringify(replyJSON);
-
-    const actions = replyJSON.thoughts ? replyJSON.thoughts.actions : (replyJSON.actions  || []);
-    const plan = replyJSON.commands || [];
-    let idMap = {};
-    for (const thisStep of plan) {
-        if (thisStep.model) { thisStep.args['model'] = thisStep.model }
-        const prompt = thisStep.action ? this.replaceOutput(actions[thisStep.action],idMap)  : thisStep.args.prompt;
-        thisStep.args = this.replaceAllOutputs(thisStep.args,idMap);
-        const t = this.createTask(thisStep, prompt, idMap);
-        output.tasks.push(t);
+    try {
+        try {
+            if (typeof(reply) === 'string') { replyJSON = JSON.parse(jsonrepair.jsonrepair(reply)); } else { replyJSON = reply };   
+            output.text = this.humanizeOutput(replyJSON);
+        } catch (error) {
+            output.text = reply;
+        }
+        if (replyJSON.thoughts || replyJSON.commands) {
+            const actions = replyJSON.thoughts ? replyJSON.thoughts.actions : (replyJSON.actions  || []);
+            const plan = replyJSON.commands || [];
+            let idMap = {};
+            for (const thisStep of plan) {
+                if (thisStep.model) { thisStep.args['model'] = thisStep.model }
+                const prompt = thisStep.action ? this.replaceOutput(actions[thisStep.action],idMap)  : thisStep.args.prompt;
+                thisStep.args = this.replaceAllOutputs(thisStep.args,idMap);
+                const t = this.createTask(thisStep, prompt, idMap);
+                output.tasks.push(t);
+            }
+        } else {
+            output.tasks.push(this.askModelToRephrase(reply));
+        }
+    } catch (error) {
+        output.outcome = 'FAILURE';
+        output.results = {error: error, reply: reply};
     }
     return output;
+}
+
+askModelToReprhrase(reply) {
+    const newPrompt = 'Please restate your reply as '+Strings.defaultResponseFormat+' Your reply was:'+reply;
+    return new Task({
+        agent: this.parentTask.agent,
+        name: "Rephrase",
+        description: 'a task created by the model',
+        prompt: newPrompt,
+        commands: [{name: 'Think', prompt: newPrompt, model: this.parentTask.agent.getModel(), fullPrompt: false}],
+        dependencies: [],
+        context: {from: this.parentTask.id}
+    });
 }
 
 replaceOutput(S, idMap) {
@@ -110,7 +164,7 @@ replaceOutput(S, idMap) {
 }
 
 replaceAllOutputs(Obj, idMap) {
-    const newObj = Obj;
+    const newObj = {...Obj};
     for (const key in newObj) {
         if (typeof newObj[key] === "string") {
             newObj[key] = this.replaceOutput(newObj[key], idMap);
@@ -145,7 +199,6 @@ createTask(thisStep, prompt, idMap) {
     idMap[thisStep.id] = t.id;
     return t;
 }
-
 
 }
 

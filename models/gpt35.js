@@ -16,55 +16,98 @@ class GPT35 extends OpenAI {
     this.name = 'gpt-3.5-turbo';
   }
 
+  /*async generate(m,o) {
+    return `{
+      "thoughts": {
+        "text": "To promote cktAGT, we need to create content that generates interest and provide a plan for Chris to follow. The plan should include steps for sharing the content on social media, reaching out to potential partners, and attending relevant events. We can also participate in executing the plan by creating new plugins to automate some tasks.",
+        "reasoning": "To promote cktAGT, we need to create content that generates interest and provide a plan for Chris to follow. This plan should include steps for sharing the content on social media, reaching out to potential partners, and attending relevant events. We can also participate in executing the plan by creating new plugins to automate some tasks.",
+        "actions": [
+          "Create a list of potential partners and events to attend",
+          "Develop content that showcases the unique features and benefits of cktAGT",
+          "Create social media accounts and develop a strategy for sharing content",
+          "Reach out to potential partners and invite them to try cktAGT",
+          "Attend relevant events and conferences to showcase cktAGT",
+          "Create new plugins to automate tasks such as social media posting and partner outreach"
+        ]
+      },
+      "commands": [
+        {
+          "id": 1,
+          "name": "Think",
+          "action": 1,
+          "args": {
+            "prompt": "Create a list of potential partners and events to attend",
+            "constraints": ["Partners should be relevant to cktAGT's target audience and have a strong online presence", "Events should be relevant to cktAGT's target audience and provide opportunities for networking"],
+            "assessments": ["Consider industry publications and social media to identify potential partners and events"]
+          },
+          "model": "GPT-3.5-turbo",
+          "dependencies": []
+        },
+        {
+          "id": 2,
+          "name": "Think",
+          "action": 2,
+          "args": {
+            "prompt": "Develop content that showcases the unique features and benefits of cktAGT",
+            "constraints": ["Content should be engaging and informative", "Content should be tailored to different platforms and audiences"],
+            "assessments": ["Consider using multimedia such as videos and infographics to showcase cktAGT's features and benefits"]
+          },
+          "model": "GPT-3.5-turbo",
+          "dependencies": []
+        },
+        {
+          "id": 3,
+          "name": "Think",
+          "action": 3,
+          "args": {
+            "prompt": "Create social media accounts and develop a strategy for sharing content",
+            "constraints": ["Social media accounts should be created on platforms relevant to cktAGT's target audience", "The strategy should include a mix of promotional and informative content"],
+            "assessments": ["Consider using social media management tools to schedule posts and track engagement"]
+          },
+          "model": "Bard",
+          "dependencies": []
+        },
+        {
+          "id": 4,
+          "name": "Think",
+          "action": 4,
+          "args": {
+            "prompt": "Reach out to potential partners and invite them to try cktAGT",
+            "constraints": ["Outreach should be personalized and relevant to the potential partner's needs", "Outreach should include a clear call to action"],
+            "assessments": ["Consider using email marketing tools to manage outreach and track engagement"]
+          },
+          "model": "GPT-4",
+          "dependencies": [1]
+        },
+        {
+          "id": 5,
+          "name": "Think",
+          "action": 5,
+          "args": {
+            "prompt": "Attend relevant events and conferences to showcase cktAGT",
+            "constraints": ["Events should be relevant to cktAGT's target audience and provide opportunities for networking", "Booth and presentation materials should be engaging and informative"],
+            "assessments": ["Consider partnering with other companies or organizations to increase visibility and reach"]
+          },
+          "model": "Bard",
+          "dependencies": [1]
+        },
+        {
+          "id": 6,
+          "name": "Think",
+          "action": 6,
+          "args": {
+            "prompt": "Create new plugins to automate tasks such as social media posting and partner outreach",
+            "constraints": ["Plugins should be user-friendly and customizable", "Plugins should integrate with existing tools and workflows"],
+            "assessments": ["Consider using existing plugins as a starting point and customizing them to fit cktAGT's needs"]
+          },
+          "model": "GPT-3.5-turbo",
+          "dependencies": [2, 3, 4]
+        }
+      ]
+    }`;
+  }*/
+
 }
 
 module.exports = GPT35;
 
-/*    // This is just test data to avoid using tokens
-{
-  "thoughts": {
-    "text": "Revising and editing a manuscript is a complex task that requires a deep understanding of the text, as well as strong writing and editing skills. It is important to be able to identify and correct errors in grammar, spelling, and punctuation. It is also important to be able to improve the clarity, conciseness, and flow of the text.",
-    "reasoning": "Revising and editing a manuscript is a long-term process that requires careful attention to detail. It is important to have a clear understanding of the goals of the revision and editing process, and to be able to develop a plan to achieve those goals. It is also important to be able to work effectively with others, such as editors and proofreaders, to ensure that the manuscript is of the highest quality.",
-    "actions": [
-      "1. Read the manuscript carefully and identify any errors in grammar, spelling, or punctuation.",
-      "2. Improve the clarity, conciseness, and flow of the text.",
-      "3. Work with an editor or proofreader to ensure that the manuscript is of the highest quality.",
-    ],
-    "models": [
-      "GPT-3",
-      "LaMDA",
-      "Bard",
-    ],
-  },
-  "commands": [
-    {
-      "id": 1,
-      "name": "ReadFile",
-      "action": 1,
-      "args": {
-        "file_name": "manuscript.txt",
-      },
-      "model": "GPT-3",
-    },
-    {
-      "id": 2,
-      "name": "Think",
-      "action": 2,
-      "args": {
-        "prompt": "How can I improve the clarity, conciseness, and flow of this text?",
-      },
-      "model": "LaMDA",
-    },
-    {
-      "id": 3,
-      "name": "ReadFile",
-      "action": 3,
-      "args": {
-        "file_name": "manuscript_revised.txt",
-      },
-      "model": "Bard",
-    },
-  ]
-}
-             }}]}};
-*/

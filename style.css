@@ -1,19 +1,21 @@
 body {
   font-family: sans-serif;
+  height: 100vh;
 }
 
-#container {
+#scrollBox {
   width: 100%;
-  height: 100%;
+  height: 72%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
+  overflow-y: auto;
 }
 
 #top {
   width: 100%;
-  height: 80%;
+  height: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -54,7 +56,7 @@ body {
 
 #inputBox {
   width: 100%;
-  position: fixed;
+  height: 18%;
   bottom: 0;
   left: 0;
   right: 0;
@@ -89,7 +91,8 @@ body {
 }
 
 #runBox {
-  position: fixed;
+  width: 100%;
+  height: 4%;
   top: 0;
   left: 0;
   right: 0;
@@ -127,5 +130,6 @@ body {
   border: 1px solid #333;
   color: #333;
   padding: 5px;
+  margin-left: 5px;
   border-radius: 3px;
 }

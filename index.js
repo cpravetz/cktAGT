@@ -42,8 +42,9 @@ async function main() {
   agentManager = new AgentManager(userManager, workDirName);
   userManager.addListener(agentManager);
 
+
   // Start the server.
-  await server.listen(3000);
+  server.listen(3000);
   console.log('listening on *:3000');
 }
 
@@ -70,10 +71,21 @@ io.on("connection", (socket) => {
   socket.on("userSays", (msg) => {
     agentManager.hear(msg);
   });
+
   socket.on("userApproves", (msg) => {
     console.log('User approves proceeding');
     agentManager.allowMoreSteps(msg.continuous, msg.steps || 0);
   });
+
+  socket.on('userAck', (msg) => {
+    agentManager.acknowledgeRecd(msg);
+  });
+
+  socket.on('error', (error) => {
+    console.log(`Socket error: ${error}`)
+  });
+
+
 });
 
 
