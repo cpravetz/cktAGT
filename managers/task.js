@@ -35,7 +35,7 @@ class Task {
 
   // This method removes a dependency from the task.
   removeDependency(dependency) {
-    this.dependencies.remove(dependency);
+    this.dependencies = this.dependencies.filter(dep => dep !== dependency);
   }
 
   // This method updates the progress of the task.
