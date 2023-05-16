@@ -72,6 +72,22 @@ class Agent {
     });
   }
 
+  async _executeOneTask(task) {
+    this.agentManager.useOneStep();
+    try {
+      const result = await task.execute();
+      this._processResult(result || {});
+      this.report(`Finished task: ${task.name || task.id}`);
+      this.taskManager.complete(task);
+    } catch (error) {
+      task.status = 'failed';
+      console.log(error);
+    }
+    if (this.store) {
+      this.store.save(task);
+    }
+  }
+
   async _run() {
     this.status = 'running';
     while (!['paused', 'finished'].includes(this.status)) {
@@ -88,14 +104,7 @@ class Agent {
         } else {
           this.report(`Starting task: ${task.name || task.id}`);
           try {
-            this.agentManager.useOneStep();
-            const result = await task.execute();
-            this._processResult(result || {});
-            this.report(`Finished task: ${task.name || task.id}`);
-            this.taskManager.complete(task);
-            if (this.store) {
-              this.store.save(task);
-            }
+            await this._executeOneTask(task);
           } catch (error) {
             console.error(`Error executing task: ${error}`);
             break;
