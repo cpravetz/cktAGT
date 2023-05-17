@@ -34,31 +34,45 @@ class DatabasePlugin {
 
   // This method connects to the database.
   connect(host, port, database, username, password) {
-    this.connection = new mySql.createConnection({host:host, port:port, user: username, password: password});
-    this.connection.connect(function(err) {
-      if (err) {
-        console.error('error connecting: ' + err.stack);
-      }
+    this.connection = new mySql.createConnection({host:host, port:port, user: username, password: password, database: database});
+    return new Promise((resolve, reject) => {
+      this.connection.connect((err,results) => {
+        if(err){
+          reject(err)
+        }
+        resolve(results)
+      })
+    });
+  }
+
+  promisedQuery(connectArgs) {
+    return new Promise((resolve, reject) => {
+      this.connect(connectArgs.host, connectArgs.port, connectArgs.database, connectArgs.username, connectArgs.password);
+      this.connection.query(connectArgs.query,(err,results)=>{
+          if(err){
+              reject(err)
+          }
+          resolve(results)
+      })
     });
   }
 
   // This method executes a query.
   async execute(agent, command, task) {
     try {
-      this.connect(command.args.host, command.args.port, command.args.database, command.args.username, command.args.password);
-      const query = this.connection.query(command.args.query);
+      const queryResult = await this.promisedQuery(command.args);
       const tasks = [];
       if (command.args.sendToLLM) {
         tasks.push(new Task({agent:agent,
                   name:'Query Send', description:'sending the query results from '+command.args.query+' to the LLM',
                   prompt:'this is the result of '+command.args.query,
-                  commands:[{name:'Think', model: agent.getModel().name, args:{prompt:query}}],
+                  commands:[{name:'Think', model: agent.getModel().name, args:{prompt:queryResult}}],
                   context:{from: this.id}}));
       }            
       return {
         outcome: 'SUCCESS',
         results: {
-          file: query,
+          file: queryResult,
         },
         tasks: tasks
       };

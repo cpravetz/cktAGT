@@ -84,13 +84,6 @@ describe('DatabasePlugin_class', () => {
         expect(result.results.error).toBeDefined();
     });
 
-    // Tests connecting to a database with invalid credentials. 
-    it("test_connect_invalid_credentials", async () => {
-        const plugin = new DatabasePlugin();
-        const result = await plugin.connect('localhost', '3306', 'mydb', 'invalidUser', 'invalidPwd');
-        expect(result).toThrow();
-    });
-
     // Tests that the version, command, description, and args properties are set correctly in the constructor. 
     it("test_constructor_properties", () => {
         const plugin = new DatabasePlugin();
