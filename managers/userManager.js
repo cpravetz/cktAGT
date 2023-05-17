@@ -49,9 +49,9 @@ class UserManager {
     }
   }
 
-  acknowledgeRecd(message) {
+  acknowledgeRecd(messageId) {
     try {
-      this.tells.delete(message);
+      this.tells.delete(messageId);
     } catch (error) {
       console.log('Tried to ack unknown msg')
     }
@@ -87,6 +87,24 @@ class UserManager {
 
   // This method asks the user a question.
   ask(prompt, choices, allowMultiple) {
+    // Check that prompt is a string
+    if (typeof prompt !== "string") {
+      throw new Error("prompt must be a string");
+    }
+  
+    // Check that choices is an array or null
+    if (choices === null) {
+      choices = [];
+    } else if (!Array.isArray(choices)) {
+      throw new Error("choices must be an array");
+    }
+  
+    // Check that allowMultiple is a boolean
+    if (typeof(allowMultiple) !== "boolean") {
+      throw new Error("allowMultiple must be a boolean");
+    }
+  
+    // Do something with prompt and choices
     console.log('asking... ');
     const lastAsk = {
       id: keyMaker(),
@@ -97,9 +115,13 @@ class UserManager {
     this.say(lastAsk);
     this.asks.set(lastAsk.id, lastAsk);
   }
+  
 
   // This method announces a new file to the server.
   announceFile(name, url) {
+    if (typeof(name) !== "string" || typeof(url) !== "string" ) {
+      throw new Error("invalid name or url in announceFile");
+    }
     const msg = {id: keyMaker(),name: name, url: url };
     this.io.emit('serverFileAdd', msg);
     msg.code = 'serverFileAdd';

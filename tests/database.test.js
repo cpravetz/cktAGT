@@ -9,92 +9,157 @@ const mySql = require("mysql");
 Code Analysis
 
 Main functionalities:
-The DatabasePlugin class is designed to execute SQL commands against a given database. It allows users to connect to a database and execute a query using the provided arguments. The class also includes a method to send the query results to the LLM.
+The DatabasePlugin class is responsible for connecting to a SQL database and executing SQL commands against it. It also has the ability to generate a new task to send the query result to another LLM if specified.
 
 Methods:
-- connect(): This method connects to the database using the provided arguments.
-- execute(): This method executes a query using the provided arguments and sends the results to the LLM.
+- constructor(): initializes the version, command name, description, and arguments for the command.
+- connect(): connects to the SQL database using the provided host, port, database name, username, and password.
+- execute(): executes the SQL command provided in the arguments and generates a new task to send the query result to another LLM if specified.
 
 Fields:
-- version: The version of the plugin.
-- command: The name of the command.
-- description: The description of the command.
-- args: The arguments for the command.
-- connection: The connection object used to connect to the database.
+- version: the version of the plugin.
+- command: the name of the command.
+- description: the description of the command.
+- args: an object containing the arguments for the command.
+- connection: the connection to the SQL database.
 */
 
 
 
 describe('DatabasePlugin_class', () => {
 
-    // Tests that the execute() method executes a query successfully. 
-    it("test_execute_successfully", () => {
-        const db = new DatabasePlugin();
-        const agentMock = { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} };
+    // Tests connecting to a database with valid credentials and executing a query successfully. 
+    it("test_connect_success", async () => {
+        const agent = {
+            taskManager: {
+                model: {
+                    generate: jest.fn().mockRejectedValue(new Error("error"))
+                },
+            },
+            getModel() {
+                return this.taskManager.model
+            }
+        };
+        const plugin = new DatabasePlugin();
+        const result = await plugin.execute(agent, {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM mytable', sendToLLM: false}}, null);
+        expect(result.outcome).toBe('SUCCESS');
+        expect(result.results.file).toBeDefined();
+    });
 
-        const result = db.execute(agentMock, {args: { host: 'localhost', port: '3306', database: 'myDB', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task({agent: agentMock}));
+    // Tests executing a query and sending the result to LLM. 
+    it("test_execute_success", async () => {
+        const agent = {
+            taskManager: {
+                model: {
+                    generate: jest.fn().mockRejectedValue(new Error("error"))
+                },
+            },
+            getModel() {
+                return this.taskManager.model
+            }
+        };
+        const plugin = new DatabasePlugin();
+        const result = await plugin.execute(agent, {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM mytable', sendToLLM: true}}, null);
         expect(result.outcome).toBe('SUCCESS');
         expect(result.results.file).toBeDefined();
         expect(result.tasks.length).toBe(1);
     });
 
-    // Tests that the connect() method handles connection errors properly. 
-    it("test_connect_error_handling", () => {
-        const db = new DatabasePlugin();
-        db.connect('invalidHost', '3306', 'myDB', 'testUser', 'testPwd');
-        expect(db.connection.state).toBe('disconnected');
+    // Tests executing a query and returning a failure outcome with an error message if an error occurs. 
+    it("test_execute_error", async () => {
+        const agent = {
+            taskManager: {
+                model: {
+                    generate: jest.fn().mockRejectedValue(new Error("error"))
+                },
+            },
+            getModel() {
+                return this.taskManager.model
+            }
+        };
+        const plugin = new DatabasePlugin();
+        const result = await plugin.execute(agent, {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM non_existent_table', sendToLLM: false}}, null);
+        expect(result.outcome).toBe('FAILURE');
+        expect(result.text).toBeDefined();
+        expect(result.results.error).toBeDefined();
     });
 
-    // Tests that the connect() method handles invalid or missing arguments properly. 
-    it("test_invalid_arguments_connect", () => {
-        const db = new DatabasePlugin();
-        expect(() => {
-            db.connect('localhost', '3306', '', 'testUser', 'testPwd');
-        }).toThrow();
+    // Tests connecting to a database with invalid credentials. 
+    it("test_connect_invalid_credentials", async () => {
+        const plugin = new DatabasePlugin();
+        const result = await plugin.connect('localhost', '3306', 'mydb', 'invalidUser', 'invalidPwd');
+        expect(result).toThrow();
     });
 
-    // Tests that the mySql module can be mocked for testing. 
-    it("test_mocking_mySql_module", () => {
-        jest.mock('mysql');
-        const mySqlMock = require('mysql');
-        mySqlMock.createConnection.mockReturnValue({
-            connect: jest.fn(),
-            query: jest.fn()
-        });
-        const db = new DatabasePlugin();
-        db.connect('localhost', '3306', 'myDB', 'testUser', 'testPwd');
-        expect(mySqlMock.createConnection).toHaveBeenCalled();
+    // Tests that the version, command, description, and args properties are set correctly in the constructor. 
+    it("test_constructor_properties", () => {
+        const plugin = new DatabasePlugin();
+        expect(plugin.version).toBe(1.0);
+        expect(plugin.command).toBe('QueryDB');
+        expect(plugin.description).toBe('Executes SQL commands against a given database that you know exists');
+        expect(plugin.args.host).toBe('SQL Server URL');
+        expect(plugin.args.port).toBe('SQL Server port');
+        expect(plugin.args.database).toBe('The name of the database');
+        expect(plugin.args.username).toBe('A username to be used to execute the query');
+        expect(plugin.args.password).toBe('A password to use');
+        expect(plugin.args.query).toBe('The SQL command to be executed');
+        expect(plugin.args.sendToLLM).toBe('if true, generates a new task to send the query result to you or another LLM');
     });
 
-    // Tests that the execute() method handles invalid or missing arguments properly. 
-    it("test_invalid_arguments_execute", () => {
-        const db = new DatabasePlugin();
-        const agentMock = { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} };
-        expect(() => {
-            db.execute(agentMock, {args: {host: 'localhost', port: '3306', database: '', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task({agent: agentMock}));
-        }).toThrow();
-    });
-
-    // Tests that the execute() method creates a new Task object with the correct parameters. 
-    it("test_creating_task_object", () => {
-        const db = new DatabasePlugin();
-        const agentMock = { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} };
-        const result = db.execute(agentMock, {args: {host: 'localhost', port: '3306', database: 'myDB', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task());
-        expect(result.tasks[0].name).toBe('Query Send');
-        expect(result.tasks[0].description).toBe('sending the query results from SELECT * FROM myTable to the LLM');
-        expect(result.tasks[0].prompt).toBe('this is the result of SELECT * FROM myTable');
-        expect(result.tasks[0].commands[0].name).toBe('Think');
-        expect(result.tasks[0].commands[0].model).toBe('undefined');
-        expect(result.tasks[0].commands[0].args.prompt).toBeDefined();
-    });
-
-    // Tests that the execute() method returns the correct outcome, results, and tasks object. 
-    it("test_returning_correct_outcome", () => {
-        const db = new DatabasePlugin();
-        const agentMock = { id: '123', getModel(){ return {getCache() { return false}, setCache() {}}} };
-        const result = db.execute(agentMock, {args: {host: 'localhost', port: '3306', database: 'myDB', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM myTable'}}, new Task({agent: agentMock}));
+    // Tests executing a query and not sending the result to LLM. 
+    it("test_execute_no_send_to_llm", async () => {
+        const agent = {
+            taskManager: {
+                model: {
+                    generate: jest.fn().mockRejectedValue(new Error("error"))
+                },
+            },
+            getModel() {
+                return this.taskManager.model
+            }
+        };
+        const plugin = new DatabasePlugin();
+        const result = await plugin.execute(agent, {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM mytable', sendToLLM: false}}, null);
         expect(result.outcome).toBe('SUCCESS');
         expect(result.results.file).toBeDefined();
-        expect(result.tasks.length).toBe(1);
+        expect(result.tasks.length).toBe(0);
+    });
+
+    // Tests executing a query with invalid syntax. 
+    it("test_execute_invalid_syntax", async () => {
+        const agent = {
+            taskManager: {
+                model: {
+                    generate: jest.fn().mockRejectedValue(new Error("error"))
+                },
+            },
+            getModel() {
+                return this.taskManager.model
+            }
+        };
+        const plugin = new DatabasePlugin();
+        const result = await plugin.execute(agent, {args: {host: 'localhost', port: '3306', database: 'mydb', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM mytable WHERE', sendToLLM: false}}, null);
+        expect(result.outcome).toBe('FAILURE');
+        expect(result.text).toBeDefined();
+        expect(result.results.error).toBeDefined();
+    });
+
+    // Tests executing a query against a non-existent database. 
+    it("test_execute_nonexistent_database", async () => {
+        const agent = {
+            taskManager: {
+                model: {
+                    generate: jest.fn().mockRejectedValue(new Error("error"))
+                },
+            },
+            getModel() {
+                return this.taskManager.model
+            }
+        };
+        const plugin = new DatabasePlugin();
+        const result = await plugin.execute(agent, {args: {host: 'localhost', port: '3306', database: 'non_existent_db', username: 'testUser', password: 'testPwd', query: 'SELECT * FROM mytable', sendToLLM: false}}, null);
+        expect(result.outcome).toBe('FAILURE');
+        expect(result.text).toBeDefined();
+        expect(result.results.error).toBeDefined();
     });
 });

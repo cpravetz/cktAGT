@@ -27,6 +27,7 @@ class DatabasePlugin {
       username: 'A username to be used to execute the query',
       password: 'A password to use',
       query: 'The SQL command to be executed',
+      sendToLLM: 'if true, generates a new task to send the query result to you or another LLM'
     };
 
   }
@@ -43,22 +44,35 @@ class DatabasePlugin {
 
   // This method executes a query.
   async execute(agent, command, task) {
-    this.connect(command.args.host, command.args.port, command.args.database, command.args.username, command.args.password);
-    const query = this.connection.query(command.args.query);
-    const t = new Task({agent:agent,
+    try {
+      this.connect(command.args.host, command.args.port, command.args.database, command.args.username, command.args.password);
+      const query = this.connection.query(command.args.query);
+      const tasks = [];
+      if (command.args.sendToLLM) {
+        tasks.push(new Task({agent:agent,
                   name:'Query Send', description:'sending the query results from '+command.args.query+' to the LLM',
                   prompt:'this is the result of '+command.args.query,
                   commands:[{name:'Think', model: agent.getModel().name, args:{prompt:query}}],
-                  context:{from: this.id}});
-        return {
-          outcome: 'SUCCESS',
-          results: {
-            file: query,
-          },
-          tasks: [t]
-        };
-
+                  context:{from: this.id}}));
+      }            
+      return {
+        outcome: 'SUCCESS',
+        results: {
+          file: query,
+        },
+        tasks: tasks
+      };
+    } catch (err) {
+      return {
+        outcome: 'FAILURE',
+        text : err,
+        results : {
+          error: err
+        }
+      }
+    }
   }
+
 }
 
 module.exports = DatabasePlugin;

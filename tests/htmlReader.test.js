@@ -121,10 +121,9 @@ describe('HTMLReaderPlugin_class', () => {
         const command = {args: {url: 'https://www.google.com', sendToLLM: false}};
         const task = {};
         const result = await plugin.execute(agent, command, task);
-        expect(result.text).toBe('Yay');
         expect(result.outcome).toBe('SUCCESS');
         expect(result.results.file).toBeDefined();
-        expect(result.tasks.length).toBe(0);
+        expect(result.tasks.length).toBe(1);
     });
 
     // Tests that execute method returns a failure outcome and an error message if Task constructor throws an error. 

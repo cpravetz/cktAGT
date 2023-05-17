@@ -66,7 +66,7 @@ describe('UserManager_class', () => {
       const userManager = new UserManager();
       const message = {id: "testID"};
       userManager.tells.set(message.id, message);
-      userManager.acknowledgeRecd(message);
+      userManager.acknowledgeRecd(message.id);
       expect(userManager.tells.size).toBe(0);
     });
 
@@ -98,7 +98,7 @@ describe('UserManager_class', () => {
       const prompt = "";
       const choices = [];
       const allowMultiple = "invalidValue";
-      userManager.ask(prompt, choices, allowMultiple);
+      expect(()=> {userManager.ask(prompt, choices, allowMultiple)}).toThrow();
       expect(io.emit).not.toHaveBeenCalled();
       expect(userManager.asks.size).toBe(0);
     });
@@ -109,7 +109,7 @@ describe('UserManager_class', () => {
       const userManager = new UserManager(null, io);
       const name = "";
       const url = null;
-      userManager.announceFile(name, url);
+      expect(() =>{userManager.announceFile(name, url)}).toThrow();
       expect(io.emit).not.toHaveBeenCalled();
       expect(userManager.tells.size).toBe(0);
     });
