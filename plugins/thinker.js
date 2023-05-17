@@ -60,8 +60,8 @@ getFollowUpText(agent) {
 }
 
 getPrompt({args, prompt, text}) {
-    const prompt = args ? (args.prompt?.response || args.text || args.prompt) : (prompt || text);
-    return prompt;
+    const fullPrompt = args ? (args.prompt?.response || args.text || args.prompt) : (prompt || text);
+    return fullPrompt;
 }
 
 getCompiledPrompt(agent, llm, prompt, constraints, assessments) {
