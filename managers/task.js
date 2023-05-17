@@ -74,10 +74,6 @@ class Task {
     return this.result;
   }
 
-  // This method converts the output from the execute function into workproducts and new tasks.
-  resolve() {
-    // TODO: Implement this method.
-  }
 }
 
 module.exports = Task;

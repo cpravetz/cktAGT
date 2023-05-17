@@ -29,7 +29,6 @@ class DatabasePlugin {
       query: 'The SQL command to be executed',
     };
 
-
   }
 
   // This method connects to the database.
@@ -38,13 +37,12 @@ class DatabasePlugin {
     this.connection.connect(function(err) {
       if (err) {
         console.error('error connecting: ' + err.stack);
-        return;
       }
     });
   }
 
   // This method executes a query.
-  execute(agent, command, task) {
+  async execute(agent, command, task) {
     this.connect(command.args.host, command.args.port, command.args.database, command.args.username, command.args.password);
     const query = this.connection.query(command.args.query);
     const t = new Task({agent:agent,

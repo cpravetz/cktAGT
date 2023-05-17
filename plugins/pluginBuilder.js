@@ -27,34 +27,72 @@ class PluginBuilderPlugin {
       newCommand: 'The name of the new command',
       executeDoes: 'An explanation of the expected output of the execute() function of the new plugin'
     };
-  
-  
   }
 
-  // This method executes the command.
-  async execute(agent, command, task) {
-    // Get the task description from the task.
-    const taskDescription = command.args.description;
-    // Get the user's input for the plugin code.
+  async generatePluginCode(agent, command) {
     const messages = [{
       role: "user",
       prompt: Strings.pluginBuilderPrompt.replace(/[t.a.c]/g, command.args.newCommand).replace(/[t.a.d]/g, command.args.description),
     }];
-    const text = await agent.taskManager.model.generate(messages, {
-      maxTokens: 1024,
-      n: 1
-    });
+    try {
+      const pluginCode = await agent.taskManager.model.generate(messages, {
+        maxTokens: 1024,
+        n: 1
+      });
+      return pluginCode;
+    } catch (err) {
+      throw new Error(`Error generating plugin code: ${err}`);
+    }
+  }
 
-    // Create a new file with the name of the task.
-    const filePath = `./plugins/${task.command}+'Plugin'.js`;
+  registerPlugin(filePath) {
+    try {
+      pluginManager.register(filePath);
+    } catch (err) {
+      output.error = `Error registering plugin: ${err}`;
+    }
+    return output;
+  }
+
+  getFilePath(command) {
+    const path = require('path');
+    const filePath = path.join('./plugins', `${command}Plugin.js`);
+    return filePath;
+  }
+  
+  async writePluginFile(filePath, text, output) {
     try {
       const file = await fs.promises.open(filePath, "w");
       await file.writeFile(text);
       await file.close();
-      pluginManager.register(filePath);
+      output.results = {file: filePath, content:text};
     } catch (err) {
-      console.error(`Error writing plugin file: ${err}`);
+      output.outcome = 'FAILURE';
+      output.text = `Error saving plugin: ${err}`;
     }
+    return output;
+  }
+
+  // This method executes the command.
+  async execute(agent, command, task) {
+    let output = {outcome: 'SUCCESS'};
+    try {
+        // Get the task description from the task.
+      const taskDescription = command.args.description;
+      const text = await this.generatePluginCode(agent, command);
+
+      // Create a new file with the name of the task.
+      const filePath = this.getFilePath(task.command);
+      output = this.writePluginFile(filePath, text, output);
+      output = this.registerPlugin(filePath, output);
+    } catch (err) {
+        output.outcome = 'FAILURE';
+        output.text = `Error creating plugin file: ${err}`;
+        output.results = {
+            error: output.text,
+        }
+    }
+    return output;
   }
 
 }

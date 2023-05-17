@@ -102,7 +102,7 @@ humanizeOutput(replyJSON = {}){
 }
 
 processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
-    const replyJSON = {};
+    let replyJSON = {};
 
     try {
         try {

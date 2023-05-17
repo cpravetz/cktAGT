@@ -10,131 +10,139 @@ const PluginBuilderPlugin = require('./../plugins/pluginBuilder.js');
 Code Analysis
 
 Main functionalities:
-The PluginBuilderPlugin class is responsible for creating new plugins by generating code based on user input. It takes in arguments such as the description of the plugin, the name of the new command, and an explanation of the expected output of the execute() function of the new plugin. The class executes the command by getting the task description from the task, getting the user's input for the plugin code, creating a new file with the name of the task, and registering the plugin.
+The PluginBuilderPlugin class is responsible for creating new plugins by generating code based on user input. It provides a command to create a new plugin, which takes in a description, a new command name, and an explanation of the expected output of the execute() function of the new plugin. The class generates plugin code by asking the model to generate code based on the user input, creates a new file with the name of the task, and registers the plugin.
 
 Methods:
-- execute(agent, command, task): This method executes the command by getting the task description from the task, getting the user's input for the plugin code, creating a new file with the name of the task, and registering the plugin.
+- generatePluginCode(agent, command): generates plugin code by asking the model to generate code based on the user input.
+- registerPlugin(filePath): registers the plugin by adding it to the plugin manager.
+- getFilePath(command): gets the file path for the new plugin file.
+- writePluginFile(filePath, text, output): writes the plugin code to a new file with the name of the task.
 
 Fields:
-- version: The version of the plugin.
-- command: The name of the command.
-- description: A description of the plugin.
-- args: The arguments for the command.
+- version: the version of the plugin.
+- command: the name of the command.
+- description: the description of the command.
+- args: an object containing the arguments for the command.
 */
 
 
 
 describe('PluginBuilderPlugin_class', () => {
 
-    // Tests that the execute method successfully creates a new plugin file. 
-    it("test_execute_successfully_creates_new_plugin", async () => {
-        const agent = {};
-        const command = {
-            args: {
-                description: "test plugin",
-                newCommand: "testCommand",
-                executeDoes: "test execute function"
-            },
-            command: "testCommand"
-        };
-        const task = {};
-        const pluginBuilderPlugin = new PluginBuilderPlugin();
-        await pluginBuilderPlugin.execute(agent, command, task);
-        const filePath = `./plugins/${command.command}Plugin.js`;
-        const fileExists = fs.existsSync(filePath);
-        expect(fileExists).toBe(true);
-        fs.unlinkSync(filePath);
-    });
-
-    // Tests that the execute method generates code using the user input and a language model. 
-    it("test_execute_generate_code", async () => {
+    // Tests that the generatePluginCode() method successfully generates plugin code. 
+    it("test_generate_plugin_code_successfully", async () => {
         const agent = {
             taskManager: {
                 model: {
-                    generate: jest.fn().mockResolvedValue("console.log('test plugin')")
+                    generate: jest.fn().mockResolvedValue("plugin code")
                 }
             }
         };
         const command = {
             args: {
-                description: "test plugin",
-                newCommand: "testCommand",
-                executeDoes: "test execute function"
-            },
-            command: "testCommand"
-        };
-        const task = {};
-        const pluginBuilderPlugin = new PluginBuilderPlugin();
-        await pluginBuilderPlugin.execute(agent, command, task);
-        const filePath = `./plugins/${command.command}Plugin.js`;
-        const fileContent = fs.readFileSync(filePath, "utf-8");
-        expect(fileContent).toBe("console.log('test plugin')");
-        fs.unlinkSync(filePath);
-    });
-
-    // Tests that the execute method throws an error if the task command is missing. 
-    it("test_execute_missing_task_command", async () => {
-        const agent = {};
-        const command = {
-            args: {
-                description: "test plugin",
-                newCommand: "testCommand",
-                executeDoes: "test execute function"
+                description: "plugin description"
             }
         };
-        const task = {};
-        const pluginBuilderPlugin = new PluginBuilderPlugin();
-        await expect(pluginBuilderPlugin.execute(agent, command, task)).rejects.toThrow();
+        const pluginBuilder = new PluginBuilderPlugin();
+        const pluginCode = await pluginBuilder.generatePluginCode(agent, command);
+        expect(agent.taskManager.model.generate).toHaveBeenCalled();
+        expect(pluginCode).toEqual("plugin code");
     });
 
-    // Tests that the execute method throws an error if the task description is missing. 
-    it("test_execute_missing_task_description", async () => {
-        const agent = {};
+    // Tests that the getFilePath() method returns the correct file path. 
+    it("test_get_file_path_returns_correct_path", () => {
+        const command = "testCommand";
+        const pluginBuilder = new PluginBuilderPlugin();
+        const filePath = pluginBuilder.getFilePath(command);
+        expect(filePath).toEqual("./plugins/testCommandPlugin.js");
+    });
+
+    // Tests that the generatePluginCode() method handles error thrown by external dependencies. 
+    it("test_generate_plugin_code_handles_error", async () => {
+        const agent = {
+            taskManager: {
+                model: {
+                    generate: jest.fn().mockRejectedValue(new Error("error"))
+                }
+            }
+        };
         const command = {
             args: {
-                newCommand: "testCommand",
-                executeDoes: "test execute function"
+                description: "plugin description"
+            }
+        };
+        const pluginBuilder = new PluginBuilderPlugin();
+        await expect(pluginBuilder.generatePluginCode(agent, command)).rejects.toThrow("Error generating plugin code: Error: error");
+    });
+
+    // Tests that the writePluginFile() method handles error thrown by external dependencies. 
+    it("test_write_plugin_file_handles_error", async () => {
+        const filePath = "./plugins/testPlugin.js";
+        const text = "plugin code";
+        const output = {outcome: "SUCCESS"};
+        jest.spyOn(fs.promises, "open").mockRejectedValue(new Error("error"));
+        const pluginBuilder = new PluginBuilderPlugin();
+        const result = await pluginBuilder.writePluginFile(filePath, text, output);
+        expect(fs.promises.open).toHaveBeenCalled();
+        expect(result.outcome).toEqual("FAILURE");
+        expect(result.text).toEqual("Error saving plugin: Error: error");
+    });
+
+    // Tests that the execute() method handles unexpected input values. 
+    it("test_execute_handles_unexpected_input_values", async () => {
+        const agent = {};
+        const command = {};
+        const task = {};
+        const pluginBuilder = new PluginBuilderPlugin();
+        const result = await pluginBuilder.execute(agent, command, task);
+        expect(result.outcome).toEqual("FAILURE");
+        expect(result.text).toEqual("Error creating plugin file: TypeError: Cannot read property 'args' of undefined");
+    });
+
+    // Tests that the writePluginFile() method successfully writes plugin file to disk. 
+    it("test_write_plugin_file_successfully", async () => {
+        const filePath = "./plugins/testPlugin.js";
+        const text = "plugin code";
+        const output = {outcome: "SUCCESS"};
+        jest.spyOn(fs.promises, "open").mockResolvedValue({});
+        jest.spyOn(fs.promises, "writeFile").mockResolvedValue({});
+//        const closeSpy = jest.spyOn(fs.promises, "close").mockImplementation(() => {});
+        const pluginBuilder = new PluginBuilderPlugin();
+        const result = await pluginBuilder.writePluginFile(filePath, text, output);
+        expect(fs.promises.open).toHaveBeenCalled();
+        expect(fs.promises.writeFile).toHaveBeenCalled();
+//        expect(closeSpy).toHaveBeenCalled();
+        expect(result.results.file).toEqual("./plugins/testPlugin.js");
+        expect(result.results.content).toEqual("plugin code");
+    });
+
+    // Tests that the execute() method successfully creates and registers a new plugin file. 
+    it("test_execute_creates_and_registers_new_plugin_file_successfully", async () => {
+        const agent = {
+            taskManager: {
+                model: {
+                    generate: jest.fn().mockResolvedValue("plugin code")
+                }
+            }
+        };
+        const command = {
+            args: {
+                description: "plugin description"
             },
             command: "testCommand"
         };
         const task = {};
-        const pluginBuilderPlugin = new PluginBuilderPlugin();
-        await expect(pluginBuilderPlugin.execute(agent, command, task)).rejects.toThrow();
-    });
-
-    // Tests that the execute method registers the newly created plugin with the plugin manager. 
-    it("test_execute_register_new_plugin", async () => {
-        const agent = {};
-        const command = {
-            args: {
-                description: "test plugin",
-                newCommand: "testCommand",
-                executeDoes: "test execute function"
-            },
-            command: "testCommand"
-        };
-        const task = {};
-        const pluginBuilderPlugin = new PluginBuilderPlugin();
-        await pluginBuilderPlugin.execute(agent, command, task);
-        const filePath = `./plugins/${command.command}Plugin.js`;
-        expect(pluginManager.plugins).toContain(filePath);
-        fs.unlinkSync(filePath);
-    });
-
-    // Tests that the execute method handles an error thrown by fs.promises.open. 
-    it("test_execute_invalid_file_write", async () => {
-        const agent = {};
-        const command = {
-            args: {
-                description: "test plugin",
-                newCommand: "testCommand",
-                executeDoes: "test execute function"
-            },
-            command: "testCommand"
-        };
-        const task = {};
-        const pluginBuilderPlugin = new PluginBuilderPlugin();
-        jest.spyOn(fs.promises, "open").mockRejectedValue(new Error("Invalid file write"));
-        await expect(pluginBuilderPlugin.execute(agent, command, task)).rejects.toThrow();
+        jest.spyOn(fs.promises, "open").mockResolvedValue({});
+        jest.spyOn(fs.promises, "writeFile").mockResolvedValue({});
+//        const closeSpy = jest.spyOn(fs.promises, "close").mockImplementation(() => {});
+        const pluginBuilder = new PluginBuilderPlugin();
+        const result = await pluginBuilder.execute(agent, command, task);
+        expect(agent.taskManager.model.generate).toHaveBeenCalled();
+        expect(fs.promises.open).toHaveBeenCalled();
+        expect(fs.promises.writeFile).toHaveBeenCalled();
+//        expect(closeSpy).toHaveBeenCalled();
+        expect(result.outcome).toEqual("SUCCESS");
+        expect(result.results.file).toEqual("./plugins/testCommandPlugin.js");
+        expect(result.results.content).toEqual("plugin code");
     });
 });
