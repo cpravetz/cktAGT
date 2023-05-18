@@ -41,6 +41,7 @@ describe('ThoughtGeneratorPlugin_class', () => {
     // Tests that the processReply method creates tasks with expected properties and handles null input. 
     it("test_process_reply", () => {
         const plugin = new ThoughtGeneratorPlugin();
+        plugin.parentTask = {agent:"Agent"};
         const reply = {
             thoughts: {
                 text: "This is a test",
@@ -61,7 +62,7 @@ describe('ThoughtGeneratorPlugin_class', () => {
         expect(output.outcome).toBe("SUCCESS");
         expect(output.tasks.length).toBe(1);
         expect(output.tasks[0].name).toBe("Follow up");
-        expect(output.tasks[0].prompt).toBe("Action 1");
+        expect(output.tasks[0].prompt).toBe("Test prompt");
         expect(output.tasks[0].commands.length).toBe(1);
         expect(output.tasks[0].commands[0].name).toBe("Test");
         expect(output.tasks[0].commands[0].args.prompt).toBe("Test prompt");
@@ -70,6 +71,7 @@ describe('ThoughtGeneratorPlugin_class', () => {
     // Tests that the createTask method creates tasks with expected properties. 
     it("test_create_task", () => {
         const plugin = new ThoughtGeneratorPlugin();
+        plugin.parentTask = {agent:"Agent"};
         const thisStep = {
             id: "1",
             name: "Test",
@@ -96,7 +98,24 @@ describe('ThoughtGeneratorPlugin_class', () => {
         const agent = {
             say: jest.fn(),
             getModel: jest.fn(() => ({ compilePrompt: jest.fn() })),
-            modelManager: { getModel: jest.fn(() => ({ compilePrompt: jest.fn() })), ModelNames: "Test Model" },
+            modelManager: { getModel: jest.fn(() => ({ generate: jest.fn(()=> {return {
+                thoughts: {
+                    text: "This is a test",
+                    reasoning: ["Reason 1", "Reason 2"],
+                    actions: ["Action 1", "Action 2"]
+                },
+                commands: [
+                    {
+                        id: "1",
+                        name: "Test",
+                        args: {
+                            prompt: "Test prompt"
+                        }
+                    }
+                ]
+            };
+            }), 
+            compilePrompt: jest.fn() })), ModelNames: "Test Model" },
             pluginManager: { describePlugins: jest.fn(() => "Test Plugins") }
         };
         const command = {
@@ -120,7 +139,7 @@ describe('ThoughtGeneratorPlugin_class', () => {
         const output = await plugin.execute(agent, command, task);
         expect(agent.say).toHaveBeenCalledWith("thinking...");
         expect(output.outcome).toBe("SUCCESS");
-        expect(output.tasks.length).toBe(0);
+        expect(output.tasks.length).toBe(1);
     });
 
     // Tests that the getFollowUpText method returns the expected string. 

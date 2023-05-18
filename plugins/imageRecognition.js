@@ -4,7 +4,9 @@
 
 // This module provides a class for representing an image recognition plugin.
 
-const vision = require("@tensorflow/tfjs-core");
+const hfi = require("@huggingface/inference");
+const fs = require("fs");
+const fetch =  require('node-fetch');
 
 class ImageRecognitionPlugin {
 
@@ -13,31 +15,52 @@ class ImageRecognitionPlugin {
     this.version = 1.0;
 
     // The name of the command.
-  this.command = 'RecognizeImage';
+    this.command = 'RecognizeImage';
 
-  this.description = 'Gets a textual description of an image';
+    this.description = 'Gets a textual description of an image';
 
     // The arguments for the command.
-  this.args = {
-      image: 'The image to be recognized',
-  };
+    this.args = {
+      image: 'If no url, the binary image to be recognized, not a url',
+      url: 'if no image, the url for the file'
+    };
 
+    this.hfiClient = false;
+  }
 
+  async loadImagefromUrl(url)  {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw response.statusText;
+    }
+    return await response.arrayBuffer();
   }
 
   // This method executes the command.
   async execute(agent, command, task) {
-    // Create a tensor from the image.
-    const tensor = vision.Tensor.fromImage(command.args.image);
+   const output = {outcome: 'SUCCESS'};
+   try{
+     if (command.args.url) {
+      this.image = await this.loadImagefromUrl(command.args.url)
+     } else {
+      this.image = command.args.image
+     }
 
-    // Load the model.
-    const model = await vision.load("https://tfhub.dev/tensorflow/resnet50/classification/1");
-
-    // Predict the classes of the objects in the image.
-    const predictions = await model.predict(tensor);
-
-    // Return the predictions.
-    return predictions;
+     if (!this.hfiClient) {
+      this.hfiClient = new hfi.HfInference(process.env.HUGGINGFACE_TOKEN || undefined );
+     }
+     const model = 'nlpconnect/vit-gpt2-image-captioning';
+     const {generated_text} = await this.hfiClient.imageToText({model:model, data: this.image});
+     output.results = {text: generated_text};
+     output.text = generated_text;   
+   } catch (err) {
+     output.outcome = 'FAILURE';
+     output.text = err;
+     output.results = {error: err};
+     console.error("Error: " + err.message);
+  } finally {
+    return output;
+  }  
   }
 }
 

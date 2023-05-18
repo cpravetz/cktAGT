@@ -3,6 +3,7 @@
 const dotenv = require("dotenv").config();
 
 const MongoDBBackend = require('./../stores/mongo.js');
+const keyMaker = require('./../constants/keymaker.js');
 
 /*
 Code Analysis
@@ -33,16 +34,14 @@ describe('MongoDBBackend_class', () => {
     // Tests that a task can be saved correctly. 
     it("test_save_task", async () => {
         const backend = new MongoDBBackend();
-        backend.connect();
-        const task = {id: 1, name: "Task 1", agentId: 1, status: "pending"};
+        const task = {id: 1, name: "Task 1", agentId: 1, status: "pending", randomData: keyMaker()};
         const result = await backend.save(task);
-        expect(result.modifiedCount).toBe(1);
+        expect(result.modifiedCount + result.upsertedCount).toBe(1);
     });
 
     // Tests that a task can be loaded correctly. 
     it("test_load_task", async () => {
         const backend = new MongoDBBackend();
-        backend.connect();
         const taskId = 1;
         const task = await backend.load(taskId);
         expect(task.id).toBe(taskId);
@@ -51,7 +50,6 @@ describe('MongoDBBackend_class', () => {
     // Tests that a task can be deleted correctly. 
     it("test_delete_task", async () => {
         const backend = new MongoDBBackend();
-        backend.connect();
         const taskId = 1;
         const result = await backend.delete(taskId);
         expect(result.deletedCount).toBe(1);
@@ -60,7 +58,8 @@ describe('MongoDBBackend_class', () => {
     // Tests that tasks can be loaded correctly for a given agent. 
     it("test_load_tasks_for_agent", async () => {
         const backend = new MongoDBBackend();
-        backend.connect();
+        const task = {id: 1, name: "Task 1", agentId: 1, status: "pending"};
+        await backend.save(task);
         const agentId = 1;
         const tasks = await backend.loadTasksForAgent(agentId);
         tasks.forEach(task => {
@@ -72,7 +71,8 @@ describe('MongoDBBackend_class', () => {
     // Tests that agent names and IDs are returned correctly. 
     it("test_get_agent_names", async () => {
         const backend = new MongoDBBackend();
-        backend.connect();
+        const agent = {id: 1, name: "Agent 1", status: "available"};
+        await backend.saveAgent(agent);
         const agentNamesAndIds = await backend.getAgentNames();
         expect(Object.keys(agentNamesAndIds).length).toBeGreaterThan(0);
     });
@@ -80,9 +80,8 @@ describe('MongoDBBackend_class', () => {
     // Tests that an agent can be saved correctly. 
     it("test_save_agent", async () => {
         const backend = new MongoDBBackend();
-        backend.connect();
-        const agent = {id: 1, name: "Agent 1", status: "available"};
+        const agent = {id: 1, name: "Agent 1", status: "available", randomData: keyMaker()};
         const result = await backend.saveAgent(agent);
-        expect(result.modifiedCount).toBe(1);
+        expect(result.modifiedCount + result.upsertedCount).toBe(1);
     });
 });

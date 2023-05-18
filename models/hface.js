@@ -12,8 +12,8 @@ class HuggingFace extends Model {
   inputCache;
   outputCache;
   name = 'huggingface';
-  DEFAULT_MAX_LENGTH = process.env.DEFAULT_MAX_LENGTH || 2000;
-  DEFAULT_TEMPERATURE = process.env.DEFAULT_TEMPERATURE || 0.7;
+  DEFAULT_MAX_LENGTH = Number(process.env.DEFAULT_MAX_LENGTH) || 500;
+  DEFAULT_TEMPERATURE = Number(process.env.DEFAULT_TEMPERATURE) || 0.7;
   chatLength = Number(process.env.LLM_CHAT_LENGTH) || 5;
   languageModel;
   token;
@@ -42,6 +42,7 @@ class HuggingFace extends Model {
       throw new TypeError('Invalid input type for message expected a string');
     }
     parameters.max_length = parameters.max_length || this.DEFAULT_MAX_LENGTH;
+    if (parameters.max_length > 500) { parameters.max_length = 500;}
     parameters.temperature = parameters.temperature || this.DEFAULT_TEMPERATURE;
     this.inputCache.push(message);
     const conversation = {
@@ -55,11 +56,12 @@ class HuggingFace extends Model {
       options: { wait_for_model: true }
     };
     try {
-      const response = await this.hfiClient['conversation'](conversation, { fetch: fetch });
+      const response = await this.hfiClient['conversational'](conversation, { fetch: fetch });
       this.outputCache.push(response);
       return response;
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
+      throw err
     }
   }
 

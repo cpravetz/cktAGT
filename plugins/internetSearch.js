@@ -37,7 +37,7 @@ class InternetSearchPlugin {
       cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
       auth:process.env.GOOGLE_API_KEY,
     });
-
+    
     // Return the results.
     const t = new Task({agent: task.agent,
               name:'File Send', description:'sending the search results to the LLM',

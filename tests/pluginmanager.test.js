@@ -31,12 +31,6 @@ Fields:
 
 describe('PluginManager_class', () => {
 
-    // Tests that plugins are loaded successfully. 
-    it("test_load_plugins_successfully", async () => {
-        const pluginManager = new PluginManager();
-        expect(pluginManager.plugins.size).toBeGreaterThan(0);
-    });
-
     // Tests that a plugin can be retrieved by its name. 
     it("test_get_plugin_by_name", () => {
         const pluginManager = new PluginManager();

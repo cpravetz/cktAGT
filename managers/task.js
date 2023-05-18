@@ -15,6 +15,7 @@ class Task {
     this.agent = args.agent;
     this.id = keyMaker();
     this.name = args.name || '';
+    if (args.prompt) {this.prompt = args.prompt};
     this.description = args.description || '';
     this.goal = args.goal?.response || removeProperty(args.goal || {},'id') ;
     this.context = args.context || "";

@@ -43,7 +43,7 @@ class ThoughtGeneratorPlugin {
         return {outcome: 'FAILURE', results: {error:'No model was provided to Think'}};
     }
 
-    const prompt = this.getPrompt(command);
+    let prompt = this.getPrompt(command);
     let followUpText = '';
 
     if (command.args.fullPrompt) {
@@ -70,12 +70,14 @@ getCompiledPrompt(agent, llm, prompt, constraints, assessments) {
 
 async processPrompt(llm, compiledPrompt, followUpText) {
     let output = {outcome: 'SUCCESS', tasks: []};
+    let reply;
     try {
-        const reply = await llm.generate([compiledPrompt, followUpText], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
+        reply = await llm.generate([compiledPrompt, followUpText], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
         output = this.processReply(reply, output);
-    } catch (error) {
+    } catch (err) {
         output.outcome = 'FAILURE';
-        output.results = {error: error, reply:reply || null};
+        output.text = err;
+        output.results = {error: err, reply:(reply ? reply : false)};
     }
     return output;
 }
@@ -125,9 +127,10 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
         } else {
             output.tasks.push(this.askModelToRephrase(reply));
         }
-    } catch (error) {
+    } catch (err) {
         output.outcome = 'FAILURE';
-        output.results = {error: error, reply: reply};
+        output.text = err;
+        output.results = {error: err, reply: reply};
     }
     return output;
 }

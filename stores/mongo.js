@@ -17,98 +17,102 @@ class MongoDBBackend  {
   db;
 
   // Constructor.
-  constructor() {
+  constructor(options = {}) {
+    this.url = options.url || process.env.MONGO_URL;
     this.name = "mongodb";
     this.client = false;
   }
 
-  connect() {
-    this.client = new mongodb.MongoClient(process.env.MONGO_URL);
-    this.client.connect((err,db) => {
-        if (err) {
-            console.log(err)
-        } else {
-            this.db = db;
-        }})
+  async connect() {
+    this.db = false;
+    this.client = new mongodb.MongoClient(this.url);
+    try {
+      await this.client.connect();
+      this.db = this.client.db();
+    }
+    catch (err) {
+      throw err;
+    }
   }
 
   // Save a task.
-  save(task) {
-    if (!this.client) {
-        this.connect();
+  async save(task) {
+    if (!this.client || !this.db) {
+        await this.connect();
     }
     let savedTask = replaceObjectReferencesWithIds(task);
-    return this.db.collection("tasks").updateOne({
+    return await this.db.collection("tasks").updateOne({
       id: savedTask.id,
     }, {
-      $set: savedTask,
-      upsert: true,
-    });
-  }
+      $set: savedTask
+    }, {
+      upsert: true
+    })
+  };
 
   // Load a task.
-  load(taskId) {
-    if (!this.client) {
-        this.connect();
+  async load(taskId) {
+    if (!this.client|| !this.db) {
+        await this.connect();
     }
-    const task = this.db.collection("tasks").findOne({
+    const task = await this.db.collection("tasks").findOne({
       id: taskId,
     });
     return task;
   }
 
   // Delete a task.
-  delete(taskId) {
-    if (!this.client) {
-        this.connect();
+  async delete(taskId) {
+    if (!this.client|| !this.db) {
+      await this.connect();
     }
-    return this.db.collection("tasks").deleteOne({
+    return await this.db.collection("tasks").deleteOne({
       id: taskId,
     });
   }
 
   async loadTasksForAgent(agentId) {
-    if (!this.client) {
-        this.connect();
+    if (!this.client|| !this.db) {
+      await this.connect();
     }
     const tasks = await this.db.collection("tasks").find({
-      agentId: agentId, status: {$not: 'finished'}
+      agentId: agentId, status: {$ne: 'finished'}
     });
     return tasks;
   }
 
   // return an array of names
   async getAgentNames() {
-    if (!this.client) {
-        this.connect();
+    if (!this.client|| !this.db) {
+      await this.connect();
     }
-    const agentList = this.db.collection("agents").find({status: {$not: 'finished'}});
+    const agentList = this.db.collection("agents").find({status: {$ne: 'finished'}});
     const agentNamesAndIds = {};
-    agentList.forEach(a => {
+    for await (const a of agentList) {
         agentNamesAndIds[a.id] = a.name;
-    });
+    };
     return agentNamesAndIds;
   }
 
-  saveAgent(agent) {
-    if (!this.client) {
-        this.connect();
+  async saveAgent(agent) {
+    if (!this.client|| !this.db) {
+      await this.connect();
     }
     const savedAgent = replaceObjectReferencesWithIds(agent);
-    return this.db.collection("agents").updateOne({
+    return await this.db.collection("agents").updateOne({
       id: agent.id,
     }, {
-      $set: savedAgent,
-      upsert: true,
+      $set: savedAgent
+    }, {
+      upsert: true
     });
-
   }
 
-  loadAgent(agentId) {
-    if (!this.client) {
-        this.connect();
+  async loadAgent(agentId) {
+    if (!this.client|| !this.db) {
+      await this.connect();
     }
-    const agent = this.db.collection("agents").findOne({
+    const agent = await this.db.collection("agents").findOne({
       id: agentId,
     });
     return agent;

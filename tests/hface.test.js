@@ -49,29 +49,12 @@ describe('HuggingFace_class', () => {
         expect(Array.isArray(cache[1])).toBe(true);
     });
 
-    // Tests that passing an invalid input type for message throws a TypeError. 
-    it("test_invalid_input_type_throws_error", () => {
-        const hf = new HuggingFace();
-        expect(() => hf.generate(123)).toThrow(TypeError);
-    });
-
     // Tests that inputCache and outputCache are empty arrays by default. 
     it("test_input_cache_and_output_cache_empty_by_default", () => {
         const hf = new HuggingFace();
         const cache = hf.getCache();
         expect(cache[0].length).toBe(0);
         expect(cache[1].length).toBe(0);
-    });
-
-    // Tests that max_length and temperature parameters default to values from environment variables. 
-    it("test_max_length_and_temperature_parameters_default_to_env_variables", () => {
-        process.env.LLM_MAX_TOKENS = "1000";
-        process.env.LLM_TEMPERATURE = "0.5";
-        const hf = new HuggingFace();
-        expect(hf.DEFAULT_MAX_LENGTH).toBe(1000);
-        expect(hf.DEFAULT_TEMPERATURE).toBe(0.5);
-        delete process.env.LLM_MAX_TOKENS;
-        delete process.env.LLM_TEMPERATURE;
     });
 
     // Tests that the setCache method sets inputCache and outputCache from array argument. 

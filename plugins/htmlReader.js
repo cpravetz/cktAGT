@@ -63,8 +63,8 @@ class HTMLReaderPlugin {
         },
         tasks: tasks
       };
-    } catch (error) {
-      return {outcome: 'FAILURE', text: error, results: {error:error}}
+    } catch (err) {
+      return {outcome: 'FAILURE', text: err, results: {error:err}}
     }
   }
 
