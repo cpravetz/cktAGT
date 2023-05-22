@@ -29,11 +29,15 @@ class ImageRecognitionPlugin {
   }
 
   async loadImagefromUrl(url)  {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw response.statusText;
-    }
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw response.statusText;
+      }
     return await response.arrayBuffer();
+    } catch (err) {
+      throw err;
+    }
   }
 
   // This method executes the command.
@@ -50,12 +54,12 @@ class ImageRecognitionPlugin {
       this.hfiClient = new hfi.HfInference(process.env.HUGGINGFACE_TOKEN || undefined );
      }
      const model = 'nlpconnect/vit-gpt2-image-captioning';
-     const {generated_text} = await this.hfiClient.imageToText({model:model, data: this.image});
+     const {generated_text} = await this.hfiClient.imageToText({model:model, data: this.image},{fetch: fetch});
      output.results = {text: generated_text};
      output.text = generated_text;   
    } catch (err) {
      output.outcome = 'FAILURE';
-     output.text = err;
+     output.text = err.message;
      output.results = {error: err};
      console.error("Error: " + err.message);
   } finally {

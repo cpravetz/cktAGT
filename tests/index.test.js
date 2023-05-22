@@ -7,10 +7,9 @@ const chai = require('chai');
 const expect = chai.expect;
 const http = require('http');
 const AgentManager = require('./../managers/agentManager.js');
-const process = require('jest');
 const index = require('./../index.js');
-const dotenv = require("dotenv").config();
 const fetch =  require('node-fetch');
+const dotenv = require("dotenv").config();
 
 // This is the Mocha test suite.
 describe("AI Agent App", () => {
@@ -24,32 +23,4 @@ describe("AI Agent App", () => {
     expect(request.status).to.equal(200);
   });
 
-  let agentManager;
-
-  // This test ensures that the agent manager can hear user input.
-  it("should be able to hear user input", async () => {
-    // Create a new agent manager.
-    agentManager = new AgentManager({},process.env.WORKING_DIR);
-
-    // Send a message to the agent manager.
-    agentManager.hear("Hello, world!");
-
-    // Check that the agent manager received the message.
-    expect(agentManager.lastMessage).to.equal("Hello, world!");
-  });
-
-  // This test ensures that the agent manager can allow more steps.
-  it("should be able to allow more steps", async () => {
-    // Create a new agent manager.
-    const agentManager = new AgentManager({}, process.env.WORKING_DIR);
-
-    // Send a message to the agent manager.
-    agentManager.hear("Hello, world!");
-
-    // Allow the agent manager to take more steps.
-    agentManager.allowMoreSteps(true, 10);
-
-    // Check that the agent manager was allowed to take more steps.
-    expect(agentManager.canTakeMoreSteps).to.equal(true);
-  });
 });

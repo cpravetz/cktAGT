@@ -64,7 +64,7 @@ class HTMLReaderPlugin {
         tasks: tasks
       };
     } catch (err) {
-      return {outcome: 'FAILURE', text: err, results: {error:err}}
+      return {outcome: 'FAILURE', text: err.message, results: {error:err}}
     }
   }
 

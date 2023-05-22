@@ -76,7 +76,7 @@ async processPrompt(llm, compiledPrompt, followUpText) {
         output = this.processReply(reply, output);
     } catch (err) {
         output.outcome = 'FAILURE';
-        output.text = err;
+        output.text = err.message;
         output.results = {error: err, reply:(reply ? reply : false)};
     }
     return output;
@@ -129,7 +129,7 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
         }
     } catch (err) {
         output.outcome = 'FAILURE';
-        output.text = err;
+        output.text = err.message;
         output.results = {error: err, reply: reply};
     }
     return output;

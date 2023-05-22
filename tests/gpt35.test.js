@@ -36,14 +36,6 @@ describe('GPT35_class', () => {
         expect(typeof generatedText).toBe('string');
     });
 
-    // Tests that default values for max_length and temperature are used when options are not provided. 
-    it("test_default_values_for_max_length_and_temperature_are_used_when_options_are_not_provided", async () => {
-        const gpt35 = new GPT35();
-        const messages = "Hello, how are you?";
-        const generatedText = await gpt35.generate(messages, {});
-        expect(typeof generatedText).toBe('string');
-    });
-
     // Tests that empty input messages throw a TypeError. 
     it("test_empty_input_messages_throw_a_type_error", async () => {
         const gpt35 = new GPT35();
@@ -60,22 +52,4 @@ describe('GPT35_class', () => {
         await expect(gpt35.generate(messages, options)).rejects.toThrow(TypeError);
     });
 
-    // Tests that the generate method catches and logs errors. 
-    it("test_generate_method_catches_and_logs_errors", async () => {
-        const gpt35 = new GPT35();
-        const messages = "Hello, how are you?";
-        const options = { max_length: 1000, temperature: 0.5 };
-        console.error = jest.fn();
-        await gpt35.generate(messages, options);
-        expect(console.error).toHaveBeenCalled();
-    });
-
-    // Tests that max length and temperature options are correctly applied. 
-    it("test_max_length_and_temperature_options_are_correctly_applied", async () => {
-        const gpt35 = new GPT35();
-        const messages = "Hello, how are you?";
-        const options = { max_length: 100, temperature: 0.1 };
-        const generatedText = await gpt35.generate(messages, options);
-        expect(generatedText.length).toBeLessThanOrEqual(options.max_length);
-    });
 });

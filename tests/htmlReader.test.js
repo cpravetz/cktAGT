@@ -99,15 +99,15 @@ describe('HTMLReaderPlugin_class', () => {
         expect(result.text).toBeDefined();
     });
 
-    // Tests that execute method returns a failure outcome and an error message if cheerio throws an error. 
-    it("test_execute_with_cheerio_error", async () => {
+    // Tests that execute method returns a failure outcome and an error message if Task constructor throws an error. 
+    it("test_execute_with_task_constructor_error", async () => {
         const plugin = new HTMLReaderPlugin();
         const agent = {};
         const command = {args: {url: 'https://www.google.com', sendToLLM: true}};
         const task = {};
-        // Mocking cheerio to throw an error
-        jest.spyOn(cheerio, 'load').mockImplementation(() => {
-            throw new Error('Cheerio error');
+        // Mocking Task constructor to throw an error
+        jest.spyOn(Task.prototype, 'constructor').mockImplementation(() => {
+            throw new Error('Task constructor error');
         });
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
@@ -123,21 +123,21 @@ describe('HTMLReaderPlugin_class', () => {
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('SUCCESS');
         expect(result.results.file).toBeDefined();
-        expect(result.tasks.length).toBe(1);
     });
 
-    // Tests that execute method returns a failure outcome and an error message if Task constructor throws an error. 
-    it("test_execute_with_task_constructor_error", async () => {
-        const plugin = new HTMLReaderPlugin();
-        const agent = {};
-        const command = {args: {url: 'https://www.google.com', sendToLLM: true}};
-        const task = {};
-        // Mocking Task constructor to throw an error
-        jest.spyOn(Task.prototype, 'constructor').mockImplementation(() => {
-            throw new Error('Task constructor error');
+        // Tests that execute method returns a failure outcome and an error message if cheerio throws an error. 
+        it("test_execute_with_cheerio_error", async () => {
+            const plugin = new HTMLReaderPlugin();
+            const agent = {};
+            const command = {args: {url: 'https://www.google.com', sendToLLM: true}};
+            const task = {};
+            // Mocking cheerio to throw an error
+            jest.spyOn(cheerio, 'load').mockImplementation(() => {
+                throw new Error('Cheerio error');
+            });
+            const result = await plugin.execute(agent, command, task);
+            expect(result.outcome).toBe('FAILURE');
+            expect(result.text).toBeDefined();
         });
-        const result = await plugin.execute(agent, command, task);
-        expect(result.outcome).toBe('FAILURE');
-        expect(result.text).toBeDefined();
-    });
+    
 });

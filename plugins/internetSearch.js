@@ -32,7 +32,7 @@ class InternetSearchPlugin {
     const output = {outcome:'SUCCESS'};
     try {
       const options = {...command.args.options, ...{safe: true}};
-      const response = google.search(command.args.find,options);
+      const response = await google.search(command.args.find,options);
       output.results = {response: response};
       if (command.args.sendToLLM) {
         const t =new Task({agent:agent,

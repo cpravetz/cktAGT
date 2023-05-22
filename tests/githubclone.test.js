@@ -3,6 +3,7 @@
 
 const GitHubClonePlugin = require('./../plugins/githubclone.js');
 const Task = require('./../managers/task.js');
+const fs = require('fs');
 
 /*
 Code Analysis
@@ -24,68 +25,105 @@ Fields:
 
 describe('GitHubClonePlugin_class', () => {
 
+        
     // Tests that the GitHub repository is cloned successfully. 
     it("test_clone_github_successfully", async () => {
-        const agent = { agentManager: { workDirName: 'testDir' } };
-        const command = { args: { repoUrl: 'https://github.com/test/repo.git' } };
+        if (!fs.existsSync('./../workspace/git1')) {
+            fs.mkdirSync('./../workspace/git1');
+        };
+            const agent = { agentManager: { workDirName: './../workspace/git1/git' } };
+        const command = { args: { repoUrl: 'https://github.com/test/HelloWorld.git' } };
         const task = {};
         const plugin = new GitHubClonePlugin();
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('SUCCESS');
+        if (fs.existsSync('./../workspace/git1')) {
+            fs.rmdirSync('./../workspace/git1',{ recursive: true});
+        }
     });
 
     // Tests that an error is returned when an invalid repository URL is provided. 
     it("test_invalid_repo_url", async () => {
-        const agent = { agentManager: { workDirName: 'testDir' } };
+        if (!fs.existsSync('./../workspace/git2')) {
+            fs.mkdirSync('./../workspace/git2');
+        };
+        const agent = { agentManager: { workDirName: './../workspace/git2/git' } };
         const command = { args: { repoUrl: 'invalidUrl' } };
         const task = {};
         const plugin = new GitHubClonePlugin();
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
         expect(result.text.toString()).toContain("Error:");
+        if (fs.existsSync('./../workspace/git2')) {
+            fs.rmdirSync('./../workspace/git2',{ recursive: true});
+        }
     });
 
     // Tests that an error is returned when an invalid clone path is provided. 
     it("test_invalid_clone_path", async () => {
-        const agent = { agentManager: { workDirName: 'testDir' } };
+        if (!fs.existsSync('./../workspace/git3')) {
+            fs.mkdirSync('./../workspace/git3');
+        };
+        const agent = { agentManager: { workDirName: './../workspace/git3/git' } };
         const command = { args: { repoUrl: 'https://github.com/test/repo.git', clonePath: 'invalidPath' } };
         const task = {};
         const plugin = new GitHubClonePlugin();
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
         expect(result.text.toString()).toContain("Error:");
+        if (fs.existsSync('./../workspace/git3')) {
+            fs.rmdirSync('./../workspace/git3',{ recursive: true});
+        }
     });
 
     // Tests that a failure outcome is returned when cloning fails. 
     it("test_clone_failure", async () => {
-        const agent = { agentManager: { workDirName: 'testDir' } };
+        if (!fs.existsSync('./../workspace/git4')) {
+            fs.mkdirSync('./../workspace/git4');
+        };
+        const agent = { agentManager: { workDirName: './../workspace/git4/git' } };
         const command = { args: { repoUrl: 'https://github.com/test/repo.git' } };
         const task = {};
         const plugin = new GitHubClonePlugin();
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
         expect(result.text.toString()).toContain("Error");
+        if (fs.existsSync('./../workspace/git4')) {
+            fs.rmdirSync('./../workspace/git4',{ recursive: true});
+        }
     });
 
     // Tests that an error is returned when an empty repository URL is provided. 
     it("test_empty_repo_url", async () => {
-        const agent = { agentManager: { workDirName: 'testDir' } };
+        if (!fs.existsSync('./../workspace/git5')) {
+            fs.mkdirSync('./../workspace/git5');
+        };
+        const agent = { agentManager: { workDirName: './../workspace/git5/git' } };
         const command = { args: { repoUrl: '' } };
         const task = {};
         const plugin = new GitHubClonePlugin();
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
         expect(result.text.toString()).toContain("Error:");
+        if (fs.existsSync('./../workspace/git5')) {
+            fs.rmdirSync('./../workspace/git5',{ recursive: true});
+        }
     });
 
     // Tests that an error is returned when an empty clone path is provided. 
     it("test_empty_clone_path", async () => {
-        const agent = { agentManager: { workDirName: 'testDir' } };
+        if (!fs.existsSync('./../workspace/git6')) {
+            fs.mkdirSync('./../workspace/git6');
+        };
+        const agent = { agentManager: { workDirName: './../workspace/git6/git' } };
         const command = { args: { repoUrl: 'https://github.com/test/repo.git', clonePath: '' } };
         const task = {};
         const plugin = new GitHubClonePlugin();
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
         expect(result.text.toString()).toContain("Error:");
+        if (fs.existsSync('./../workspace/git6')) {
+            fs.rmdirSync('./../workspace/git6',{ recursive: true});
+        }
     });
 });
