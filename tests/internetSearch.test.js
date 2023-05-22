@@ -8,42 +8,96 @@ const dotenv = require("dotenv").config();
 Code Analysis
 
 Main functionalities:
-The InternetSearchPlugin class is responsible for executing a search on Google using a given search term and returning the results. It also creates a new Task object to send the search results to the LLM.
+The InternetSearchPlugin class is responsible for searching the web using Google search API. It takes a search term as input and returns the search results. It also has an option to send the search results to another model using a Task object.
 
 Methods:
-- execute(agent, command, task): This method executes the search command by creating a Google Search API client and using it to search for the given term. It then creates a new Task object to send the search results to the LLM and returns an object with the outcome, search results, and tasks.
+- constructor(): Initializes the version, command name, description, and arguments for the command.
+- execute(agent, command, task): Executes the command by searching the web using Google search API. It takes an agent, command, and task as input and returns the search results. It also has an option to send the search results to another model using a Task object.
 
 Fields:
-- version: A static field that stores the version of the plugin.
-- command: A static field that stores the name of the command.
-- description: A static field that stores a description of the command.
-- args: A static field that stores the arguments for the command.
+- version: The version of the plugin.
+- command: The name of the command.
+- description: The description of the command.
+- args: The arguments for the command. It includes the search term and an option to send the search results to another model.
 */
 
 
 
 describe('InternetSearchPlugin_class', () => {
 
-    // Tests that searching for a term returns results. 
-    it("test_internet_search_plugin_search", async () => {
+    // Tests that the execute method returns a successful output object with search results when both search term and sendToLLM are provided. 
+    it("test_search_web_happy_path", async () => {
         const plugin = new InternetSearchPlugin();
-        const agent = {getModel() {return 'model'}};
-        const command = {args: {find: "test"}};
-        const task = {agent: agent};
-        const result = await plugin.execute(agent, command, task);
-        expect(result.outcome).toBe("SUCCESS");
-        expect(result.results.search).toBeDefined();
+        const agent = {getModel: () => ({name: 'testModel'})};
+        const command = {args: {find: 'test search term', sendToLLM: true}};
+        const task = {agent: agent, id: 'testTaskId'};
+        const output = await plugin.execute(agent, command, task);
+        expect(output.outcome).toBe('SUCCESS');
+        expect(output.results.response).toBeDefined();
+        expect(output.tasks.length).toBe(1);
+        expect(output.tasks[0].name).toBe('Search Send');
+        expect(output.tasks[0].commands[0].args.prompt).toBe(output.results.response);
     });
 
-    // Tests that creating a new task with search results is successful. 
-    it("test_internet_search_plugin_task_creation", async () => {
+    // Tests that the execute method returns a successful output object with search results when only search term is provided and sendToLLM is not provided. 
+    it("test_search_web_no_send_to_llm", async () => {
         const plugin = new InternetSearchPlugin();
-        const agent = {getModel() {return 'model'}};
-        const command = {args: {find: "test"}};
-        const task = {agent: agent};
-        const result = await plugin.execute(agent, command, task);
-        expect(result.outcome).toBe("SUCCESS");
-        expect(result.tasks.length).toBe(1);
+        const agent = {getModel: () => ({name: 'testModel'})};
+        const command = {args: {find: 'test search term'}};
+        const task = {agent: agent, id: 'testTaskId'};
+        const output = await plugin.execute(agent, command, task);
+        expect(output.outcome).toBe('SUCCESS');
+        expect(output.results.response).toBeDefined();
+        expect(output.tasks).toBeUndefined();
     });
 
+    // Tests that the execute method returns a failure output object with an error message when an empty search term is provided. 
+    it("test_search_web_empty_search_term", async () => {
+        const plugin = new InternetSearchPlugin();
+        const agent = {getModel: () => ({name: 'testModel'})};
+        const command = {args: {find: '', sendToLLM: true}};
+        const task = {agent: agent, id: 'testTaskId'};
+        const output = await plugin.execute(agent, command, task);
+        expect(output.outcome).toBe('FAILURE');
+        expect(output.text).toBeDefined();
+        expect(output.results.error).toBeDefined();
+    });
+
+    // Tests that the execute method returns a failure output object with an error message when an invalid search term is provided. 
+    it("test_search_web_invalid_search_term", async () => {
+        const plugin = new InternetSearchPlugin();
+        const agent = {getModel: () => ({name: 'testModel'})};
+        const command = {args: {find: 123, sendToLLM: true}};
+        const task = {agent: agent, id: 'testTaskId'};
+        const output = await plugin.execute(agent, command, task);
+        expect(output.outcome).toBe('FAILURE');
+        expect(output.text).toBeDefined();
+        expect(output.results.error).toBeDefined();
+    });
+
+    // Tests that the execute method returns a failure output object with an error message when an invalid sendToLLM value is provided. 
+    it("test_search_web_invalid_send_to_llm", async () => {
+        const plugin = new InternetSearchPlugin();
+        const agent = {getModel: () => ({name: 'testModel'})};
+        const command = {args: {find: 'test search term', sendToLLM: 'invalid'}};
+        const task = {agent: agent, id: 'testTaskId'};
+        const output = await plugin.execute(agent, command, task);
+        expect(output.outcome).toBe('FAILURE');
+        expect(output.text).toBeDefined();
+        expect(output.results.error).toBeDefined();
+    });
+
+    // Tests that the execute method returns a successful output object with search results when the safe option is provided in command arguments. 
+    it("test_search_web_safe_option", async () => {
+        const plugin = new InternetSearchPlugin();
+        const agent = {getModel: () => ({name: 'testModel'})};
+        const command = {args: {find: 'test search term', sendToLLM: true, options: {safe: true}}};
+        const task = {agent: agent, id: 'testTaskId'};
+        const output = await plugin.execute(agent, command, task);
+        expect(output.outcome).toBe('SUCCESS');
+        expect(output.results.response).toBeDefined();
+        expect(output.tasks.length).toBe(1);
+        expect(output.tasks[0].name).toBe('Search Send');
+        expect(output.tasks[0].commands[0].args.prompt).toBe(output.results.response);
+    });
 });

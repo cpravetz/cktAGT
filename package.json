@@ -20,6 +20,7 @@
     "git-clone": "^0.2.0",
     "github": "^14.0.0",
     "googleapis": "^118.0.0",
+    "googlethis": "^1.7.1",
     "jsonrepair": "^3.1.0",
     "lamda": "^0.2.3",
     "mocha": "^10.2.0",

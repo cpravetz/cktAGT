@@ -5,6 +5,7 @@
 // This module provides a class for representing an internet search plugin.
 
 const Task = require('./../managers/task.js');
+const google = require('googlethis');
 
 class InternetSearchPlugin {
 
@@ -20,6 +21,7 @@ class InternetSearchPlugin {
     // The arguments for the command.
     this.args = {
       find: 'The search term to be used',
+      sendToLLM: 'True to have output returned to you or another model'
     };
 
 
@@ -27,7 +29,29 @@ class InternetSearchPlugin {
 
   // This method executes the command.
   async execute(agent, command, task) {
-    // Create a Google Search API client.
+    const output = {outcome:'SUCCESS'};
+    try {
+      const options = {...command.args.options, ...{safe: true}};
+      const response = google.search(command.args.find,options);
+      output.results = {response: response};
+      if (command.args.sendToLLM) {
+        const t =new Task({agent:agent,
+          name:'Search Send', description:'sending the search results from '+command.args.find+' to the LLM',
+          prompt:'this is the result of '+command.args.find,
+          commands:[{name:'Think', model: agent.getModel().name, args:{prompt:response}}],
+          context:{from: this.id}});
+        output.tasks = [t];
+      }
+  } catch (err) {
+    output.outcome = 'FAILURE',
+    output.text = err.message,
+    output.results = {error: err}
+  }
+  return output;
+  }            
+
+    
+/*    // Create a Google Search API client.
     const {google} = require("googleapis");
     const client = google.customsearch('v1');
 
@@ -51,7 +75,7 @@ class InternetSearchPlugin {
       },
       tasks: [t]
     };
-  }
+  }*/
 }
 
 module.exports = InternetSearchPlugin;
