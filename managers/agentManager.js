@@ -10,6 +10,7 @@ const Agent = require("./agent.js");
 const Task = require("./task.js");
 const keyMaker = require("../constants/keymaker.js");
 const Strings = require("../constants/strings.js");
+const  logger = require('./../constants/logger.js');
 
 const Status = {
     launching : 0,
@@ -83,7 +84,7 @@ class AgentManager {
 
   //Add a think task for feedback from the user
   informTheLLM(input) {
-    console.log(`informingLLM:${input}`);
+    logger.info(`informingLLM:${input}`);
     const commands = [{name: "Think", args: {prompt: input}}];
     const task = new Task({agent:this.agent, name:"User Feedback", goal:input, commands:commands});
     // Add the task to the queue.
@@ -95,7 +96,7 @@ class AgentManager {
 
   // Starts the agent manager.
   startTheAgent() {
-   console.log('starting the agent');
+   logger.info('starting the agent');
     this.agent.start();
     this.status = Status.running;
     this.memoryManager.saveAgent(this.agent);
@@ -104,7 +105,7 @@ class AgentManager {
 
   loadAnAgent(id) {
     if (!id) {
-      console.log('No id passed to agentManager to load');
+      logger.warn('No id passed to agentManager to load');
       return false;
     }
     this.agent = this.memoryManager.loadAgent(id);
@@ -123,18 +124,19 @@ class AgentManager {
     // Add the task to the queue.
     this.taskManager.addTask(task);
     this.memoryManager.saveAgent(this.agent);
+    logger.debug({agent:this.agent, task:task},'created first agent');
   }
 
 
   // Ask user, start new agent or load existing agent?
   getNewGoal() {
-    console.log('Asking for new goal');
+    logger.info('Asking for new goal');
     this.ask({prompt:Strings.newAgentMsg});
     this.status = Status.awaitingGoal;
   }
 
   doLoadOrNew(input) {
-   console.log(`Responding to start or load agent${input}`);
+   logger.info({input:input},`Responding to start or load agent`);
     if (input.response == 'start') {
       this.status = Status.naming;
       this.ask({prompt:'What do you want to name your new agent?'});
@@ -146,7 +148,7 @@ class AgentManager {
   }
 
   askLoadOrNew() {
-    console.log('Asking to start or load agent');
+    logger.info('Asking to start or load agent');
     this.userManager.parent = this;
     // Get the user's input.
     const input = this.ask({prompt:Strings.welcome, choices: Strings.startLoadAsk, allowMultiple:false});
@@ -159,7 +161,7 @@ class AgentManager {
     if (this.userManager) {
       this.userManager.say(text);
     } else {
-      console.log("said: ", text);
+      logger.warn({text:text},'No userManager available to say this');
     }
   }
 
@@ -168,7 +170,7 @@ class AgentManager {
     if (this.userManager) {
       return this.userManager.ask(prompt.prompt,prompt.choices, prompt.allowMultiple);
     } else {
-      console.log("Asking before UM available: ", prompt);
+      logger.info({prompt:prompt},"Asking before UM available ");
       return null;
     }
   }
@@ -176,6 +178,7 @@ class AgentManager {
   // Handles input from the user.
   hear(msg) {
     let input = {};
+    logger.debug({msg:msg},'agentManager: heard');
     try {
       input = JSON.parse(msg)
     } catch (e) {
@@ -213,7 +216,7 @@ class AgentManager {
 
 
   allowMoreSteps(continuous, count) {
-    console.log('Approved to proceed');
+    logger.info({continuous:continuous, count:count},'Approved to proceed');
     this.continuous = continuous;
     if (typeof(count) == 'string') { count = Number(count)}
     this.remainingSteps += count || 0;

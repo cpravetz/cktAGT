@@ -51,6 +51,7 @@ class ServerManager {
     try {
       socket.emit('userSays', JSON.stringify(message));
     } catch (error) {
+      socket.emit('userLog', JSON.stringify(error));
       console.error(error);
     }
   }

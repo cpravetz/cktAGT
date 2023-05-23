@@ -4,6 +4,7 @@
 
 // This module provides a class for managing tasks.
 const keyMaker = require("../constants/keymaker.js");
+const  logger = require('./../constants/logger.js');
 
 class TaskManager {
 
@@ -20,6 +21,7 @@ class TaskManager {
 
   // This method adds a task to the queue.
   addTask(task) {
+    logger.debug({task:task},'taskManager: Added a task');
     if (task.id) {
       this.tasks.set(task.id, task);
       if (this.store) {
@@ -31,6 +33,7 @@ class TaskManager {
   // This method pops a task from the queue and executes it.
   complete(task) {
     task.status = 'finished';
+    logger.debug({task:task},'taskManager: Completed task');
     this.tasks.delete(task.id);
   }
 
@@ -46,6 +49,7 @@ class TaskManager {
         break;
       }
     }
+    logger.debug({task:firstTask},'taskManager: Returning next task');
     return firstTask;
   }
 

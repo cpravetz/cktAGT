@@ -7,6 +7,8 @@
 const fs = require("fs");
 const pluginManager = require("../managers/pluginManager.js");
 const Strings = require("../constants/strings.js");
+const logger = require('./../constants/logger.js');
+
 
 
 class PluginBuilderPlugin {
@@ -85,12 +87,14 @@ class PluginBuilderPlugin {
       const filePath = this.getFilePath(task.command);
       output = this.writePluginFile(filePath, text, output);
       output = this.registerPlugin(filePath, output);
+      logger.debug({output:output},'pluginBuilder: execute results');
     } catch (err) {
         output.outcome = 'FAILURE';
         output.text = `Error creating plugin file: ${err}`;
         output.results = {
             error: output.text,
         }
+        logger.error({output: output},`pluginBuilder: execute error ${err.message}`);
     }
     return output;
   }

@@ -5,6 +5,7 @@
 // This module provides a class for managing user interactions.
 
 const keyMaker = require("../constants/keymaker.js");
+const logger = require('./../constants/logger.js');
 
 
 class UserManager {
@@ -53,7 +54,7 @@ class UserManager {
     try {
       this.tells.delete(messageId);
     } catch (error) {
-      console.log('Tried to ack unknown msg')
+      logger.info('Tried to ack unknown msg')
     }
   }
   
@@ -63,9 +64,9 @@ class UserManager {
     let msg;
     try {
       msg = JSON.parse(message);
-    } catch (error) {
-      console.error('Error parsing JSON:', error);
-      return error;
+    } catch (err) {
+      logger.error({error:err, message: message},'Error parsing JSON in hear');
+      return err;
     }
     if (msg.id) {
       this.asks.delete(msg.id);
@@ -77,7 +78,7 @@ class UserManager {
   }
 
   requestStepApproval() {
-    console.log('Requested step approval');
+    logger.info('Requested step approval');
     const msg = {id:keyMaker()};
     this.io.emit('serverNeedsApproval', msg);
     msg.code = 'serverNeedsApproval';
@@ -86,26 +87,19 @@ class UserManager {
   }
 
   // This method asks the user a question.
-  ask(prompt, choices = [], allowMultiple = false) {
+  ask(prompt, choices = false, allowMultiple = false) {
+    logger.debug({prompt: prompt, choices:choices, multi:allowMultiple}, 'Asking... ');
     // Check that prompt is a string
     if (typeof prompt !== "string") {
       throw new Error("prompt must be a string, it is ");
     }
   
-    // Check that choices is an array or null
-    /*if (choices === null) {
-      choices = [];
-    } else if (!Array.isArray(choices)) {
-      throw new Error("choices must be an array");
-    }
-  */
     // Check that allowMultiple is a boolean
     if (typeof(allowMultiple) !== "boolean") {
       throw new Error("allowMultiple must be a boolean");
     }
   
     // Do something with prompt and choices
-    console.log('asking... ');
     const lastAsk = {
       id: keyMaker(),
       prompt: prompt,
@@ -119,6 +113,7 @@ class UserManager {
 
   // This method announces a new file to the server.
   announceFile(name, url) {
+    logger.debug({name:name, url:url}, 'announcingFile');
     if (typeof(name) !== "string" || typeof(url) !== "string" ) {
       throw new Error("invalid name or url in announceFile");
     }

@@ -5,6 +5,7 @@
 // This module provides a class for representing a GitHub clone plugin.
 
 const Clone = require("git-clone/promise");
+const logger = require('./../constants/logger.js');
 
 class GitHubClonePlugin {
 
@@ -31,18 +32,21 @@ class GitHubClonePlugin {
   async execute(agent, command, task) {
     try {
         await Clone(command.args.repoUrl,agent.agentManager.workDirName,command.args.options || {});   
+        logger.debug('githubClone: success');
         return {
             outcome: 'SUCCESS'
         }
 
-    } catch (error) {
-        return {
+    } catch (err) {
+        const output = {
             outcome: 'FAILURE',
-            text: error,
+            text: err,
             results: {
-                error: error,
+                error: err,
             }
         }
+        logger.error({error: output},`githubClone: error ${err.message}`);
+        return output;
     }
   }
 }

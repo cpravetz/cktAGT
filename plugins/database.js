@@ -6,6 +6,7 @@
 
 const mySql = require("mysql");
 const Task = require('./../managers/task.js');
+const logger = require('./../constants/logger.js');
 
 class DatabasePlugin {
 
@@ -38,6 +39,7 @@ class DatabasePlugin {
     return new Promise((resolve, reject) => {
       this.connection.connect((err,results) => {
         if(err){
+          logger.error({error:err},`database: SQL connection error ${err.message}`);
           reject(err)
         }
         resolve(results)
@@ -65,9 +67,11 @@ class DatabasePlugin {
       const cleanSQL = this.sanitizeSQL(connectArgs.query);
       this.connection.query(cleanSQL,(err,results)=>{
           if(err){
-              reject(err)
+            logger.error({error:err, sql: cleanSQL},`SQL query error ${err.message}`);
+            reject(err)
           }
           this.connection.end();
+          logger.debug({results:results},'database: Query result');
           resolve(results)
       })
     });
@@ -79,11 +83,13 @@ class DatabasePlugin {
       const queryResult = await this.promisedQuery(command.args);
       const tasks = [];
       if (command.args.sendToLLM) {
-        tasks.push(new Task({agent:agent,
-                  name:'Query Send', description:'sending the query results from '+command.args.query+' to the LLM',
-                  prompt:'this is the result of '+command.args.query,
-                  commands:[{name:'Think', model: agent.getModel().name, args:{prompt:queryResult}}],
-                  context:{from: this.id}}));
+        const newTask = new Task({agent:agent,
+          name:'Query Send', description:'sending the query results from '+command.args.query+' to the LLM',
+          prompt:'this is the result of '+command.args.query,
+          commands:[{name:'Think', model: agent.getModel().name, args:{prompt:queryResult}}],
+          context:{from: this.id}})
+        logger.debug({task:newTask},'database: created task');  
+        tasks.push(newTask);
       }            
       return {
         outcome: 'SUCCESS',
@@ -93,6 +99,7 @@ class DatabasePlugin {
         tasks: tasks
       };
     } catch (err) {
+      logger.error({error:err},`database: execute error ${err.message}`);
       return {
         outcome: 'FAILURE',
         text : err,

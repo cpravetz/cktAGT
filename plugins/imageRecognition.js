@@ -7,6 +7,7 @@
 const hfi = require("@huggingface/inference");
 const fs = require("fs");
 const fetch =  require('node-fetch');
+const logger = require('./../constants/logger.js');
 
 class ImageRecognitionPlugin {
 
@@ -36,6 +37,7 @@ class ImageRecognitionPlugin {
       }
     return await response.arrayBuffer();
     } catch (err) {
+      logger.error({error:err, url:url, fetchResponse: response},'Error in loadImagefromUrl');
       throw err;
     }
   }
@@ -61,7 +63,7 @@ class ImageRecognitionPlugin {
      output.outcome = 'FAILURE';
      output.text = err.message;
      output.results = {error: err};
-     console.error("Error: " + err.message);
+     logger.error({error:err, text:generated_text},'Error in imageRecognition generate');
   } finally {
     return output;
   }  

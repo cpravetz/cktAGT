@@ -79,9 +79,9 @@ describe('Agent_class', () => {
             useOneStep: jest.fn()
         };
         const agent = new Agent(agentManager, 'Test Agent');
-        console.log = jest.fn();
+        logger.info = jest.fn();
         agent.report('Test report');
-        expect(console.log).toHaveBeenCalledWith('Agent Test Agent reports Test report');
+        expect(logger.info).toHaveBeenCalledWith('Agent Test Agent reports Test report');
         agent.say('Test message');
         expect(agentManager.userManager.say).toHaveBeenCalledWith('Test message');
     });

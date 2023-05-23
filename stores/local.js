@@ -7,6 +7,8 @@
 const fs = require("fs");
 const path = require("path");
 const replaceObjectReferencesWithIds = require('./../constants/utils.js');
+const logger = require('../constants/logger.js');
+
 
 class LocalJsonFilesBackend {
 
@@ -19,10 +21,10 @@ class LocalJsonFilesBackend {
     this.tasksDir = tasksDir;
     this.agentDir = path.join(tasksDir, '/agents');
     if (!fs.existsSync(this.tasksDir)) {
-      fs.mkdir(this.tasksDir, (e,r) => {if (e) { console.error(e)}});
+      fs.mkdir(this.tasksDir, (e,r) => {if (e) { logger.error(e)}});
     }
     if (!fs.existsSync(this.agentDir)) {
-      fs.mkdir(this.agentDir, (e,r) => {if (e) { console.error(e)}});
+      fs.mkdir(this.agentDir, (e,r) => {if (e) { logger.error(e)}});
     }
   }
 

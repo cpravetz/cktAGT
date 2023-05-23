@@ -1,6 +1,7 @@
 const Model = require('./bases/model.js');
 const hfi = require("@huggingface/inference");
 const fetch =  require('node-fetch');
+const logger = require('./../constants/logger.js');
 
 /**
  * A class representing the GPT-4 model.
@@ -25,13 +26,14 @@ class HuggingFace extends Model {
     this.languageModel = languageModel;
     this.token = token;
     if (!token) {
+      logger.error('HuggingFace TOKEN key not provided');
       throw new Error('HuggingFace TOKEN key not provided');
     }
     try {
       this.hfiClient = new hfi.HfInference(token);
-    } catch (error) {
-      console.error('Invalid HuggingFace API key:', error);
-      throw error;
+    } catch (err) {
+      logger.error({error: err},'Invalid HuggingFace API key');
+      throw err;
     }
     this.inputCache = [];
     this.outputCache = [];
@@ -39,6 +41,7 @@ class HuggingFace extends Model {
 
   async generate(message, parameters = {}) {
     if (!message || (typeof message !== 'string')) {
+      logger.error('Invalid input type for message expected a string');
       throw new TypeError('Invalid input type for message expected a string');
     }
     parameters.max_length = parameters.max_length || this.DEFAULT_MAX_LENGTH;
@@ -57,10 +60,11 @@ class HuggingFace extends Model {
     };
     try {
       const response = await this.hfiClient['conversational'](conversation, { fetch: fetch });
+      logger.debug({response: response, conversation:conversation},'HfI Generate');
       this.outputCache.push(response);
       return response;
     } catch (err) {
-      console.error(err);
+      logger.error({error:err},'Error in generate');
       throw err
     }
   }

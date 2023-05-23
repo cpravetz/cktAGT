@@ -9,6 +9,8 @@ const fs = require("fs");
 const path = require("path");
 const http = require('http');
 const dotenv = require("dotenv").config();
+const  logger = require('./constants/logger.js');
+const pinoExpress = require('pino-http');
 
 const app = express();
 const server = http.createServer(app);
@@ -45,9 +47,10 @@ async function main() {
 
   // Start the server.
   server.listen(3000);
-  console.log('listening on *:3000');
+  logger.info('listening on *:3000');
 }
 
+//app.use(pinoExpress);
 
 // This function handles file requests
 app.get("*", (req, res) => {
@@ -71,9 +74,12 @@ io.on("connection", (socket) => {
   socket.on("userSays", (msg) => {
     agentManager.hear(msg);
   });
+  socket.on("userLog",  (msg) => {
+    logger.info({msg:msg},'User sends error');
+  });
 
   socket.on("userApproves", (msg) => {
-    console.log('User approves proceeding');
+    logger.info('User approves proceeding');
     agentManager.allowMoreSteps(msg.continuous, msg.steps || 0);
   });
 
@@ -82,7 +88,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on('error', (error) => {
-    console.log(`Socket error: ${error}`)
+    logger.error(error,`Socket error`)
   });
 
 

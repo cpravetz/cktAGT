@@ -6,6 +6,7 @@
 
 const Model = require('./model.js');
 const { Configuration, OpenAIApi } = require("openai");
+const logger = require('./../../constants/logger.js');
 
 /**
  * A class representing the GPT-4 model.
@@ -77,11 +78,12 @@ class OpenAI extends Model {
         temperature: temperature,
         max_tokens: max_length,
       });
+      logger.debug({response:response,messages:messages,model:this.name},'OpenAI Generate')
       const textReply = response.data.choices[0].message.content || '';
       this.cache.push({role:'assistant', content: this.extractValue(textReply,'thoughts')});
       return textReply;
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      logger.error({error:err},`Error in OpenAI Generate ${err.message}`);
     }
   }
 

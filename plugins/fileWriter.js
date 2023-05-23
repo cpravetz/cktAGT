@@ -6,6 +6,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const logger = require('./../constants/logger.js');
 
 class FileWriterPlugin {
 
@@ -38,41 +39,49 @@ class FileWriterPlugin {
     try {
       await fs.promises.access(filePath, fs.constants.F_OK);
       if (!command.args.overwrite) {
-        return {
+        const output = {
           outcome: 'FAILURE',
           text: `File already exists: ${filePath}`,
           results: {
             error: `File already exists: ${filePath}`,
-          },
+          }
         };
+        logger.debug({output:output},'fileWriter: file exists');
+        return output;
       }
     } catch (err) {
-      return {
+      const output = {
         outcome: 'FAILURE',
         text: `Error accessing file: ${filePath}`,
         results: {
           error: err.message,
-        },
+        }
       };
+      logger.error({output:output},`fileWriter: execute error ${err.message}`);
+      return output;
     }
 
     // Write the contents of the string to the file.
     try {
       await fs.promises.writeFile(filePath, command.args.content);
-      return {
+      const output = {
         outcome: 'SUCCESS',
         results: {
           status: 'File written successfully',
         },
       };
+      logger.debug({output:output},'fileWriter: execute result')
+      return output;
     } catch (err) {
-      return {
+      const output = {
         outcome: 'FAILURE',
         text: `Error writing file: ${filePath}`,
         results: {
           error: err.message,
         },
       };
+      logger.error({output:output},`fileWriter: execute error ${err.message}`);
+      return output;
     }
   }
 

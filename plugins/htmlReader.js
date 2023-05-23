@@ -7,6 +7,8 @@
 const cheerio = require("cheerio");
 const Task = require('./../managers/task.js');
 const fetch =  require('node-fetch');
+const logger = require('./../constants/logger.js');
+
 
 class HTMLReaderPlugin {
 
@@ -33,11 +35,13 @@ class HTMLReaderPlugin {
 
     const url = command.args.url;
     if (!url) {
+      logger.error('htmlReader: no url provided');
       return {outcome: 'FAILURE', text: 'No url provided'}
     }
     try {
       const response = await fetch(url);
       if (!response.ok) {
+        logger.error({response:response},`htmlReader: ${response.statusText}`);
         return {outcome: 'FAILURE', text: `Failed to generate message: ${response.status} ${response.statusText}`}
       }
 
@@ -46,24 +50,29 @@ class HTMLReaderPlugin {
 
       // Get the text of the web page.
       const text = cheer("body").text();
-
+      logger.debug({cheerResult:cheer},'htmlReader: cheer object');
       const tasks = [];
       if (command.args.sendToLLM) {
-        tasks.push( new Task({agent:agent,
-              name:'Html Send', description:'sending the html body from file '+command.args.url+' to the LLM',
-              prompt:'this is the body of '+command.args.url,
-              commands:[{name:'Think', model: agent.getModel() ||false, args:{prompt:text}}],
-              context:{from: this.id}}));
+        const newTask = new Task({agent:agent,
+          name:'Html Send', description:'sending the html body from file '+command.args.url+' to the LLM',
+          prompt:'this is the body of '+command.args.url,
+          commands:[{name:'Think', model: agent.getModel() ||false, args:{prompt:text}}],
+          context:{from: this.id}});
+        logger.debug({task:task},'htmlReader: task created');
+        tasks.push(newTask);
       }              
     
-      return {
+      const output =  {
         outcome: 'SUCCESS',
         results: {
           file: text,
         },
         tasks: tasks
       };
+      logger.debug({output: output},'htmlReader: execute result');
+      return output;
     } catch (err) {
+      logger.error({error:err},`htmlReader: error ${err.message}`);
       return {outcome: 'FAILURE', text: err.message, results: {error:err}}
     }
   }

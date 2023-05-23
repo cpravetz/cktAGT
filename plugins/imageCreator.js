@@ -6,6 +6,7 @@
 
 const { Configuration, OpenAIApi } = require("openai");
 const fs = require('fs');
+const logger = require('./../constants/logger.js');
 
 class ImageCreatorPlugin {
 
@@ -47,7 +48,8 @@ class ImageCreatorPlugin {
   async execute(agent, command, task) {
     let output = {};
     if (!process.env.OPENAI_API_KEY) {
-        return {outcome: 'FAILURE', text: 'No API key for OpenAI'}
+      logger.error(`imageCreator: No OpenAI Key`);
+      return {outcome: 'FAILURE', text: 'No API key for OpenAI'}
     }
     this.openAiApiClient = new OpenAIApi(process.env.OPENAI_API_KEY);
     // Set the max_width and max_height parameters.
@@ -61,17 +63,20 @@ class ImageCreatorPlugin {
         n:n,
         size: max_size,
       });
-
+      logger.debug({response:response},'imageCreator: response from OpenAI');
       this.filelist = [];
 
       response.data.forEach(async (url) => {
         await this.saveImageFile(url, agent);
       });
 
-      output.results = {urls: response.data, files: this.filelist}
-    } catch (error) {
+      output.results = {urls: response.data, files: this.filelist};
+      logger.debug({output: output},`imageCreator: execute results`);
+    } catch (err) {
         output.outcome = 'FAILURE';
-        outcome.results = {error: `Failed to generate image ${error}`}
+        output.text = err.message;
+        outcome.results = {error: err};
+        logger.error({output:output},`imageCreator: execute error ${err.message}`);
     }
     return output;
   }  

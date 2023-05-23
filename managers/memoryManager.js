@@ -5,6 +5,7 @@
 const fs = require("fs");
 const path = require("path");
 const keyMaker = require("../constants/keymaker.js");
+const logger = require('../constants/logger.js');
 
 // This is the MemoryManager class.
 class MemoryManager {
@@ -27,13 +28,13 @@ class MemoryManager {
           const memoryModule = require(`../${memoryStorePath}`);
           let memoryStore = new memoryModule;
           if (memoryStore.name == (process.env.MEMORY_STORE || "local")) {
-            if (memoryStore.connect)  { await memoryStore.connect() }
+            if (memoryStore.connect)  { await memoryStore.connect() };
             this.memoryStores.set(memoryStore.name, memoryStore);
           }
         }
       }
-    } catch (error) {
-      console.error(`Error loading memory stores: ${error}`);
+    } catch (err) {
+      logger.error({error:err},`Error loading memory stores ${err.message}`);
     }
   }
 

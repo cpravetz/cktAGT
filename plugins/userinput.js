@@ -4,6 +4,8 @@
 
 // This module provides a class for representing a user input plugin.
 
+const logger = require('./../constants/logger.js');
+
 class UserInputPlugin  {
 
 
@@ -38,7 +40,7 @@ class UserInputPlugin  {
 
     // Ask the user for input.
     const response = await agent.agentManager.ask(prompt, choices, required);
-
+    logger.debug({response: response, command:command},'userInput: execute results');
     // Return the response.
     return response;
   }

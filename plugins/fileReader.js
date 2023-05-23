@@ -7,6 +7,8 @@
 const fs = require("fs");
 const Task = require('./../managers/task.js');
 const path = require('path');
+const logger = require('./../constants/logger.js');
+
 
 class FileReaderPlugin {
 
@@ -26,18 +28,21 @@ class FileReaderPlugin {
     const fileName = command.args.fileName;
     const url = command.args.url || agent.agentManager.workDirName;
     if (path.isAbsolute(fileName) || fileName.includes('..')) {
+      logger.error({url:url, fileName:fileName},'fileReder: invalid filename or Url')
       throw new Error('Invalid file name or URL');
     }
     const filePath = path.join(url, fileName);
 
     if (!fs.existsSync(filePath)) {
-      return {
+      const output = {
         outcome: 'FAILURE',
         text: `File not found: ${filePath}`,
         results: {
           error: `File not found: ${filePath}`,
-        },
+        }
       };
+      logger.error({output:output},'fileReader: file not found');
+      return output;
     }
 
     const contents = await this.readFile(filePath);
@@ -46,13 +51,15 @@ class FileReaderPlugin {
       tasks.push( this.createTask(agent, fileName, contents));
     }
 
-    return {
+    const output = {
       outcome: 'SUCCESS',
       results: {
         file: contents,
       },
       tasks: tasks
     };
+    logger.debug({output:output},'fileRader: execute result');
+    return output;
   }
 
   async readFile(filePath) {
@@ -60,7 +67,7 @@ class FileReaderPlugin {
   }
 
   createTask(agent, fileName, contents) {
-    return new Task({
+    const newTask = new Task({
       agent: agent,
       name: 'File Send',
       description: 'sending the file ' + fileName + ' to the LLM',
@@ -68,6 +75,8 @@ class FileReaderPlugin {
       commands: [{name: 'Think', model: agent.getModel() || false, args: {prompt: contents}}],
       context: {from: this.id}
     });
+    logger.debug({task:newTask},'fileReader: task created');
+    return newTask;
   }
 }
 

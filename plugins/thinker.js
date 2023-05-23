@@ -7,6 +7,8 @@
 const Task = require("../managers/task.js");
 const Strings = require("../constants/strings.js");
 const jsonrepair = require('jsonrepair');
+const logger = require('./../constants/logger.js');
+
 
 class ThoughtGeneratorPlugin {
   
@@ -34,12 +36,13 @@ class ThoughtGeneratorPlugin {
   async execute(agent, command, task) {
 
     agent.say('thinking...');
-
+    logger.debug('thinker: executing');
     this.parentTask = task;
 
     const {args, model} = command;
     const llm = model ? agent.modelManager.getModel(model) : agent.getModel();
     if (!llm) {
+        logger.warn({command:command},'thinker: No LLM provided to execute');
         return {outcome: 'FAILURE', results: {error:'No model was provided to Think'}};
     }
 
@@ -50,7 +53,7 @@ class ThoughtGeneratorPlugin {
         followUpText = this.getFollowUpText(agent);
         prompt = this.getCompiledPrompt(agent, llm, prompt, args.constraints || [], args.assessments || []);
     }
-
+    logger.debug({prompt:prompt},`thinker: about to process prompt`);
     const output = await this.processPrompt(llm, prompt, followUpText);
     return output;
 }
@@ -73,11 +76,14 @@ async processPrompt(llm, compiledPrompt, followUpText) {
     let reply;
     try {
         reply = await llm.generate([compiledPrompt, followUpText], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
+        logger.debug({reply: reply, prompt: compiledPrompt},'thinker: LLM reply');
         output = this.processReply(reply, output);
+        logger.debug({output: output}, 'thinker: execute results');
     } catch (err) {
         output.outcome = 'FAILURE';
         output.text = err.message;
         output.results = {error: err, reply:(reply ? reply : false)};
+        logger.error({output:output},`thinker: execute error ${err.message}`);
     }
     return output;
 }
@@ -110,7 +116,7 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
         try {
             if (typeof(reply) === 'string') { replyJSON = JSON.parse(jsonrepair.jsonrepair(reply)); } else { replyJSON = reply };   
             output.text = this.humanizeOutput(replyJSON);
-        } catch (error) {
+        } catch (err) {
             output.text = reply;
         }
         if (replyJSON.thoughts || replyJSON.commands) {
@@ -122,6 +128,7 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
                 const prompt = thisStep.action ? this.replaceOutput(actions[thisStep.action],idMap)  : thisStep.args.prompt;
                 thisStep.args = this.replaceAllOutputs(thisStep.args,idMap);
                 const t = this.createTask(thisStep, prompt, idMap);
+                logger.debug({task:t},'thinker: task created')
                 output.tasks.push(t);
             }
         } else {
@@ -131,6 +138,7 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
         output.outcome = 'FAILURE';
         output.text = err.message;
         output.results = {error: err, reply: reply};
+        logger.error({output:output},`thinker: Error processing reply ${err.message}`)
     }
     return output;
 }
@@ -191,6 +199,7 @@ createTask(thisStep, prompt, idMap) {
         t.dependencies.push(idMap[dependency]);
     };
     idMap[thisStep.id] = t.id;
+    logger.debug({task:t},'thinker: Created Task')
     return t;
 }
 

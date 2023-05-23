@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 const keyMaker = require('./../constants/keymaker.js');
+const logger = require('./../constants/logger.js');
 
 /**
  * This is the agent which executes related tasks, capturing new tasks and reporting status.
@@ -22,7 +23,7 @@ class Agent {
   }
 
   report(text) {
-    console.log(`Agent ${this.name} reports ${text}`);
+    logger.info(`Agent ${this.name} reports ${text}`);
     this.userManager.say(text);
   }
 
@@ -34,8 +35,8 @@ class Agent {
   start() {
     try {
       this._run();
-    } catch (error) {
-      console.error(`Error starting agent: ${error}`);
+    } catch (err) {
+      logger.error({error:err},`Error starting agent: ${err.message}`);
     }
   }
 
@@ -76,12 +77,13 @@ class Agent {
     this.agentManager.useOneStep();
     try {
       const result = await task.execute();
+      logger.debug({result:result, task:task},'executeOne task results')
       this._processResult(result || {});
       this.report(`Finished task: ${task.name || task.id}`);
       this.taskManager.complete(task);
-    } catch (error) {
+    } catch (err) {
       task.status = 'failed';
-      console.log(error);
+      logger.error({error:err, result:result, task:task}, `Error executingOneTask ${err.message}`);
     }
     if (this.store) {
       this.store.save(task);
@@ -105,8 +107,8 @@ class Agent {
           this.report(`Starting task: ${task.name || task.id}`);
           try {
             await this._executeOneTask(task);
-          } catch (error) {
-            console.error(`Error executing task: ${error}`);
+          } catch (err) {
+            logger.error({error:err, task:task},`Error executing task ${err.message}`);
             break;
           }
         }

@@ -5,6 +5,7 @@
 // This module provides a class for representing a Pinecone backend.
 const replaceObjectReferencesWithIds = require('./../constants/utils.js');
 const fetch =  require('node-fetch');
+const logger = require('./../constants/logger.js');
 
 class PineconeBackend {
 
@@ -48,7 +49,7 @@ class PineconeBackend {
       const result = await response.json();
       return result;
     } else {
-      console.error(`Failed to save object with ID ${obj.id}.`, response);
+      logger.error({response:response, object:obj, url:url},`Pinecone: Failed to save object with ID ${obj.id}.`);
     }
   }
 
@@ -73,7 +74,7 @@ class PineconeBackend {
       });
 
       if (!response.ok) {
-        console.error(`Failed to delete object with ID ${taskId}.`, response);
+        logger.error({response:response, id:taskId},`Pinecone: Failed to delete object with ID ${taskId}.`);
       }
     } else {
         return false;
@@ -93,8 +94,8 @@ class PineconeBackend {
         }
       }
       return tasks;
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      logger.error({error:err, agentId:agentId},`Pinecone: Failed to get tasks for agent`);
       return false
     }
   }
@@ -113,7 +114,7 @@ class PineconeBackend {
       }
       return agentNamesAndIds;
     } catch (error) {
-      console.error(error);
+      logger.error({error:err, agentId:agentId},`Pinecone: Failed to get agent names`);
     }
   }
 

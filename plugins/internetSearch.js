@@ -6,6 +6,8 @@
 
 const Task = require('./../managers/task.js');
 const google = require('googlethis');
+const logger = require('./../constants/logger.js');
+
 
 class InternetSearchPlugin {
 
@@ -33,6 +35,7 @@ class InternetSearchPlugin {
     try {
       const options = {...command.args.options, ...{safe: true}};
       const response = await google.search(command.args.find,options);
+      logger.debug({response:response},'internetSearch: response from search engine');
       output.results = {response: response};
       if (command.args.sendToLLM) {
         const t =new Task({agent:agent,
@@ -41,11 +44,13 @@ class InternetSearchPlugin {
           commands:[{name:'Think', model: agent.getModel().name, args:{prompt:response}}],
           context:{from: this.id}});
         output.tasks = [t];
+        logger.debug({output:output},'internetSearch: execute results');
       }
   } catch (err) {
     output.outcome = 'FAILURE',
     output.text = err.message,
     output.results = {error: err}
+    logger.error({output:output},`internetSearch: execute error ${err.message}`);
   }
   return output;
   }            

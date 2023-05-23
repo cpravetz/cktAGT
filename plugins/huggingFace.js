@@ -6,6 +6,7 @@
 
 const hfi = require("@huggingface/inference");
 const fetch =  require('node-fetch');
+const logger = require('./../constants/logger.js');
 
 class HuggingfacePlugin {
 
@@ -48,20 +49,23 @@ class HuggingfacePlugin {
       const response = await client[transformation]({model:model, inputs:inputs}, {fetch:fetch});
 
       // Return the response
-      return {
+      const output = {
         outcome: "SUCCESS",
         text: response,
         results: {},
         tasks: [],
       };
-    } catch (error) {
+      logger.debug({output:output},'huggingFace: execute results');
+      return output;
+    } catch (err) {
       // Return an error
-      return {
+      const output = {
         outcome: "FAILURE",
-        text: error.message,
-        results: {error:error},
+        text: err.message,
+        results: {error:err},
         tasks: [],
       };
+      logger.error({output:output},`huggingFace: execute error ${err.message}`);
     }
   }
 }

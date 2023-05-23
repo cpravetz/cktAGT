@@ -4,6 +4,7 @@
 
 const keyMaker = require('./../constants/keymaker.js');
 const removeProperty = require('./../constants/properties.js');
+const logger = require('./../constants/logger.js');
 
 // Eliminates all instances of a given property from an object and it's object properties
 
@@ -61,12 +62,12 @@ class Task {
     this.result = {};
     // If there is a plugin, execute it.
     for (const command of this.commands) {
-      console.log('Calling plugin for '+command.name);
+      logger.info('Calling plugin for '+command.name);
       try {
         const theseResponses = await this.agent.pluginManager.resolveCommand(command, this);
         responses = responses.concat(theseResponses);
-      } catch (e) {
-        console.log('error in plugins', e);
+      } catch (err) {
+        logger.error({error:err, responses: responses ? responses: {}},'Error in plugins');
         this.result.error = e;
       }
     }
