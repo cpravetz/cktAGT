@@ -45,13 +45,29 @@ class DatabasePlugin {
     });
   }
 
+  sanitizeSQL(sql) {
+    // Escape all single quotes
+    sql = sql.replace(/'/g, "''");
+  
+    // Escape all backslashes
+    sql = sql.replace(/\\/g, "\\\\");
+  
+    // Escape all special characters
+    sql = sql.replace(/[-+&;|^$*()<>?,.\/]/g, "\\\\$&");
+  
+    return sql;
+  }
+  
+
   promisedQuery(connectArgs) {
     return new Promise((resolve, reject) => {
       this.connect(connectArgs.host, connectArgs.port, connectArgs.database, connectArgs.username, connectArgs.password);
-      this.connection.query(connectArgs.query,(err,results)=>{
+      const cleanSQL = this.sanitizeSQL(connectArgs.query);
+      this.connection.query(cleanSQL,(err,results)=>{
           if(err){
               reject(err)
           }
+          this.connection.end();
           resolve(results)
       })
     });

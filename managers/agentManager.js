@@ -129,7 +129,7 @@ class AgentManager {
   // Ask user, start new agent or load existing agent?
   getNewGoal() {
     console.log('Asking for new goal');
-    this.ask(Strings.newAgentMsg);
+    this.ask({prompt:Strings.newAgentMsg});
     this.status = Status.awaitingGoal;
   }
 
@@ -137,7 +137,7 @@ class AgentManager {
    console.log(`Responding to start or load agent${input}`);
     if (input.response == 'start') {
       this.status = Status.naming;
-      this.ask('What do you want to name your new agent?');
+      this.ask({prompt:'What do you want to name your new agent?'});
     } else {
         this.status = Status.gettingName;
         this.ask({prompt:'What agent do you want to load?', choices: this.memoryManager.activeStore.getAgentNames(), allowMultiple:false});
@@ -166,7 +166,7 @@ class AgentManager {
   // Asks the user a question.
   ask(prompt) {
     if (this.userManager) {
-      return this.userManager.ask(prompt);
+      return this.userManager.ask(prompt.prompt,prompt.choices, prompt.allowMultiple);
     } else {
       console.log("Asking before UM available: ", prompt);
       return null;

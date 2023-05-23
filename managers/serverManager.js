@@ -80,8 +80,8 @@ class ServerManager {
 
   answer(msg) {
     this.asked = {
-      prompt: msg.content.prompt.prompt || msg.content.prompt,
-      choices: msg.content.prompt.choices || false,
+      prompt: msg.content.prompt,
+      choices: msg.content.choices || false,
     };
     const allowMultiple = msg.allowMultiple || false;
     this.askId = msg.id;

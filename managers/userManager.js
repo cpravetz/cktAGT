@@ -86,19 +86,19 @@ class UserManager {
   }
 
   // This method asks the user a question.
-  ask(prompt, choices, allowMultiple) {
+  ask(prompt, choices = undefined, allowMultiple = false) {
     // Check that prompt is a string
     if (typeof prompt !== "string") {
-      throw new Error("prompt must be a string");
+      throw new Error("prompt must be a string, it is ");
     }
   
     // Check that choices is an array or null
-    if (choices === null) {
+    /*if (choices === null) {
       choices = [];
     } else if (!Array.isArray(choices)) {
       throw new Error("choices must be an array");
     }
-  
+  */
     // Check that allowMultiple is a boolean
     if (typeof(allowMultiple) !== "boolean") {
       throw new Error("allowMultiple must be a boolean");
