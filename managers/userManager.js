@@ -86,7 +86,7 @@ class UserManager {
   }
 
   // This method asks the user a question.
-  ask(prompt, choices = undefined, allowMultiple = false) {
+  ask(prompt, choices = [], allowMultiple = false) {
     // Check that prompt is a string
     if (typeof prompt !== "string") {
       throw new Error("prompt must be a string, it is ");
