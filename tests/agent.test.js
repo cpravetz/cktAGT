@@ -2,6 +2,7 @@
 
 const dotenv = require("dotenv").config();
 const Agent = require('./../managers/agent.js');
+const logger = require('./../constants/logger.js');
 
 /*
 Test Plan:

@@ -64,7 +64,7 @@ class HuggingFace extends Model {
       this.outputCache.push(response);
       return response;
     } catch (err) {
-      logger.error({error:err},'Error in generate');
+      logger.error({error:err},`hface Error in generate ${err.message}`);
       throw err
     }
   }

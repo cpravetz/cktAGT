@@ -89,7 +89,7 @@ describe('DatabasePlugin_class', () => {
         const plugin = new DatabasePlugin();
         expect(plugin.version).toBe(1.0);
         expect(plugin.command).toBe('QueryDB');
-        expect(plugin.description).toBe('Executes SQL commands against a given database that you know exists');
+        expect(plugin.description).toBe('Executes SQL commands against a database that you know exists');
         expect(plugin.args.host).toBe('SQL Server URL');
         expect(plugin.args.port).toBe('SQL Server port');
         expect(plugin.args.database).toBe('The name of the database');
