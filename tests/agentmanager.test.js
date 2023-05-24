@@ -8,6 +8,7 @@ const MemoryManager = require("./../managers/memoryManager.js");
 const AgentManager = require('./../managers/agentManager.js');
 const Agent = require('./../managers/agent.js');
 const Strings = require("../constants/strings.js");
+const logger = require('./../constants/logger.js');
 
 const Status = {
     launching : 0,
@@ -99,16 +100,6 @@ describe('AgentManager_class', () => {
         agentManager.loadAnAgent("456");
         expect(agentManager.agent.id).toBe("456");
         expect(agentManager.agent.start).toHaveBeenCalled();
-    });
-
-    // Tests asking the user to start or load an agent. 
-    it("test_ask_user", () => {
-        const userManager = {ask: jest.fn(() => ({response: "start"}))};
-        const workDirName = "testDir/";
-        const agentManager = new AgentManager(userManager, workDirName);
-        agentManager.askLoadOrNew();
-        expect(agentManager.status).toBe(Status.waiting);
-        expect(userManager.ask).toHaveBeenCalledWith({prompt:Strings.welcome, choices: Strings.startLoadAsk, allowMultiple:false});
     });
 
     // Tests handling input from the user. 

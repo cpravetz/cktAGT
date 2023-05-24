@@ -68,7 +68,7 @@ class Task {
         responses = responses.concat(theseResponses);
       } catch (err) {
         logger.error({error:err, responses: responses ? responses: {}},'Error in plugins');
-        this.result.error = e;
+        this.result.error = err;
       }
     }
     this.result.responses = responses;

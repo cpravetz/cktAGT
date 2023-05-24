@@ -48,15 +48,7 @@ class DatabasePlugin {
   }
 
   sanitizeSQL(sql) {
-    // Escape all single quotes
-    sql = sql.replace(/'/g, "''");
-  
-    // Escape all backslashes
-    sql = sql.replace(/\\/g, "\\\\");
-  
-    // Escape all special characters
-    sql = sql.replace(/[-+&;|^$*()<>?,.\/]/g, "\\\\$&");
-  
+    //TODO Add a function to eliminate desunsafe SQL calls
     return sql;
   }
   

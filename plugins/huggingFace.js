@@ -66,6 +66,7 @@ class HuggingfacePlugin {
         tasks: [],
       };
       logger.error({output:output},`huggingFace: execute error ${err.message}`);
+      return output;
     }
   }
 }
