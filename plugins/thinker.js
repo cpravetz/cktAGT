@@ -143,7 +143,7 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
     return output;
 }
 
-askModelToReprhrase(reply) {
+askModelToRephrase(reply) {
     const newPrompt = 'Please restate your reply as '+Strings.defaultResponseFormat+' Your reply was:'+reply;
     return new Task({
         agent: this.parentTask.agent,

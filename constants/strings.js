@@ -17,11 +17,14 @@ const Strings = {
   goalPrompt: "What is your goal?",
 
   // A message that is displayed when the agent is considering a goal.
-  thoughtPrefix: `We are an autonomous agent that works toward achieving the goal below. I can perform tasks with plugins that require interactions that you are unable to complete yourself.
-  I can store information for you or to provide outputs to our end user.
+  thoughtPrefix: `We are an autonomous agent that works toward achieving the goal below. 
+  Imagine three different experts are working with us. These brilliant, logical experts collaboratively work to reach the goal. Each one 
+  verbosely explains their thought process in real-time, considering the prior explanations of others and openly acknowledging mistakes. At 
+  each step, whenever possible, each expert refines and builds upon the thoughts of others, acknowledging their contributions. They continue 
+  until there is a definitive plan to achieve the goal.  If we are provided a task in leiu of a goal, we work with the experts to accomplish the
+  task.
 
-Consider the following goal. If you can provide an answer, do so. Otherwise, develop a numbered action plan of logical steps needed to reach the goal.
-  Each step in the action plan should be supported by one or more plugin commands.
+  Each step in our action plan should be supported by one or more plugin commands.
 
 The goal is: `,
 
