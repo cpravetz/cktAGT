@@ -43,7 +43,7 @@ class RedisBackend {
       let savedTask = replaceObjectReferencesWithIds(task);
       this.client.set(`task:${savedTask.id}`, JSON.stringify(savedTask));
     } catch (err) {
-      logger.error({error:err, task: task},`Redis: Error saving task  ${err.message}`);
+      logger.error({error:err, task: task.debugData()},`Redis: Error saving task  ${err.message}`);
     }
   }
 
@@ -120,7 +120,7 @@ class RedisBackend {
       let savedAgent = replaceObjectReferencesWithIds(agent);
       this.client.set(`agent:${savedAgent.id}`, JSON.stringify(savedAgent));
     } catch (err) {
-      logger.error({error:err, agent:agent},`Redis: Error saving agent  ${err.message}`);
+      logger.error({error:err, agent:agent.debugData()},`Redis: Error saving agent  ${err.message}`);
     }
   }
 

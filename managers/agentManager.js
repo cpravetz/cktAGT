@@ -125,7 +125,7 @@ class AgentManager {
     // Add the task to the queue.
     this.taskManager.addTask(task);
     this.memoryManager.saveAgent(this.agent);
-    logger.debug({agent:this.agent, task:task},'created first agent');
+    logger.debug({agent:this.agent.debugData(), task:task.debugData()},'created first agent');
   }
 
 

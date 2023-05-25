@@ -40,7 +40,7 @@ The goal is: `,
   commands: [
     {
       id: sequential number to identify this command from others,
-      name: name of the command, taken from associated plugin,
+      name: name of the command, must match an associated plugins command name,
       action: number of the first action in thoughts from which this command stems,
       args: array of arguments to pass the executing plugin in the form {"arg name": ,"value":}
 	          any argument values that come from another command should be shown as {output:n} where n is the command number creating the input value,

@@ -30,6 +30,22 @@ class Task {
     this.result = {};
   }
 
+  debugData() {
+    return {
+      id: this.id,
+      name: this.name,
+      status: this.status,
+      description: this.description,
+      agentId: this.agent.id,
+      goal: this.goal,
+      context: this.context,
+      dependencies: this.dependencies,
+      status: this.status,
+      createdAt: this.createdAt,
+      commands: this.commands,
+      result: this.result
+    }
+  }
 
   // This method adds a dependency to the task.
   addDependency(dependency) {

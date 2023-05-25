@@ -127,7 +127,7 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
                 const prompt = thisStep.action ? this.replaceOutput(actions[thisStep.action],idMap)  : thisStep.args.prompt;
                 thisStep.args = this.replaceAllOutputs(thisStep.args,idMap);
                 const t = this.createTask(thisStep, prompt, idMap);
-                logger.debug({task:t},'thinker: task created')
+                logger.debug({task:t.debugData()},'thinker: task created')
                 output.tasks.push(t);
             }
         } else {
@@ -199,7 +199,7 @@ createTask(thisStep, prompt, idMap) {
         t.dependencies.push(idMap[dependency]);
     };
     idMap[thisStep.id] = t.id;
-    logger.debug({task:t},'thinker: Created Task')
+    logger.debug({task:t.debugData()},'thinker: Created Task')
     return t;
 }
 

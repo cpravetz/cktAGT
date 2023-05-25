@@ -22,6 +22,15 @@ class Agent {
     this.name = name;
   }
 
+  debugData() {
+    return {
+      id: this.id,
+      name: this.name,
+      status: this.status,
+      manager: this.agentManager
+    }
+  }
+
   report(text) {
     logger.info(`Agent ${this.name} reports ${text}`);
     this.userManager().say(text);
@@ -77,13 +86,13 @@ class Agent {
     this.agentManager.useOneStep();
     try {
       const result = await task.execute();
-      logger.debug({result:result, task:task},'executeOne task results')
+      logger.debug({result:result, task:task.debugData()},'executeOne task results')
       this._processResult(result || {});
       this.report(`Finished task: ${task.name || task.id}`);
       this.taskManager.complete(task);
     } catch (err) {
       task.status = 'failed';
-      logger.error({error:err, result:result, task:task}, `Error executingOneTask ${err.message}`);
+      logger.error({error:err, result:result, task:task.debugData()}, `Error executingOneTask ${err.message}`);
     }
     if (this.store) {
       this.store.save(task);
@@ -108,7 +117,7 @@ class Agent {
           try {
             await this._executeOneTask(task);
           } catch (err) {
-            logger.error({error:err, task:task},`Error executing task ${err.message}`);
+            logger.error({error:err, task:task.debugData()},`Error executing task ${err.message}`);
             break;
           }
         }

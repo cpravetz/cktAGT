@@ -21,7 +21,7 @@ class TaskManager {
 
   // This method adds a task to the queue.
   addTask(task) {
-    logger.debug({task:task},'taskManager: Added a task');
+    logger.debug({task:task.debugData()},'taskManager: Added a task');
     if (task.id) {
       this.tasks.set(task.id, task);
       if (this.store) {
@@ -33,7 +33,7 @@ class TaskManager {
   // This method pops a task from the queue and executes it.
   complete(task) {
     task.status = 'finished';
-    logger.debug({task:task},'taskManager: Completed task');
+    logger.debug({task:task.debugData()},'taskManager: Completed task');
     this.tasks.delete(task.id);
   }
 
@@ -49,7 +49,7 @@ class TaskManager {
         break;
       }
     }
-    logger.debug({task:firstTask},'taskManager: Returning next task');
+    logger.debug({task:firstTask.debugData()},'taskManager: Returning next task');
     return firstTask;
   }
 

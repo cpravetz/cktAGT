@@ -80,7 +80,7 @@ class DatabasePlugin {
           prompt:'this is the result of '+command.args.query,
           commands:[{name:'Think', model: agent.getModel().name, args:{prompt:queryResult}}],
           context:{from: this.id}})
-        logger.debug({task:newTask},'database: created task');  
+        logger.debug({task:newTask.debugData()},'database: created task');  
         tasks.push(newTask);
       }            
       return {

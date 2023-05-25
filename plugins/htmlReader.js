@@ -58,7 +58,7 @@ class HTMLReaderPlugin {
           prompt:'this is the body of '+command.args.url,
           commands:[{name:'Think', model: agent.getModel() ||false, args:{prompt:text}}],
           context:{from: this.id}});
-        logger.debug({task:task},'htmlReader: task created');
+        logger.debug({task:task.debugData()},'htmlReader: task created');
         tasks.push(newTask);
       }              
     

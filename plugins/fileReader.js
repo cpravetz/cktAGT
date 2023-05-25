@@ -75,7 +75,7 @@ class FileReaderPlugin {
       commands: [{name: 'Think', model: agent.getModel() || false, args: {prompt: contents}}],
       context: {from: this.id}
     });
-    logger.debug({task:newTask},'fileReader: task created');
+    logger.debug({task:newTask.debugData()},'fileReader: task created');
     return newTask;
   }
 }

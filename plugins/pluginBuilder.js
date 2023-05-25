@@ -20,14 +20,14 @@ class PluginBuilderPlugin {
     // The name of the command.
     this.command= 'CreatePlugin';
   
-    this.description = "Creates new plugins.  If you don't have a plugin for a feature you need, this plugin will create one by asking the model you identify to generate code.";
+    this.description = "Creates a new plugin.  If you don't have a plugin for a function you need, this plugin will create one to do what you put in the executeDoes argument.";
   
   
     // The arguments for the command.
     this.args= {
       description: 'The description of the plugin',
-      newCommand: 'The name of the new command',
-      executeDoes: 'An explanation of the expected output of the execute() function of the new plugin'
+      newCommand: 'The name of the new command, must not match any existing command',
+      executeDoes: 'An full explanation of what the plugin will do in its execute() function.  Define input arguments and the expected outputs returned by the new plugin.'
     };
   }
 

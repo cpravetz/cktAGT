@@ -69,7 +69,7 @@ class PluginManager {
   }
 
   getPluginDescription(plugin) {
-    return `Command: ${plugin.command}\n  description: ${plugin.description || ''}\n    arguments: ${JSON.stringify(plugin.args)}\n`;
+    return `Command name: ${plugin.command}\n  description: ${plugin.description || ''}\n    arguments: ${JSON.stringify(plugin.args)}\n`;
   }
 
   describePlugins() {
