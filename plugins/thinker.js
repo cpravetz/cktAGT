@@ -89,7 +89,7 @@ async processPrompt(llm, compiledPrompt, followUpText) {
 
 humanizeOutput(replyJSON = {}){
     let humanText = '';
-    if (replyJSON.thoughts?.text) {
+    if (replyJSON.thoughts && replyJSON.thoughts.text) {
         humanText = replyJSON.thoughts.text+'\n\nReasons:\n';
         if (typeof(replyJSON.thoughts.reasoning) === 'string') {
             humanText += replyJSON.thoughts.reasoning+'\n';
@@ -113,13 +113,20 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
 
     try {
         try {
-            if (typeof(reply) === 'string') { replyJSON = JSON.parse(jsonrepair.jsonrepair(reply)); } else { replyJSON = reply };   
+            if (typeof(reply) === 'string') { 
+                replyJSON = JSON.parse(jsonrepair.jsonrepair(reply)); 
+            } else { 
+                replyJSON = reply 
+            };
             output.text = this.humanizeOutput(replyJSON);
         } catch (err) {
+            logger.error({error:err, reply: reply},`Thinker: can't turn reply into JSON. ${err.message}`);
             output.text = reply;
+            output.results = {error: err};
+            output.outcome = 'FAILURE';
         }
         if (replyJSON.thoughts || replyJSON.commands) {
-            const actions = replyJSON.thoughts ? replyJSON.thoughts.actions : (replyJSON.actions  || []);
+            const actions = replyJSON.thoughts ? (replyJSON.thoughts.actions ?? []) : (replyJSON.actions ?? []);
             const plan = replyJSON.commands || [];
             let idMap = {};
             for (const thisStep of plan) {

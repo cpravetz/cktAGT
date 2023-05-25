@@ -49,7 +49,7 @@ class TaskManager {
         break;
       }
     }
-    logger.debug({task:firstTask.debugData()},'taskManager: Returning next task');
+    logger.debug({task:firstTask.debugData()},`taskManager: Returning next task ${firstTask.id}`);
     return firstTask;
   }
 
