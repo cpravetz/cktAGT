@@ -48,7 +48,6 @@ Fields:
 - continuous: a boolean indicating whether the agent can continue without user approval
 - remainingSteps: the number of steps the agent is allowed to take without user approval
 - subAgents: a map of subagents launched by the primary or other subagents
-- pluginManager: the plugin manager used by the agent manager
 - modelManager: the model manager used by the agent manager
 - memoryManager: the memory manager used by the agent manager
 - taskManager: the task manager used by the agent manager
@@ -72,7 +71,6 @@ describe('AgentManager_class', () => {
         expect(agentManager.continuous).toBe(false);
         expect(agentManager.remainingSteps).toBe(0);
         expect(agentManager.subAgents).toEqual(new Map());
-        expect(agentManager.pluginManager).toBeInstanceOf(PluginManager);
         expect(agentManager.modelManager).toBeInstanceOf(ModelManager);
         expect(agentManager.memoryManager).toBeInstanceOf(MemoryManager);
         expect(agentManager.taskManager).toBeInstanceOf(TaskManager);

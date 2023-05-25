@@ -71,14 +71,14 @@ class OpenAI extends Model {
     this.cache = this.cache.concat(formattedMessages);
     const conversation = (this.cache.length <= this.chatLength) ? this.cache : this.cache.slice(this.cache.length - this.chatLength);
     try {
-      // Generate the text using the GPT-4 model.
+      // Generate the text using an OpenAI model.
       const response = await this.openAiApiClient.createChatCompletion({
         model: this.name,
         messages: conversation,
         temperature: temperature,
         max_tokens: max_length,
       });
-      logger.debug({response:response,messages:messages,model:this.name},'OpenAI Generate')
+      logger.debug({response:response,messages:messages},'OpenAI Generate')
       const textReply = response.data.choices[0].message.content || '';
       this.cache.push({role:'assistant', content: this.extractValue(textReply,'thoughts')});
       return textReply;

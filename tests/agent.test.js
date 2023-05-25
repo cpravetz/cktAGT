@@ -19,7 +19,6 @@ describe('Agent_class', () => {
     it("test_agent_creation_with_valid_parameters", () => {
         const agentManager = {
             taskManager: {id:1},
-            pluginManager: {},
             userManager: {say() {}},
             memoryManager: {
                 activeStore: {}
@@ -29,8 +28,6 @@ describe('Agent_class', () => {
         expect(agent.id).toBeDefined();
         expect(agent.agentManager).toBe(agentManager);
         expect(agent.taskManager).toBe(agentManager.taskManager);
-        expect(agent.pluginManager).toBe(agentManager.pluginManager);
-        expect(agent.userManager).toBe(agentManager.userManager);
         expect(agent.store).toBe(agentManager.memoryManager.activeStore);
         expect(agent.status).toBe("pending");
         expect(agent.name).toBe("testAgent");
@@ -45,7 +42,6 @@ describe('Agent_class', () => {
         };
         const agent = new Agent({
             taskManager,
-            pluginManager: {},
             userManager: {say: jest.fn(() => true)},
             memoryManager: {
                 activeStore:  {saveAgent: jest.fn(() => true)}
@@ -66,7 +62,6 @@ describe('Agent_class', () => {
                 complete: jest.fn(),
                 tasks: {}
             },
-            pluginManager: {},
             userManager: {
                 say: jest.fn()
             },
@@ -97,7 +92,6 @@ describe('Agent_class', () => {
                 complete: jest.fn(),
                 tasks: {}
             },
-            pluginManager: {},
             userManager: {say() {}},
             memoryManager: {
                 activeStore: {
@@ -129,7 +123,6 @@ describe('Agent_class', () => {
             okayToContinue: jest.fn().mockReturnValue(false),
             useOneStep: jest.fn(),
             taskManager,
-            pluginManager: {},
             userManager: {say: jest.fn(() => true)},
             memoryManager: {
                 activeStore:  {saveAgent: jest.fn(() => true)}
@@ -201,8 +194,7 @@ describe('Agent_class', () => {
         const agentManager = {
             okayToContinue: jest.fn().mockReturnValue(true),
         useOneStep: jest.fn(),
-            taskManager,
-            pluginManager: {},
+            taskManager: {},
             userManager: {say(c) {}},
             memoryManager: {
                 activeStore: store
@@ -236,7 +228,6 @@ describe('Agent_class', () => {
 
         const agentManager = {
             taskManager: taskManager,
-            pluginManager: {},
             userManager: {say(c) {}},
             memoryManager: {
                 activeStore:  {saveAgent: jest.fn(() => true), save: jest.fn(() => true)}

@@ -95,7 +95,7 @@ class PineconeBackend {
       }
       return tasks;
     } catch (err) {
-      logger.error({error:err, agentId:agentId},`Pinecone: Failed to get tasks for agent`);
+      logger.error({error:err, agentId:agentId},`Pinecone: Failed to get tasks for agent ${err.message}`);
       return false
     }
   }
@@ -113,8 +113,8 @@ class PineconeBackend {
         }
       }
       return agentNamesAndIds;
-    } catch (error) {
-      logger.error({error:err, agentId:agentId},`Pinecone: Failed to get agent names`);
+    } catch (err) {
+      logger.error({error:err, agentId:agentId},`Pinecone: Failed to get agent names ${err.message}`);
     }
   }
 

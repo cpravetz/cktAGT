@@ -9,7 +9,6 @@ const Strings = require("../constants/strings.js");
 const jsonrepair = require('jsonrepair');
 const logger = require('./../constants/logger.js');
 
-
 class ThoughtGeneratorPlugin {
   
   constructor() {
@@ -59,7 +58,7 @@ class ThoughtGeneratorPlugin {
 }
 
 getFollowUpText(agent) {
-    return `${Strings.pluginIntro}\n${agent.pluginManager.describePlugins()}`;    
+    return `${Strings.pluginIntro}\n${agent.pluginManager().describePlugins()}`;    
 }
 
 getPrompt({args, prompt, text}) {
@@ -132,6 +131,7 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
                 output.tasks.push(t);
             }
         } else {
+            logger.warn({replyJSON:replyJSON},'thinker: need this reply restated');
             output.tasks.push(this.askModelToRephrase(reply));
         }
     } catch (err) {

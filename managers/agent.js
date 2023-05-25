@@ -4,6 +4,7 @@
 
 const keyMaker = require('./../constants/keymaker.js');
 const logger = require('./../constants/logger.js');
+const PluginManager = require("./pluginManager.js");
 
 /**
  * This is the agent which executes related tasks, capturing new tasks and reporting status.
@@ -14,8 +15,7 @@ class Agent {
     this.id = keyMaker();
     this.agentManager = agentManager;
     this.taskManager = agentManager.taskManager;
-    this.pluginManager = agentManager.pluginManager;
-    this.userManager = agentManager.userManager;
+    this.userManager = function() { return agentManager.userManager};
     this.modelManager = agentManager.modelManager;
     this.store = agentManager.memoryManager.activeStore;
     this.status = 'pending';
@@ -24,10 +24,12 @@ class Agent {
 
   report(text) {
     logger.info(`Agent ${this.name} reports ${text}`);
-    this.userManager.say(text);
+    this.userManager().say(text);
   }
 
-
+  pluginManager() {
+    return PluginManager.getInstance();
+  }
   getModel() {
     return this.taskManager.model || this.modelManager.activeModel;
   }
@@ -41,9 +43,7 @@ class Agent {
   }
 
   say(text) {
-    if (this.userManager) {
-      this.userManager.say(text);
-    }
+      this.userManager().say(text);
   }
 
   _addSubTasks(newTasks) {

@@ -65,7 +65,7 @@ class UserManager {
     try {
       msg = JSON.parse(message);
     } catch (err) {
-      logger.error({error:err, message: message},'Error parsing JSON in hear');
+      logger.error({error:err, message: message},`Error parsing JSON in hear ${err.message}`);
       return err;
     }
     if (msg.id) {

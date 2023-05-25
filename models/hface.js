@@ -32,7 +32,7 @@ class HuggingFace extends Model {
     try {
       this.hfiClient = new hfi.HfInference(token);
     } catch (err) {
-      logger.error({error: err},'Invalid HuggingFace API key');
+      logger.error({error: err},`Invalid HuggingFace API key ${err.message}`);
       throw err;
     }
     this.inputCache = [];

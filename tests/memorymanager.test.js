@@ -120,7 +120,6 @@ describe('MemoryManager_class', () => {
         };
         const agentManagerMock = {
             taskManager: { addTask: jest.fn() },
-            pluginManager: {},
             userManager: {},
         };
         memoryManager.activeStore = activeStoreMock;

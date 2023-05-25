@@ -29,7 +29,7 @@ class RedisBackend {
                                            host: this.host, port: this.port });
         this.client.on('error', err => logger.error({error:err}, 'Redis Client Error'));
       } catch (err) {
-        logger.error({error:err}, `Error connecting to redis`);
+        logger.error({error:err}, `Error connecting to redis ${err.message}`);
       }
     }
   }
@@ -43,7 +43,7 @@ class RedisBackend {
       let savedTask = replaceObjectReferencesWithIds(task);
       this.client.set(`task:${savedTask.id}`, JSON.stringify(savedTask));
     } catch (err) {
-      logger.error({error:err, task: task},`Redis: Error saving task`);
+      logger.error({error:err, task: task},`Redis: Error saving task  ${err.message}`);
     }
   }
 
@@ -56,7 +56,7 @@ class RedisBackend {
       const task = JSON.parse(this.client.get(`task:${taskId}`));
       return task;
     } catch (err) {
-      logger.error({error:err, taskId: taskId},`Redis: Error loading task`);
+      logger.error({error:err, taskId: taskId},`Redis: Error loading task  ${err.message}`);
     }
   }
 
@@ -68,7 +68,7 @@ class RedisBackend {
     try {
       this.client.del(`task:${taskId}`);
     } catch (err) {
-      logger.error({error:err, taskId: taskId},`Redis: Error deleting task`);
+      logger.error({error:err, taskId: taskId},`Redis: Error deleting task  ${err.message}`);
     }
   }
 
@@ -87,7 +87,7 @@ class RedisBackend {
       }
       return tasks;
     } catch (err) {
-      logger.error({error:err},`Redis: Error getting tasks for agent`);
+      logger.error({error:err},`Redis: Error getting tasks for agent  ${err.message}`);
       return false;
     }
 
@@ -108,7 +108,7 @@ class RedisBackend {
       }
       return activeAgents;
     } catch (err) {
-      logger.error({error:err},`Redis: Error getting agent names`);
+      logger.error({error:err},`Redis: Error getting agent names  ${err.message}`);
     }
   }
 
@@ -120,7 +120,7 @@ class RedisBackend {
       let savedAgent = replaceObjectReferencesWithIds(agent);
       this.client.set(`agent:${savedAgent.id}`, JSON.stringify(savedAgent));
     } catch (err) {
-      logger.error({error:err, agent:agent},`Redis: Error saving agent`);
+      logger.error({error:err, agent:agent},`Redis: Error saving agent  ${err.message}`);
     }
   }
 
@@ -133,7 +133,7 @@ class RedisBackend {
       const agent = JSON.parse(this.client.get(`agent:${agentId}`));
       return agent;
     } catch (err) {
-      logger.error({error:err, agentId: agentId},`Redis: Error loading agent`);
+      logger.error({error:err, agentId: agentId},`Redis: Error loading agent  ${err.message}`);
     }
   }
 

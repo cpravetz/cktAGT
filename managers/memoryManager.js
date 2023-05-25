@@ -70,8 +70,6 @@ class MemoryManager {
       const savedAgent = loadObject.agent;
       savedAgent.agentManager = agentManager;
       savedAgent.taskManager = agentManager.taskManager;
-      savedAgent.pluginManager = agentManager.pluginManager;
-      savedAgent.userManager = agentManager.userManager;
       if (loadObject.thread) { savedAgent.getModel().setCache(loadObject.thread); }
       const agentTasks = await this.activeStore.loadTasksForAgent(savedAgent.id);
       for (const t of Object.values(agentTasks)) {

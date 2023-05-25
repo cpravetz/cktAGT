@@ -88,7 +88,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on('error', (error) => {
-    logger.error(error,`Socket error`)
+    logger.error(error,`Socket error ${err.message}`)
   });
 
 

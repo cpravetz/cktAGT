@@ -116,7 +116,7 @@ describe('ThoughtGeneratorPlugin_class', () => {
             };
             }), 
             compilePrompt: jest.fn() })), ModelNames: "Test Model" },
-            pluginManager: { describePlugins: jest.fn(() => "Test Plugins") }
+            pluginManager() {return { describePlugins: jest.fn(() => "Test Plugins") }}
         };
         const command = {
             args: {
@@ -146,7 +146,7 @@ describe('ThoughtGeneratorPlugin_class', () => {
     it("test_get_follow_up_text", () => {
         const plugin = new ThoughtGeneratorPlugin();
         const agent = {
-            pluginManager: { describePlugins: jest.fn(() => "Test Plugins") }
+            pluginManager() { return { describePlugins: jest.fn(() => "Test Plugins") }}
         };
         const followUpText = plugin.getFollowUpText(agent);
         expect(followUpText).toBe(`${Strings.pluginIntro}\nTest Plugins`);

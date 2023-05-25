@@ -37,7 +37,7 @@ class ImageRecognitionPlugin {
       }
     return await response.arrayBuffer();
     } catch (err) {
-      logger.error({error:err, url:url, fetchResponse: response},'Error in loadImagefromUrl');
+      logger.error({error:err, url:url, fetchResponse: response},`loadImagefromUrl: ${err.message}`);
       throw err;
     }
   }
@@ -63,7 +63,7 @@ class ImageRecognitionPlugin {
      output.outcome = 'FAILURE';
      output.text = err.message;
      output.results = {error: err};
-     logger.error({error:err, text:generated_text},'Error in imageRecognition generate');
+     logger.error({error:err, text:generated_text},`imageRecognition: generate, ${err.message}`);
   } finally {
     return output;
   }  

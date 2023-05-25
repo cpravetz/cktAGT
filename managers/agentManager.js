@@ -35,10 +35,7 @@ class AgentManager {
   // Subagents track additional agents launched by the primary or other subagents
   subAgents = new Map();
 
-  // The plugin manager used by the agent manager.
-  pluginManager;
-
-  // The model manager used by the agent manager.
+    // The model manager used by the agent manager.
   modelManager;
 
   // The memory manager used by the agent manager.
@@ -58,7 +55,6 @@ class AgentManager {
     this.status = Status.launching;
     this.continuous = false;
     this.remainingSteps = 0;
-    this.pluginManager = new PluginManager();
     this.modelManager = new ModelManager();
     this.memoryManager = new MemoryManager();
     this.taskManager = new TaskManager(this.modelManager.activeModel, this.memoryManager.activeStore);
@@ -67,8 +63,13 @@ class AgentManager {
     if (!this.workDirName.endsWith('/')) {
         this.workDirName = `${this.workDirName}/`;
     }
+    PluginManager.getInstance();
   }
 
+
+  pluginManager() {
+    return PluginManager.getInstance();
+  }
 
   //adds a new Agent to the subAgent dictionary
   addSubAgent(agent, start) {

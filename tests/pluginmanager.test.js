@@ -33,7 +33,7 @@ describe('PluginManager_class', () => {
 
     // Tests that a plugin can be retrieved by its name. 
     it("test_get_plugin_by_name", () => {
-        const pluginManager = new PluginManager();
+        const pluginManager = PluginManager.getInstance();
         const plugin = { name: "testPlugin" };
         pluginManager.plugins.set(plugin.name, plugin);
         expect(pluginManager.getPlugin(plugin.name)).toEqual(plugin);
@@ -42,7 +42,7 @@ describe('PluginManager_class', () => {
 
     // Tests that errors during plugin execution are handled correctly. 
     it("test_handling_errors_during_plugin_execution", async () => {
-        const pluginManager = new PluginManager();
+        const pluginManager = PluginManager.getInstance();
         const plugin = { name: "testPlugin", command: "testCommand", execute: () => { throw new Error() } };
         pluginManager.plugins.set(plugin.name, plugin);
         const command = { name: "testCommand" };
@@ -52,7 +52,7 @@ describe('PluginManager_class', () => {
 
     // Tests that plugin conflicts with the same command name are handled correctly. 
     it("test_plugin_conflicts_with_same_command_name", () => {
-        const pluginManager = new PluginManager();
+        const pluginManager = PluginManager.getInstance();
         const plugin1 = { name: "testPlugin1", command: "testCommand" };
         const plugin2 = { name: "testPlugin2", command: "testCommand" };
         pluginManager.plugins.set(plugin1.name, plugin1);
@@ -62,7 +62,7 @@ describe('PluginManager_class', () => {
 
     // Tests that plugins for a command can be retrieved. 
     it("test_get_plugins_for_command", () => {
-        const pluginManager = new PluginManager();
+        const pluginManager = PluginManager.getInstance();
         const plugin1 = { name: "testPlugin1", command: "testCommand1" };
         const plugin2 = { name: "testPlugin2", command: "testCommand2" };
         pluginManager.plugins.set(plugin1.name, plugin1);
@@ -72,7 +72,7 @@ describe('PluginManager_class', () => {
 
     // Tests that a command can be resolved with its plugins. 
     it("test_resolve_command_with_plugins", async () => {
-        const pluginManager = new PluginManager();
+        const pluginManager = PluginManager.getInstance();
         const plugin = { name: "testPlugin", command: "testCommand", execute: () => "result" };
         pluginManager.plugins.set(plugin.name, plugin);
         const command = { name: "testCommand" };
@@ -83,7 +83,7 @@ describe('PluginManager_class', () => {
 
     // Tests that plugins can be described successfully. 
     it("test_describe_plugins_successfully", () => {
-        const pluginManager = new PluginManager();
+        const pluginManager = PluginManager.getInstance();
         const plugin = { name: "testPlugin", command: "testCommand", description: "testDescription", args: { arg1: "value1" } };
         pluginManager.plugins.set(plugin.name, plugin);
         const description = pluginManager.describePlugins();

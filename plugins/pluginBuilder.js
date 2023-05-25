@@ -5,7 +5,7 @@
 // This module provides a class for representing a plugin builder plugin.
 
 const fs = require("fs");
-const pluginManager = require("../managers/pluginManager.js");
+const PluginManager = require("../managers/pluginManager.js");
 const Strings = require("../constants/strings.js");
 const logger = require('./../constants/logger.js');
 
@@ -49,7 +49,7 @@ class PluginBuilderPlugin {
 
   registerPlugin(filePath) {
     try {
-      pluginManager.register(filePath);
+      PluginManager.getInstance().register(filePath);
     } catch (err) {
       output.error = `Error registering plugin: ${err}`;
     }

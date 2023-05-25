@@ -5,14 +5,29 @@
 const fs = require("fs");
 const path = require("path");
 const keyMaker = require("../constants/keymaker.js");
+const logger = require('./../constants/logger.js');
 
 // This is the PluginManager class.
 class PluginManager {
+
+  static instance;
+
   constructor() {
+    if (PluginManager.instance) {
+      throw new Error("PluginManager can only be instantiated once");
+    }
     this.plugins = new Map();
     this.id = keyMaker();
     this.loadPlugins();
     this.pluginDescription = false;
+    PluginManager.instance = this;
+  }
+
+  static getInstance() {
+    if (!PluginManager.instance) {
+      PluginManager.instance = new PluginManager();
+    }
+    return PluginManager.instance;
   }
 
   async loadPlugins() {

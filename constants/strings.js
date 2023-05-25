@@ -21,7 +21,7 @@ const Strings = {
   Imagine three different experts are working with us. These brilliant, logical experts collaboratively work to reach the goal. Each one 
   verbosely explains their thought process in real-time, considering the prior explanations of others and openly acknowledging mistakes. At 
   each step, whenever possible, each expert refines and builds upon the thoughts of others, acknowledging their contributions. They continue 
-  until there is a definitive plan to achieve the goal.  If we are provided a task in leiu of a goal, we work with the experts to accomplish the
+  until there is a definitive plan to achieve the goal.  If we are provided a task in lieu of a goal, we work with the experts to accomplish the
   task.
 
   Each step in our action plan should be supported by one or more plugin commands.
@@ -89,7 +89,7 @@ The execute() inputs are:
 	agent ( class with the following properties:
 		agentManager: (object with a dictionary of agents.  If you create a new agent, call agentManager.addSubAgent(newAgent,start) - if start is true, the newAgent will be started )
 		taskManager: (object with a list of all Tasks.  Use add(newTask) to add a task to the queue for either the passed agent or a new one created in the execute() )
-		pluginManager: (object with a dictionary of existing plugins.  getPluginsFor(commandName) will return an array of plugins that handle commandName.
+		pluginManager(): (object with a dictionary of existing plugins.  getPluginsFor(commandName) will return an array of plugins that handle commandName.
 		memoryManager: (data object for tasks.  use load(taskId) to get and save(task) to put tasks.
 		userManager: (user interface, call say(msg) to send a msg to the user and ask(prompt, choices, allowMultiple) to ask for input.
 				Prompt is shown to the user, choices is a dictionary of value:displayText and allowMultiple=true or false)
