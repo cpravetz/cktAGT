@@ -9,17 +9,20 @@ const OpenAI = require('./bases/openai.js');
 /**
  * A class representing the GPT-3.5-Turbo model.
  */
-class GPT35 extends OpenAI {
+class Gorilla extends OpenAI {
 
-  constructor() {
-    super();
-    this.name = 'gpt-3.5-turbo';
-    this.modelName = 'gpt-3.5-turbo';
+  constructor(config = {}) {
+    config.apiKey = "EMPTY";
+    config.basePath = "http://34.132.127.197:8000/v1";
+    
+    super(config);
 
+    this.name = 'gorilla';
+    this.modelName = 'gorilla-7b-tf-v0';
   }
 
   
 }
 
-module.exports = GPT35;
+module.exports = Gorilla;
 

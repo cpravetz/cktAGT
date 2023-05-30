@@ -14,6 +14,7 @@ class GPT4 extends OpenAI {
   constructor() {
     super();
     this.name = 'gpt-4';
+    this.modelName = 'gpt-4';
   }
 
 }

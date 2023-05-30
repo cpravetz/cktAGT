@@ -9,7 +9,7 @@ const { Configuration, OpenAIApi } = require("openai");
 const logger = require('./../../constants/logger.js');
 
 /**
- * A class representing the GPT-4 model.
+ * A class representing OpenAI models.
  */
 class OpenAI extends Model {
   /**
@@ -27,7 +27,7 @@ class OpenAI extends Model {
    */
   cache;
 
-  constructor() {
+  constructor(config = {}) {
     super();
     /**
      * Default values for max_length and temperature.
@@ -40,10 +40,8 @@ class OpenAI extends Model {
      * The name of the model.
      */
     this.name = '';
-
-    this.configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY
-    });
+    if (!config.apiKey) {config.apiKey = process.env.OPENAI_API_KEY};
+    this.configuration = new Configuration( config );
     this.openAiApiClient = new OpenAIApi(this.configuration);
   }
 
@@ -73,7 +71,7 @@ class OpenAI extends Model {
     try {
       // Generate the text using an OpenAI model.
       const response = await this.openAiApiClient.createChatCompletion({
-        model: this.name,
+        model: this.modelName,
         messages: conversation,
         temperature: temperature,
         max_tokens: max_length,
