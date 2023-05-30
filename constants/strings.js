@@ -53,7 +53,7 @@ The goal is: `,
 Commands are calls to the plugins needed for this plan.  Plugin definitions are below.
 `,
 
-  modelListPrompt: 'The LLMs I can interact with are ',
+  modelListPrompt: 'The LLM APIs I can interact with are ',
 
   // A message that is displayed when the agent is considering a task.
   subThoughtPrefix: 'Continuing to work towards our goal, consider the following task. If it is immediately resolvable, do so. Otherwise, develop a plan of the steps needed to complete the task and ultimately reach the goal.',

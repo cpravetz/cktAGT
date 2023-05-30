@@ -27,7 +27,9 @@ class ThoughtGeneratorPlugin {
       prompt: 'a complete message to send to the LLM that adequately but efficiently explains the goal or item to be resolved',
       constraints: 'An array of strings describing constraints the LLM should consider',
       assessments: 'An array of any other text that should be sent to the LLM with the prompt',
-      fullPrompt: 'if true, wraps the prompt in the introductory content'
+      fullPrompt: 'if true, wraps the prompt in the introductory content',
+      model: 'The name of the model interface to use',
+      languageModel: 'For huggingface, the name of the specific LLM to handle the request'
     };
 
   }
@@ -110,7 +112,6 @@ humanizeOutput(replyJSON = {}){
 
 processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
     let replyJSON = {};
-
     try {
         try {
             if (typeof(reply) === 'string') { 
@@ -172,24 +173,20 @@ replaceOutput(S, idMap) {
     }
 }
 
-replaceAllOutputs(Obj, idMap) {
-    const newObj = {...Obj};
-    for (const key in newObj) {
-        if (typeof newObj[key] === "string") {
-            newObj[key] = this.replaceOutput(newObj[key], idMap);
-        } else if (typeof newObj[key] === "object") {
-            newObj[key] = this.replaceAllOutputs(newObj[key], idMap);
-        } else if (Array.isArray(newObj[key])) {
-            for (let i = 0; i < newObj[key].length; i++) {
-                if (typeof newObj[key][i] === "string") {
-                    newObj[key][i] = this.replaceOutput(newObj[key][i], idMap);
-                } else if (typeof newObj[key][i] === "object") {
-                    newObj[key][i] = this.replaceAllOutputs(newObj[key][i], idMap);
-                }
-            }
+replaceAllOutputs(obj, idMap) {
+    if (typeof obj === 'string') {
+        return this.replaceOutput(obj, idMap);
+    } else if (Array.isArray(obj)) {
+        return obj.map(item => this.replaceAllOutputs(item, idMap));
+    } else if (typeof obj === 'object') {
+        const newObj = {};
+        for (const key in obj) {
+            newObj[key] = this.replaceAllOutputs(obj[key], idMap);
         }
+        return newObj;
+    } else {
+        return obj;
     }
-    return newObj;
 }
 
 createTask(thisStep, prompt, idMap) {
