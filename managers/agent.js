@@ -83,6 +83,7 @@ class Agent {
   }
 
   async _executeOneTask(task) {
+    this.report(`Starting task: ${task.name || task.id}`);
     this.agentManager.useOneStep();
     try {
       const result = await task.execute();
@@ -113,7 +114,6 @@ class Agent {
         if (!this.agentManager.okayToContinue(task)) {
           this.status = 'paused'
         } else {
-          this.report(`Starting task: ${task.name || task.id}`);
           try {
             await this._executeOneTask(task);
           } catch (err) {
