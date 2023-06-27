@@ -48,20 +48,15 @@ class ThoughtGeneratorPlugin {
     }
 
     let prompt = this.getPrompt(command);
-    let followUpText = '';
 
     if (command.args.fullPrompt) {
-        followUpText = this.getFollowUpText(agent);
         prompt = this.getCompiledPrompt(agent, llm, prompt, args.constraints || [], args.assessments || []);
     }
     logger.debug({prompt:prompt},`thinker: about to process prompt`);
-    const output = await this.processPrompt(llm, prompt, followUpText);
+    const output = await this.processPrompt(llm, prompt);
     return output;
 }
 
-getFollowUpText(agent) {
-    return `${Strings.pluginIntro}\n${agent.pluginManager().describePlugins()}`;    
-}
 
 getPrompt({args, prompt, text}) {
     const fullPrompt = args ? (args.prompt?.response || args.text || args.prompt) : (prompt || text);
@@ -69,17 +64,22 @@ getPrompt({args, prompt, text}) {
 }
 
 getCompiledPrompt(agent, llm, prompt, constraints, assessments) {
-    return `${llm.compilePrompt(Strings.thoughtPrefix, prompt, constraints, assessments)}${Strings.modelListPrompt}${agent.modelManager.ModelNames || llm.getModelName()}`;
+    return `${llm.compilePrompt(prompt, constraints, assessments)}${Strings.modelListPrompt}${agent.modelManager.ModelNames || llm.getModelName()}`;
 }
 
-async processPrompt(llm, compiledPrompt, followUpText) {
+async processPrompt(llm, compiledPrompt) {
     let output = {outcome: 'SUCCESS', tasks: []};
     let reply;
     try {
-        reply = await llm.generate([compiledPrompt, followUpText], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
-        logger.debug({reply: reply, prompt: compiledPrompt},'thinker: LLM reply');
-        output = this.processReply(reply, output);
-        logger.debug({output: output}, 'thinker: execute results');
+        reply = await llm.generate([compiledPrompt], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
+        if (reply) {
+            logger.debug({reply: reply, prompt: compiledPrompt},'thinker: LLM reply');
+            output = this.processReply(reply, output);
+            logger.debug({output: output}, 'thinker: execute results');
+        } else {
+            output.outcome = 'FAILURE';
+            output.text = 'No reply received';
+        }
     } catch (err) {
         output.outcome = 'FAILURE';
         output.text = err.message;
@@ -91,7 +91,7 @@ async processPrompt(llm, compiledPrompt, followUpText) {
 
 humanizeOutput(replyJSON = {}){
     let humanText = '';
-    if (replyJSON.thoughts && replyJSON.thoughts.text) {
+    if (replyJSON.thoughts?.text) {
         humanText = replyJSON.thoughts.text+'\n\nReasons:\n';
         if (typeof(replyJSON.thoughts.reasoning) === 'string') {
             humanText += replyJSON.thoughts.reasoning+'\n';
@@ -126,8 +126,8 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
             output.results = {error: err};
             output.outcome = 'FAILURE';
         }
-        if (replyJSON.thoughts || replyJSON.commands) {
-            const actions = replyJSON.thoughts ? (replyJSON.thoughts.actions ?? []) : (replyJSON.actions ?? []);
+        const actions = replyJSON.thoughts ? (replyJSON.thoughts.actions ?? []) : (replyJSON.actions ?? []);
+        if (replyJSON.commands) {
             const plan = replyJSON.commands || [];
             let idMap = {};
             for (const thisStep of plan) {
@@ -145,8 +145,8 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
     } catch (err) {
         output.outcome = 'FAILURE';
         output.text = err.message;
-        output.results = {error: err, reply: reply};
-        logger.error({output:output},`thinker: Error processing reply ${err.message}`)
+        output.results = {error: err, reply: reply || 'undefined'};
+        logger.error({replyJSON:replyJSON || 'undefined', output:output},`thinker: Error processing reply ${err.message}`)
     }
     return output;
 }

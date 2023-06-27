@@ -10,26 +10,24 @@ const Strings = {
 
   startLoadAsk : {start: 'Start a new agent with a new goal', load: 'Restart an existing agent'},
 
-  newAgentMsg:'Begin by providing a set of instructions for the agent to tackle. Begin with a goal, then add any constraints or parameters that might apply. Remember that this is experimental software and could waste your time and your money.',
+  newAgentMsg:'Provide a set of instructions for the agent to tackle. Begin with a goal, then add any constraints or parameters that might apply. Remember that this is experimental software and could waste your time and your money.',
 
   runningAgentMsg:'Enter any information you wish to have sent to the Agent',
   // A message that is displayed when the agent is asked for its goal.
-  goalPrompt: "What is your goal?",
+  goalPrompt: `What is your goal?`,
 
   // A message that is displayed when the agent is considering a goal.
-  thoughtPrefix: `We are an autonomous agent that works toward achieving the goal below. 
+  thoughtPrefix: `We are an autonomous agent that works toward achieving the goal in the following messages. 
   Imagine three different experts are working with us. These brilliant, logical experts collaboratively work to reach the goal. Each one 
   verbosely explains their thought process in real-time, considering the prior explanations of others and openly acknowledging mistakes. At 
   each step, whenever possible, each expert refines and builds upon the thoughts of others, acknowledging their contributions. They continue 
-  until there is a definitive plan to achieve the goal.  If we are provided a task in lieu of a goal, we work with the experts to accomplish the
+  until there is a definitive plan to achieve the goal.  If we are provided a task instead of a goal, we work with the experts to accomplish the
   task.
 
   Each step in our action plan should be supported by one or more plugin commands.
 
-The goal is: `,
 
-  // The default response format that is used by the agent.
-  defaultResponseFormat: `Return response only in this JSON format:
+Return response only in this JSON format:
 
 {
   thoughts: {
@@ -42,15 +40,15 @@ The goal is: `,
       id: sequential number to identify this command from others,
       name: name of the command, must match an associated plugins command name,
       action: number of the first action in thoughts from which this command stems,
-      args: array of arguments to pass the executing plugin in the form {"arg name": ,"value":}
+      args: array of arguments to pass the executing plugin in the form {'arg name': ,'value':}
 	          any argument values that come from another command should be shown as {output:n} where n is the command number creating the input value,
-      model: if this command name is Think or ProcessText, identify the LLM best suited to execute the command accurately and cost efficiently.
+      model: if this command name is Think, select the LLM from the list I can use that is best suited to execute the command accurately and cost efficiently.
       dependencies: array of the id numbers of any commands that must precede this one.
     }
   ]
 }
 
-Commands are calls to the plugins needed for this plan.  Plugin definitions are below.
+Commands are calls to the plugins needed for this plan.  Plugin definitions are:
 `,
 
   modelListPrompt: 'The LLM APIs I can interact with are ',
@@ -118,7 +116,7 @@ To create a new agent, call new Agent(agent.agentManager) inside the execute fun
 The plugin execute() returns the following object:
 
 {
-  outcome: "SUCCESS" or "FAILURE",
+  outcome: 'SUCCESS' or 'FAILURE',
   text: string to show the user via the say() function once the execute() completes
   results: {object with command specific results, for failures will have error: with an error message},
   tasks: [array of new tasks to be launched]
@@ -126,11 +124,10 @@ The plugin execute() returns the following object:
 `,
 
   // The default model that is used by the agent.
-  defaultModel: "gpt-3.5-turbo",
+  defaultModel: 'gpt-3.5-turbo',
 
 
- pluginIntro : `Several plugins are available to facilitate your interaction with the world, they are:
-`,
+ 
 
   // A function that formats a response from the agent.
   textify: (obj) => {

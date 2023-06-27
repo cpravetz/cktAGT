@@ -1,3 +1,4 @@
+const Strings = require("../constants/strings.js");
 const Model = require('./bases/model.js');
 const fetch =  require('node-fetch');
 const logger = require('./../constants/logger.js');
@@ -70,6 +71,7 @@ class BardAI extends Model {
         const options = {...parameters, ...this.ids};
         if (!this.initialized) {
             await this.init();
+            await this.chat(Strings.thoughtPrefix + await this.describePlugins());
         }
         // Parameters and POST data
         const params = {

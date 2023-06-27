@@ -22,9 +22,9 @@ class ImageCreatorPlugin {
     // The arguments for the command.
     this.args = {
       prompt: 'The description of the image to be created.',
-      max_size: 'Maximum iamge size, either "256x256", "512x512" or "1024x1024"',
+      max_size: `Maximum image size, either '256x256', '512x512' or '1024x1024'`,
       max_height: 'Maximum height of generated image',
-      n: 'The number of images to create',
+      n: 'The number of images to create'
     };
   }
   // Default values for max_width, max_height, and n.

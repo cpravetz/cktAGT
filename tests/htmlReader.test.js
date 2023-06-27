@@ -45,8 +45,11 @@ describe('HTMLReaderPlugin_class', () => {
         const plugin = new HTMLReaderPlugin();
         const agent = {getModel() {return 'model'}};
         const command = {args: {url: 'https://www.google.com', sendToLLM: true}};
-        const task = {};
+        const task = {
+            debugData: jest.fn()
+        };
         const result = await plugin.execute(agent, command, task);
+        expect(result.text).toBe(undefined);
         expect(result.outcome).toBe('SUCCESS');
         expect(result.results.file).toBeDefined();
         expect(result.tasks.length).toBe(1);
@@ -57,7 +60,9 @@ describe('HTMLReaderPlugin_class', () => {
         const plugin = new HTMLReaderPlugin();
         const agent = {};
         const command = {args: {sendToLLM: true}};
-        const task = {};
+        const task = {
+            debugData: jest.fn()
+        };
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
         expect(result.text).toBeDefined();
@@ -69,7 +74,9 @@ describe('HTMLReaderPlugin_class', () => {
         const plugin = new HTMLReaderPlugin();
         const agent = {};
         const command = {args: {url: 'invalid_url', sendToLLM: true}};
-        const task = {};
+        const task = {
+            debugData: jest.fn()
+        };
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
         expect(result.text).toBeDefined();
@@ -81,7 +88,9 @@ describe('HTMLReaderPlugin_class', () => {
         const plugin = new HTMLReaderPlugin();
         const agent = {};
         const command = {args: {url: 'https://httpstat.us/404', sendToLLM: true}};
-        const task = {};
+        const task = {
+            debugData: jest.fn()
+        };
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
         expect(result.text).toBeDefined();
@@ -93,7 +102,9 @@ describe('HTMLReaderPlugin_class', () => {
         const plugin = new HTMLReaderPlugin();
         const agent = {};
         const command = {args: {url: 'https://invalid_url', sendToLLM: true}};
-        const task = {};
+        const task = {
+            debugData: jest.fn()
+        };
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('FAILURE');
         expect(result.text).toBeDefined();
@@ -104,7 +115,9 @@ describe('HTMLReaderPlugin_class', () => {
         const plugin = new HTMLReaderPlugin();
         const agent = {};
         const command = {args: {url: 'https://www.google.com', sendToLLM: true}};
-        const task = {};
+        const task = {
+            debugData: jest.fn()
+        };
         // Mocking Task constructor to throw an error
         jest.spyOn(Task.prototype, 'constructor').mockImplementation(() => {
             throw new Error('Task constructor error');
@@ -119,7 +132,9 @@ describe('HTMLReaderPlugin_class', () => {
         const plugin = new HTMLReaderPlugin();
         const agent = {getModel() {return 'model'}};
         const command = {args: {url: 'https://www.google.com', sendToLLM: false}};
-        const task = {};
+        const task = {
+            debugData: jest.fn()
+        };
         const result = await plugin.execute(agent, command, task);
         expect(result.outcome).toBe('SUCCESS');
         expect(result.results.file).toBeDefined();
@@ -130,7 +145,9 @@ describe('HTMLReaderPlugin_class', () => {
             const plugin = new HTMLReaderPlugin();
             const agent = {};
             const command = {args: {url: 'https://www.google.com', sendToLLM: true}};
-            const task = {};
+            const task = {
+                debugData: jest.fn()
+            };
             // Mocking cheerio to throw an error
             jest.spyOn(cheerio, 'load').mockImplementation(() => {
                 throw new Error('Cheerio error');

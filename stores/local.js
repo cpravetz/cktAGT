@@ -32,7 +32,11 @@ class LocalJsonFilesBackend {
   save(task) {
     let savedTask = replaceObjectReferencesWithIds(task);
     const taskPath = `${this.tasksDir}/${savedTask.id}.json`;
-    fs.writeFileSync(taskPath, JSON.stringify(savedTask), {flags: 'w'});
+    try {
+      fs.writeFileSync(taskPath, JSON.stringify(savedTask), {flags: 'w'});
+    } catch (e) {
+      logger.debug({error:e},`Error saving task ${task.id}`);
+    }
     return task;
   }
 
@@ -80,8 +84,12 @@ class LocalJsonFilesBackend {
   saveAgent(agent) {
     const savedAgent = replaceObjectReferencesWithIds(agent);
     const agentPath = `${this.agentDir}/${savedAgent.id}.json`;
-    fs.writeFileSync(agentPath, JSON.stringify(savedAgent), {flags: 'w'});
-    return savedAgent;
+    try {
+      fs.writeFileSync(agentPath, JSON.stringify(savedAgent), {flags: 'w'});
+    } catch (e) {
+      logger.debug({error:e},`Error saving agent ${agent.id}`);
+    }
+  return savedAgent;
 
   }
 

@@ -32,6 +32,7 @@ describe('BardAI_class', () => {
     it("test_valid_input",  async () => {
         const bard = new BardAI({cookie: process.env.BARD_COOKIE});
         const generatedText = await bard.generate("Hello", {});
+        console.log(`Result is ${generatedText}`);
         expect(typeof generatedText).toBe('string');
     });
 

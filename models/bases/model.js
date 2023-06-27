@@ -5,6 +5,7 @@
 // This module provides a class for representing a model.
 
 const Strings = require("../../constants/strings.js");
+const PluginManager = require("../../managers/pluginManager.js");
 
 class Model {
 
@@ -14,8 +15,8 @@ class Model {
   // The model instance.
   LLM;
 
-  constructor(name = '') {
-    this.name = name;
+  constructor(options = {}) {
+    this.name = options.name;
     this.LLM = false;
   }
 
@@ -43,33 +44,39 @@ class Model {
     return this.name;
   }
 
-  // responseFormat is an instruction on how to format the response for this model
-  responseFormat() {
-    return Strings.defaultResponseFormat;
-  }
-
+  
   // Create a full prompt for the given text that is compatible with this mode.
   // This function should be overridden by descendent model interfaces when needed
   compilePrompt(starter, text, constraints, assessments) {
 
     //takes an array of strings and returns a string with items as a numbered list
     function titledNumberedList(title,list) {
-      let response = '\n';
+      let tNLresponse = '';
       if (list && list.length > 0) {
-        response += '\n' + title + '\n';
+        tNLresponse = `
+        ${title}
+        `;
         for(var i = 0; i < list.length; i++) {
-          response += (i+1).toString()+'. '+list[i]+ '\n';
+          tNLresponse += `${(i+1).toString()}. ${list[i]}
+          `;
         }
       }
-      return response;
+      return tNLresponse;
     }
 
+
     // Starter is any specific initial string for the prompt
-    let response = starter+'\n'+text;
-    response +=  titledNumberedList('Constraints:', constraints)
-        +  titledNumberedList('Assessments:',assessments)
-        + this.responseFormat();
+    const response = 
+    `${starter}
+    ${text}
+    ${titledNumberedList('Constraints:', constraints)}
+    ${titledNumberedList('Assessments:',assessments)}
+    `;
     return response;
+  }
+
+  async describePlugins() {
+    return await PluginManager.getInstance().describePlugins().replace(/\\"/g,`'`);
   }
 
   getCache() {

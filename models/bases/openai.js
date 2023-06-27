@@ -6,6 +6,7 @@
 
 const Model = require('./model.js');
 const { Configuration, OpenAIApi } = require("openai");
+const Strings = require("../../constants/strings.js");
 const logger = require('./../../constants/logger.js');
 
 /**
@@ -66,6 +67,10 @@ class OpenAI extends Model {
 
     // Format messages.
     const formattedMessages = this.formatMessages(messages);
+    if (this.cache.length == 0) {
+      this.cache = this.cache.concat({role:'user', content: Strings.thoughtPrefix + await this.describePlugins()});
+    }
+    
     this.cache = this.cache.concat(formattedMessages);
     const conversation = (this.cache.length <= this.chatLength) ? this.cache : this.cache.slice(this.cache.length - this.chatLength);
     try {

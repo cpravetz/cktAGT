@@ -158,7 +158,7 @@ describe('Task_class', () => {
       const pluginManager = {
           resolveCommand: jest.fn().mockReturnValue([{response: "Test response"}])
       };
-      task.agent.pluginManager() {return pluginManager};
+      task.agent.pluginManager = jest.fn().mockReturnValue(pluginManager);
       const result = await task.execute();
       expect(result.responses).toEqual([{response: "Test response"}]);
       expect(result.error).toBeUndefined();
@@ -182,7 +182,7 @@ describe('Task_class', () => {
               throw new Error("Invalid command");
           })
       };
-      task.agent.pluginManager() { return pluginManager};
+      task.agent.pluginManager = jest.fn().mockReturnValue(pluginManager);
       const result = await task.execute();
       expect(result.responses).toEqual([]);
       expect(result.error).toBeInstanceOf(Error);

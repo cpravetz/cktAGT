@@ -42,7 +42,8 @@ describe('TaskManager_class', () => {
         const task = {
             id: keyMaker(),
             agent: { id: 1 },
-            status: 'open'
+            status: 'open',
+            debugData: jest.fn().mockReturnValue('')
         };
         taskManager.addTask(task);
         expect(taskManager.tasks.size).toBe(1);
@@ -58,7 +59,8 @@ describe('TaskManager_class', () => {
         const task = {
             id: null,
             agent: { id: 1 },
-            status: 'open'
+            status: 'open',
+            debugData: jest.fn().mockReturnValue('')
         };
         taskManager.addTask(task);
         expect(taskManager.tasks.size).toBe(0);
@@ -71,7 +73,8 @@ describe('TaskManager_class', () => {
         const task = {
             id: keyMaker(),
             agent: { id: 1 },
-            status: 'open'
+            status: 'open',
+            debugData: jest.fn().mockReturnValue('')
         };
         taskManager.complete(task);
         expect(task.status).toBe('finished');
@@ -84,7 +87,9 @@ describe('TaskManager_class', () => {
         const task = {
             id: keyMaker(),
             agent: { id: 1 },
-            status: 'open'
+            status: 'open',
+            debugData: jest.fn().mockReturnValue('')
+
         };
         taskManager.addTask(task);
         taskManager.complete(task);
@@ -98,17 +103,20 @@ describe('TaskManager_class', () => {
         const task1 = {
             id: keyMaker(),
             agent: { id: 1 },
-            status: 'open'
+            status: 'open',
+            debugData: jest.fn().mockReturnValue('')
         };
         const task2 = {
             id: keyMaker(),
             agent: { id: 2 },
-            status: 'open'
+            status: 'open',
+            debugData: jest.fn().mockReturnValue('')
         };
         const task3 = {
             id: keyMaker(),
             agent: { id: 1 },
-            status: 'in progress'
+            status: 'in progress',
+            debugData: jest.fn().mockReturnValue('')
         };
         taskManager.addTask(task1);
         taskManager.addTask(task2);

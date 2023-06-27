@@ -44,6 +44,7 @@ class Agent {
   }
 
   start() {
+    logger.debug(`Starting agent ${this.id}`)
     try {
       this._run();
     } catch (err) {
@@ -55,11 +56,37 @@ class Agent {
       this.userManager().say(text);
   }
 
+  _setStatus(s) {
+    this.status = s;
+    logger.debug(`Agent status set to ${s}`);
+  }
+
   _addSubTasks(newTasks) {
     newTasks.forEach((task) => {
       task.agent = this;
       this.taskManager.addTask(task);
     });
+  }
+
+  //dump tasks and commands
+  reportOverview() {
+    logger.debug('--Overview Begin--');
+    for (const key of this.taskManager.tasks.keys()) {
+      const task = this.taskManager.tasks.get(key);
+      logger.debug(`task name:${task.name} status:${task.status}`);
+      for (const command of task.commands) {
+          logger.debug(`   command:${command.name}`);
+          if (command.args?.prompt) {logger.debug(`     prompt:${command.args.prompt}`);}
+          if (command.args?.model)  {logger.debug(`     model:${command.args.model}`);}
+          if (command.args?.filename)  {logger.debug(`     filename:${command.args.filename}`);}
+          if (command.args?.url)  {logger.debug(`     url:${command.args.url}`);}
+          if (command.args?.find)  {logger.debug(`     find:${command.args.find}`);}
+          if (command.args?.newCommand)  {logger.debug(`     newCommand:${command.args.newCommand}`);}
+          if (command.args?.executeDoes)  {logger.debug(`     executeDoes:${command.args.executeDoes}`);}
+      }
+      logger.debug('');
+    }
+    logger.debug('--Overview End--');
   }
 
   _processResult(result) {
@@ -92,7 +119,7 @@ class Agent {
       this.report(`Finished task: ${task.name || task.id}`);
       this.taskManager.complete(task);
     } catch (err) {
-      task.status = 'failed';
+      task._setStatus('failed');
       logger.error({error:err, result:result, task:task.debugData()}, `Error executingOneTask ${err.message}`);
     }
     if (this.store) {
@@ -101,21 +128,24 @@ class Agent {
   }
 
   async _run() {
-    this.status = 'running';
+    this._setStatus('running');
+    this.reportOverview();
     while (!['paused', 'finished'].includes(this.status)) {
       const task = this.taskManager.myNextTask(this, 'pending');
       if (!task && this.taskManager.tasks.size == 0) {
-        this.status = 'finished';
+        this._setStatus('finished');
         this.report('The agent is finished.');
+        this.reportOverview();
         this.store.saveAgent(this);
         break;
       }
       if (task) {
         if (!this.agentManager.okayToContinue(task)) {
-          this.status = 'paused'
+          this._setStatus('paused');
         } else {
           try {
             await this._executeOneTask(task);
+            this.reportOverview();
           } catch (err) {
             logger.error({error:err, task:task.debugData()},`Error executing task ${err.message}`);
             break;

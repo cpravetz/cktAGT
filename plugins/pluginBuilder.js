@@ -20,7 +20,7 @@ class PluginBuilderPlugin {
     // The name of the command.
     this.command= 'CreatePlugin';
   
-    this.description = "Creates a new plugin.  If you don't have a plugin for a function you need, this plugin will create one to do what you put in the executeDoes argument.";
+    this.description = "Creates a new plugin.  If you don't have a plugin for a function you need but can't accomplish yourself, this plugin will create one.  Describe the function needed in detail in the executeDoes argument.";
   
   
     // The arguments for the command.
@@ -32,12 +32,9 @@ class PluginBuilderPlugin {
   }
 
   async generatePluginCode(agent, command) {
-    const messages = [{
-      role: "user",
-      prompt: Strings.pluginBuilderPrompt.replace(/[t.a.c]/g, command.args.newCommand).replace(/[t.a.d]/g, command.args.description),
-    }];
+    const message = Strings.pluginBuilderPrompt.replace(/[t.a.c]/g, command.args.newCommand).replace(/[t.a.d]/g, command.args.description);
     try {
-      const pluginCode = await agent.taskManager.model.generate(messages, {
+      const pluginCode = await agent.taskManager.model.generate(message, {
         maxTokens: 1024,
         n: 1
       });

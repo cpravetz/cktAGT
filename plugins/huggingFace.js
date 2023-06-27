@@ -20,16 +20,16 @@ class HuggingfacePlugin {
   
     this.args = {
       inputs: {
-        description: "The prompt or other inputs for the transformation",
-        type: "string, array or object appropriate for the transformation function used",
+        description: 'The prompt or other inputs for the transformation',
+        type: 'A string, array or object appropriate for the transformation function used',
       },
       model: {
-        description: "The Huggingface model to use",
-        type: "string",
+        description: 'The Huggingface model to use',
+        type: 'string'
       },
       transformation: {
-        description: "The transformation to use from @huggingface/inference HfInference class",
-        type: "string",
+        description: 'The transformation to use from @huggingface/inference HfInference class',
+        type: 'string'
       },
     };
   

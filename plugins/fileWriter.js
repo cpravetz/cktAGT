@@ -25,7 +25,7 @@ class FileWriterPlugin {
     this.args = {
       fileName: 'the name of the file to retrieve',
       content: 'the content of the file to be saved',
-      overwrite: 'boolean true if existing file can be replaced, otherwise false',
+      overwrite: 'boolean true if existing file can be replaced, otherwise false'
     };
 
   }

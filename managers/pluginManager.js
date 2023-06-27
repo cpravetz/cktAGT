@@ -37,12 +37,17 @@ class PluginManager {
       const pluginPath = path.resolve(pluginsDir, file);
       const stats = await fs.promises.stat(pluginPath);
       if (stats.isFile() && path.extname(pluginPath) === ".js") {
-        const code = require(pluginPath);
-        const plugin = new code();
-        this.plugins.set(file, plugin);
+        try {
+          const code = require(pluginPath);
+          const plugin = new code();
+          this.plugins.set(file, plugin);
+        } catch (err) {
+          logger.error({filename: file, error:err},`Error loading plugin: ${err.message}`);
+        }
       }
     });
     await Promise.all(pluginPromises);
+    logger.debug(`Plugins loaded`);
   }
 
   getPlugin(name) {
@@ -69,7 +74,10 @@ class PluginManager {
   }
 
   getPluginDescription(plugin) {
-    return `Command name: ${plugin.command}\n  description: ${plugin.description || ''}\n    arguments: ${JSON.stringify(plugin.args)}\n`;
+    return `Command name: ${plugin.command}
+      description: ${plugin.description || ''}
+      arguments: ${JSON.stringify(plugin.args)}
+      `;
   }
 
   describePlugins() {

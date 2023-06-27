@@ -15,10 +15,9 @@ The ThoughtGeneratorPlugin class is responsible for generating prompts and proce
 Methods:
 - constructor(): initializes the version, command, description, and arguments for the Think command.
 - execute(agent, command, task): executes the Think command by generating a prompt, processing the reply, and returning the outcome.
-- getFollowUpText(agent): returns the introductory content and a description of the available plugins.
 - getPrompt({args, prompt, text}): returns the prompt for the Think command.
 - getCompiledPrompt(agent, llm, prompt, constraints, assessments): compiles the prompt with the constraints and assessments and returns it.
-- processPrompt(llm, compiledPrompt, followUpText): processes the prompt and returns the outcome.
+- processPrompt(llm, compiledPrompt): processes the prompt and returns the outcome.
 - humanizeOutput(replyJSON = {}): returns a human-readable text from the reply JSON.
 - processReply(reply, output = {outcome: 'SUCCESS', tasks: []}): processes the reply and returns the outcome and tasks.
 - askModelToReprhrase(reply): creates a task for the model to rephrase the reply.
@@ -142,16 +141,7 @@ describe('ThoughtGeneratorPlugin_class', () => {
         expect(output.tasks.length).toBe(1);
     });
 
-    // Tests that the getFollowUpText method returns the expected string. 
-    it("test_get_follow_up_text", () => {
-        const plugin = new ThoughtGeneratorPlugin();
-        const agent = {
-            pluginManager() { return { describePlugins: jest.fn(() => "Test Plugins") }}
-        };
-        const followUpText = plugin.getFollowUpText(agent);
-        expect(followUpText).toBe(`${Strings.pluginIntro}\nTest Plugins`);
-    });
-
+    
     // Tests that the getPrompt method returns the expected string, handling null input. 
     it("test_get_prompt", () => {
         const plugin = new ThoughtGeneratorPlugin();

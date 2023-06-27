@@ -103,7 +103,9 @@ describe('Agent_class', () => {
             useOneStep: jest.fn()
         };
         const agent = new Agent(agentManager, 'Test Agent');
-        const task = { name: 'Test Task' };
+        const task = { name: 'Test Task',
+            debugData: jest.fn().mockReturnValue('')
+        };
         agent._addSubTasks([task]);
         expect(agentManager.taskManager.addTask).toHaveBeenCalledWith(task);
     });
@@ -112,12 +114,15 @@ describe('Agent_class', () => {
     // Tests that the agent handles the case where it is paused before finishing all tasks. 
     it("test_agent_is_paused_before_finishing_all_tasks", async () => {
         const task = {
-            execute: jest.fn(() => ({ responses: [] }))
+            execute: jest.fn(() => ({ responses: [] })),
+            debugData: jest.fn().mockReturnValue('')
         };
         const taskManager = {
             id:5,
             myNextTask: jest.fn().mockReturnValue(task),
-            tasks: {size: 1}
+            tasks: {size: 1,
+                    keys: jest.fn().mockReturnValue([])
+                   }
         };
         const agentManager = {
             okayToContinue: jest.fn().mockReturnValue(false),
@@ -172,10 +177,12 @@ describe('Agent_class', () => {
     it("test_agent_finishes_all_tasks_and_saves_to_store", async () => {
         const task1 = {
             name: 'task1',
+            debugData: jest.fn().mockReturnValue(''),
             execute: jest.fn(() => ({ responses: [] }))
         };
         const task2 = {
             name: 'task2',
+            debugData: jest.fn().mockReturnValue(''),
             execute: jest.fn(() => ({ responses: [] }))
         };
         const taskManager = {
@@ -184,7 +191,9 @@ describe('Agent_class', () => {
                 .mockReturnValueOnce(task1)
                 .mockReturnValueOnce(task2)
                 .mockReturnValue(null),
-            tasks: {size: 0},
+            tasks: {size: 0, 
+                    keys: jest.fn().mockReturnValue([])
+                   },
             complete: jest.fn(),
         };
         const store = {
@@ -216,10 +225,12 @@ describe('Agent_class', () => {
     it("test_agent_starts_and_runs_tasks_successfully", async () => {
         const task = {
             id: 4,
+            debugData: jest.fn().mockReturnValue(''),
             execute: jest.fn(() => ({ responses: [{outcome: 'SUCCESS'}] }))
         };
         const taskManager = {
             tasks: {set: jest.fn(),
+                    keys: jest.fn().mockReturnValue([]),
                     size : 0},
             myNextTask: jest.fn().mockReturnValueOnce(task).mockReturnValue(null),
             complete : jest.fn()

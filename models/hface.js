@@ -1,10 +1,11 @@
+const Strings = require("../constants/strings.js");
 const Model = require('./bases/model.js');
 const hfi = require("@huggingface/inference");
 const fetch =  require('node-fetch');
 const logger = require('./../constants/logger.js');
 
 /**
- * A class representing the GPT-4 model.
+ * A class representing the huggingface model API.
  */
 
 class HuggingFace extends Model {
@@ -35,7 +36,7 @@ class HuggingFace extends Model {
       logger.error({error: err},`Invalid HuggingFace API key ${err.message}`);
       throw err;
     }
-    this.inputCache = [];
+    this.inputCache = [Strings.thoughtPrefix + this.describePlugins()];
     this.outputCache = [];
   }
 

@@ -4,27 +4,27 @@
 
 // This module provides a class for representing a database plugin.
 
-const docker = require("docker");
+const docker = require('docker');
 const logger = require('./../constants/logger.js');
 
 class DockerPlugin {
 
   constructor() {  
     this.version = 1.0;
-    this.command = "docker";
-    this.description = "Interact with Docker containers";
+    this.command = 'docker';
+    this.description = 'Interact with Docker containers';
     this.args = {
       image: {
-        description: "The name of the Docker image to use",
-        type: "string",
+        description: 'The name of the Docker image to use',
+        type: 'string'
       },
       command: {
-        description: "The command to run inside the Docker container",
-        type: "string",
+        description: 'The command to run inside the Docker container',
+        type: 'string'
       },
       args: {
-        description: "The arguments to pass to the command",
-        type: "array",
+        description: 'The arguments to pass to the command',
+        type: 'array'
       },
     };
   
@@ -57,7 +57,7 @@ class DockerPlugin {
       const logs = container.logs();
 
       const output = {
-        outcome: "SUCCESS",
+        outcome: 'SUCCESS',
         text: logs,
         results: {},
         tasks: [],
@@ -69,7 +69,7 @@ class DockerPlugin {
       // Return an error
       logger.error({error:err},`docker: error ${err.message}`);
       return {
-        outcome: "FAILURE",
+        outcome: 'FAILURE',
         text: err.message,
         results: {error:err},
         tasks: [],
