@@ -162,7 +162,7 @@ describe('Task_class', () => {
       const result = await task.execute();
       expect(result.responses).toEqual([{response: "Test response"}]);
       expect(result.error).toBeUndefined();
-      expect(task.status).toBe("working");
+      expect(task.status).toBe("running");
   });
 
   // Tests that a task cannot be executed with invalid commands. 
@@ -186,6 +186,6 @@ describe('Task_class', () => {
       const result = await task.execute();
       expect(result.responses).toEqual([]);
       expect(result.error).toBeInstanceOf(Error);
-      expect(task.status).toBe("working");
+      expect(task.status).toBe("running");
   });
 });

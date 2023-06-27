@@ -49,7 +49,11 @@ class TaskManager {
         break;
       }
     }
-    logger.debug({task:firstTask?.debugData()},`taskManager: Returning next task ${firstTask.id}`);
+    if (firstTask) {
+      logger.debug({task:firstTask?.debugData()},`taskManager: Returning next task ${firstTask?.id}`);
+    } else {
+      logger.debug("no next task found.")
+    }
     return firstTask;
   }
 

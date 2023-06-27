@@ -132,11 +132,16 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
             let idMap = {};
             for (const thisStep of plan) {
                 if (thisStep.model) { thisStep.args['model'] = thisStep.model }
-                const prompt = thisStep.action ? this.replaceOutput(actions[thisStep.action],idMap)  : thisStep.args.prompt;
-                thisStep.args = this.replaceAllOutputs(thisStep.args,idMap);
-                const t = this.createTask(thisStep, prompt, idMap);
-                logger.debug({task:t.debugData()},'thinker: task created')
-                output.tasks.push(t);
+                let actionDesc = '';
+                try {
+                    actionDesc = this.replaceOutput(actions[thisStep.action],idMap);
+                } finally {
+                    const prompt = actionDesc + ' ' + thisStep.args?.prompt;
+                    thisStep.args = this.replaceAllOutputs(thisStep.args,idMap);
+                    const t = this.createTask(thisStep, prompt, idMap);
+                    logger.debug({task:t.debugData()},'thinker: task created')
+                    output.tasks.push(t);
+                }
             }
         } else {
             logger.warn({replyJSON:replyJSON},'thinker: need this reply restated');
@@ -156,7 +161,7 @@ askModelToRephrase(reply) {
     return new Task({
         agent: this.parentTask.agent,
         name: "Rephrase",
-        description: 'a task created by the model',
+        description: `Rephrasing request for ${newPrompt}`,
         prompt: newPrompt,
         commands: [{name: 'Think', prompt: newPrompt, model: this.parentTask.agent.getModel(), fullPrompt: false}],
         dependencies: [],
@@ -193,7 +198,7 @@ createTask(thisStep, prompt, idMap) {
     const t = new Task({
         agent: this.parentTask.agent,
         name: "Follow up",
-        description: 'a task created by the model',
+        description: prompt,
         prompt: prompt || '',
         commands: [{name: this.replaceOutput(thisStep.name, idMap), model: thisStep.model || false, args: thisStep.args}],
         dependencies: [],

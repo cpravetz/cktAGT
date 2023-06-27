@@ -33,6 +33,7 @@ class PluginBuilderPlugin {
 
   async generatePluginCode(agent, command) {
     const message = Strings.pluginBuilderPrompt.replace(/[t.a.c]/g, command.args.newCommand).replace(/[t.a.d]/g, command.args.description);
+    logger({prompt:message},'Requesting plugin code from LLM');
     try {
       const pluginCode = await agent.taskManager.model.generate(message, {
         maxTokens: 1024,

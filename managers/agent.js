@@ -66,6 +66,7 @@ class Agent {
       task.agent = this;
       this.taskManager.addTask(task);
     });
+    this.userManager().updateTasksOnBrowser(this.taskManager.tasks);
   }
 
   //dump tasks and commands
@@ -113,10 +114,14 @@ class Agent {
     this.report(`Starting task: ${task.name || task.id}`);
     this.agentManager.useOneStep();
     try {
+      task.status = 'running';
+      this.userManager().updateTasksOnBrowser(this.taskManager.tasks);
       const result = await task.execute();
       logger.debug({result:result, task:task.debugData()},'executeOne task results')
       this._processResult(result || {});
       this.report(`Finished task: ${task.name || task.id}`);
+      task.status = 'finished';
+      this.userManager().updateTasksOnBrowser(this.taskManager.tasks);
       this.taskManager.complete(task);
     } catch (err) {
       task._setStatus('failed');

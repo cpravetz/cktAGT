@@ -156,15 +156,36 @@ class ServerManager {
     }
     return radioButtons;
   }
-  
 }
-
 
 function sanitize(text) {
   const element = document.createElement('div');
   element.textContent = text;
   return element.innerHTML;
 }
+
+socket.on('tasksChanged', function(msg) {
+  //TODO Push all the msg.tasks to the browser
+  const pendingList = document.getElementById("pendingTasks");
+  const runningList = document.getElementById("runningTasks");
+  const completedList = document.getElementById("completedTasks");
+  pendingList.innerHTML= '';
+  runningList.innerHTML = '';
+  for (var i = 0; i < msg.tasks.length; i++) {
+    var task = msg.tasks[i];
+    var listItem = document.createElement("li");
+    listItem.innerHTML = task.name + ' ' + task.text;
+    if (task.status == 'pending') {
+      pendingList.appendChild(listItem)
+    } else {
+      if (task.status == 'running') {
+        runningList.appendChild(listItem)
+      } else {
+        completedList.appendChild(listItem)
+      }
+    }
+  }
+});
 
 socket.on('serverSays', function(msg) {
   serverManager.acknowledge(msg);

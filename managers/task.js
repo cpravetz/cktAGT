@@ -40,7 +40,6 @@ class Task {
       goal: this.goal,
       context: this.context,
       dependencies: this.dependencies,
-      status: this.status,
       createdAt: this.createdAt,
       commands: this.commands,
       result: this.result
@@ -65,7 +64,7 @@ class Task {
   dependenciesSatisfied() {
     // Check if any of the task's dependencies are not finished
     for (const dependency of this.dependencies) {
-      if (!this.agent.taskManager.tasks[dependency] || this.agent.taskManager.tasks[dependency].status !== "finished") {
+      if (this.agent.taskManager.tasks[dependency] && this.agent.taskManager.tasks[dependency].status !== "finished") {
         return false;
       }
     }
@@ -74,7 +73,7 @@ class Task {
 
   // This method executes the task.
   async execute() {
-    this.status = "working";
+    this.status = "running";
     let responses = [];
     this.result = {};
     // If there is a plugin, execute it.
