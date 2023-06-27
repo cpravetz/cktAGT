@@ -41,7 +41,8 @@ class PluginBuilderPlugin {
       });
       return pluginCode;
     } catch (err) {
-      throw new Error(`Error generating plugin code: ${err}`);
+      logger.error({error:err},`Error generating code for new plugin`);
+      return false;
     }
   }
 
@@ -76,23 +77,30 @@ class PluginBuilderPlugin {
   // This method executes the command.
   async execute(agent, command, task) {
     let output = {outcome: 'SUCCESS'};
-    try {
-        // Get the task description from the task.
-      const taskDescription = command.args.description;
-      const text = await this.generatePluginCode(agent, command);
-
-      // Create a new file with the name of the task.
-      const filePath = this.getFilePath(task.command);
-      output = this.writePluginFile(filePath, text, output);
-      output = this.registerPlugin(filePath, output);
-      logger.debug({output:output},'pluginBuilder: execute results');
-    } catch (err) {
-        output.outcome = 'FAILURE';
-        output.text = `Error creating plugin file: ${err}`;
-        output.results = {
+    // Get the task description from the task.
+    const taskDescription = command.args.description;
+    const text = await this.generatePluginCode(agent, command);
+    if (text) {
+      try {
+          // Create a new file with the name of the task.
+          const filePath = this.getFilePath(task.command);
+          output = this.writePluginFile(filePath, text, output);
+          output = this.registerPlugin(filePath, output);
+          logger.debug({output:output},'pluginBuilder: execute results');
+      } catch (err) {
+          output.outcome = 'FAILURE';
+          output.text = `Error creating plugin file: ${err}`;
+          output.results = {
             error: output.text,
-        }
-        logger.error({output: output},`pluginBuilder: execute error ${err.message}`);
+          }
+          logger.error({output: output},`pluginBuilder: execute error ${err.message}`);
+      }
+    } else {
+      output.outcome = 'FAILURE';
+      output.text = `Did not generate code for ${command}`;
+      output.results = {
+        error: output.text,
+      }
     }
     return output;
   }
