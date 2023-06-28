@@ -124,9 +124,9 @@ class AgentManager {
             description:"we are processing the goal and constraints", goal:input, commands:commands});
     // Add the task to the queue.
     this.taskManager.addTask(task);
-    this.userManager.updateTasksOnBrowser(this.taskManager.tasks);
     this.memoryManager.saveAgent(this.agent);
     logger.debug({agent:this.agent.debugData(), task:task.debugData()},'created first agent');
+    this.userManager.updateTasksOnBrowser(this.taskManager.tasks);
   }
 
 
@@ -204,7 +204,7 @@ class AgentManager {
         this.loadAnAgent(this.agentId);
         break;
       case Status.awaitingGoal:
-        this.createFirstAgent(input);
+        this.createFirstAgent(input.response);
         this.startTheAgent();
         break;
       default:

@@ -20,7 +20,7 @@ class ThoughtGeneratorPlugin {
     this.command= 'Think';
 
     // The description of the plugin.
-    this.description= 'Sends instructions or information in a message to an LLM, likely you';
+    this.description= 'Sends instructions or information in a message to an LLM, likely you.  Use this to create content, answer questions, or generate new thuoghts.';
 
     // The arguments for the command.
     this.args= {
@@ -31,7 +31,6 @@ class ThoughtGeneratorPlugin {
       model: 'The name of the model interface to use',
       languageModel: 'For huggingface, the name of the specific LLM to handle the request'
     };
-
   }
 
   async execute(agent, command, task) {
@@ -136,7 +135,7 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
                 try {
                     actionDesc = this.replaceOutput(actions[thisStep.action],idMap);
                 } finally {
-                    const prompt = actionDesc + ' ' + thisStep.args?.prompt;
+                    const prompt = (actionDesc ?? '') + ' ' + (thisStep.args?.prompt ?? JSON.stringify(thisStep));
                     thisStep.args = this.replaceAllOutputs(thisStep.args,idMap);
                     const t = this.createTask(thisStep, prompt, idMap);
                     logger.debug({task:t.debugData()},'thinker: task created')

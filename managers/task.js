@@ -19,7 +19,11 @@ class Task {
     this.name = args.name || '';
     if (args.prompt) {this.prompt = args.prompt};
     this.description = args.description || '';
-    this.goal = args.goal?.response || removeProperty(args.goal || {},'id') ;
+    if (typeof(args.goal) === 'string') {
+      this.goal = args.goal;
+    } else {
+      this.goal = args.goal?.response || JSON.stringify(removeProperty(args.goal || {},'id'));
+    }
     this.context = args.context || "";
     this.dependencies = args.dependencies || [];
     this.status = "pending";
@@ -46,6 +50,19 @@ class Task {
     }
   }
 
+  taskText() {
+    let result = '';
+    if (typeof(this.prompt) === 'string') {
+      result = `prompt: ${this.prompt}`
+    }
+    if (typeof(this.goal) === 'string') {
+      result += `goal: ${this.goal}`
+    }
+    if (result == '') {
+      result = JSON.stringify(this.debugData())
+    }
+    return result;
+  }
   // This method adds a dependency to the task.
   addDependency(dependency) {
     this.dependencies.push(dependency);
