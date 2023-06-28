@@ -175,6 +175,17 @@ socket.on('tasksChanged', function(msg) {
     var task = msg.tasks[i];
     var listItem = document.createElement("li");
     listItem.innerHTML = task.name + ' ' + task.text;
+
+    if (task.commands) {
+      var commandItems = document.createElement("ul");
+      for (const command of task.commands) {
+        var commandItem = document.createElement("li");
+        commandItem.innerHTML = command.name+' '+JSON.stringify(command.args);
+        commandItems.appendChild(commandItem);
+        listItem.appendChild(commandItems);
+      }
+    }
+
     if (task.status == 'pending') {
       pendingList.appendChild(listItem)
     } else {

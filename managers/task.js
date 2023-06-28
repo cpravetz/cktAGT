@@ -109,6 +109,10 @@ class Task {
     return this.result;
   }
 
+  asUpdateObject() {
+    return {name: this.name, status: this.status,  text: this.taskText(), commands: this.commands}
+  }
+
 }
 
 module.exports = Task;

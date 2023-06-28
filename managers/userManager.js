@@ -52,9 +52,9 @@ class UserManager {
 
   updateTasksOnBrowser(tasksMap) {
     const tasks = [];
-    for (const [key,task] of tasksMap) {tasks.push(
-      {name: task.name, status: task.status,  text: task.taskText()}
-    )};
+    for (const [key,task] of tasksMap) {
+      tasks.push( task.asUpdateObject());
+    };
     this.io.emit('tasksChanged',{id: keyMaker(), tasks: tasks, when: new Date() });
     logger.info('Reported Task Change to clients');
   }

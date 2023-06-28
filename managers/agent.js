@@ -71,7 +71,7 @@ class Agent {
 
   //dump tasks and commands
   reportOverview() {
-    logger.debug('--Overview Begin--');
+/*    logger.debug('--Overview Begin--');
     for (const key of this.taskManager.tasks.keys()) {
       const task = this.taskManager.tasks.get(key);
       logger.debug(`task name:${task.name} status:${task.status}`);
@@ -88,6 +88,7 @@ class Agent {
       logger.debug('');
     }
     logger.debug('--Overview End--');
+  */
   }
 
   _processResult(result) {
