@@ -16,6 +16,27 @@ const Strings = {
   // A message that is displayed when the agent is asked for its goal.
   goalPrompt: `What is your goal?`,
 
+  defaultResponseFormat : `Return response only in this JSON format:
+
+  {
+    thoughts: {
+      text: your thoughts,
+      reasoning: reasoning behind your response,
+      actions: array of strings each a numbered logical step in the plan to achieve the goal,
+    },
+    commands: [
+      {
+        id: sequential number to identify this command from others,
+        name: name of the command, must match an associated plugins command name,
+        action: number of the first action in thoughts from which this command stems,
+        args: array of arguments to pass the executing plugin in the form {'arg name': ,'value':}
+              any argument values that come from another command should be shown as {output:n} where n is the command number creating the input value,
+        model: if this command name is Think, select the LLM from the list I can use that is best suited to execute the command accurately and cost efficiently.
+        dependencies: array of the id numbers of any commands that must precede this one.
+      }
+    ]
+  }`,
+
   // A message that is displayed when the agent is considering a goal.
   thoughtPrefix: `We are an autonomous agent that works toward achieving the goal in the following messages. 
   Imagine three different experts are working with us. These brilliant, logical experts collaboratively work to reach the goal. Each one 
@@ -26,27 +47,7 @@ const Strings = {
 
   Each step in our action plan should be supported by one or more plugin commands.
 
-
-Return response only in this JSON format:
-
-{
-  thoughts: {
-    text: your thoughts,
-    reasoning: reasoning behind your response,
-    actions: array of strings each a numbered logical step in the plan to achieve the goal,
-  },
-  commands: [
-    {
-      id: sequential number to identify this command from others,
-      name: name of the command, must match an associated plugins command name,
-      action: number of the first action in thoughts from which this command stems,
-      args: array of arguments to pass the executing plugin in the form {'arg name': ,'value':}
-	          any argument values that come from another command should be shown as {output:n} where n is the command number creating the input value,
-      model: if this command name is Think, select the LLM from the list I can use that is best suited to execute the command accurately and cost efficiently.
-      dependencies: array of the id numbers of any commands that must precede this one.
-    }
-  ]
-}
+  ${this.defaultResponseFormat}
 
 Commands are calls to the plugins needed for this plan.  Plugin definitions are:
 `,
@@ -126,8 +127,6 @@ The plugin execute() returns the following object:
   // The default model that is used by the agent.
   defaultModel: 'gpt-3.5-turbo',
 
-
- 
 
   // A function that formats a response from the agent.
   textify: (obj) => {
