@@ -152,7 +152,7 @@ each step, whenever possible, each expert refines and builds upon the thoughts o
 until there is a definitive plan to achieve the goal.  If we are provided a task instead of a goal, we work with the experts to accomplish the
 task.
 
-Each step in our action plan should be supported by one or more plugin commands.
+Each step in our action plan must bu supported by one or more plugin commands.
 
 ${Strings.defaultResponseFormat}
 

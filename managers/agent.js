@@ -108,15 +108,15 @@ class Agent {
     if (result.error) {
       this.say(result.error);
     }
-    result.responses.forEach((cmdResp) => {
-      if (cmdResp.text) {
-        this.say(cmdResp.text);
+    result.responses.forEach((cmdOutcome) => {
+      if (cmdOutcome.text) {
+        this.say(cmdOutcome.text);
       }
-      if (cmdResp.error) {
-        this.say(`Error reported: ${cmdResp.error}`);
+      if (cmdOutcome.error) {
+        this.say(`Error reported: ${cmdOutcome.error}`);
       }
-      if (cmdResp.tasks) {
-        this._addSubTasks(cmdResp.tasks);
+      if (cmdOutcome.tasks) {
+        this._addSubTasks(cmdOutcome.tasks);
       }
     });
   }
@@ -143,16 +143,21 @@ class Agent {
     }
   }
 
+  wrapUp() {
+    this._setStatus('finished');
+    this.report('The agent is finished.');
+    this.reportOverview();
+    this.store.saveAgent(this);
+    //TODO Add code to give parentAgent the heads up
+  }
+
   async _run() {
     this._setStatus('running');
     this.reportOverview();
     while (!['paused', 'finished'].includes(this.status)) {
       const task = this.taskManager.myNextTask(this, 'pending');
       if (!task && this.taskManager.tasks.size == 0) {
-        this._setStatus('finished');
-        this.report('The agent is finished.');
-        this.reportOverview();
-        this.store.saveAgent(this);
+        this.wrapUp();
         break;
       }
       if (task) {

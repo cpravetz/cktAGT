@@ -65,7 +65,7 @@ getPrompt({args, prompt, text}) {
 }
 
 getCompiledPrompt(agent, llm, prompt, constraints, assessments) {
-    return `${llm.compilePrompt(prompt, constraints, assessments)}${Strings.modelListPrompt}${agent.modelManager.ModelNames || llm.getModelName()}`;
+    return `${llm.compilePrompt(prompt, constraints, assessments)} ${Strings.modelListPrompt} ${agent.modelManager.ModelNames ?? llm.getModelName()}`;
 }
 
 async processPrompt(llm, compiledPrompt) {
