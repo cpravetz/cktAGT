@@ -78,4 +78,4 @@ class SubAgentPlugin {
   }*/
 }
 
-module.exports = subAgentPlugin;
+module.exports = SubAgentPlugin;
