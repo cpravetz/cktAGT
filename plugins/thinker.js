@@ -54,7 +54,7 @@ class ThoughtGeneratorPlugin {
     logger.debug({prompt:prompt},`thinker: about to process prompt`);
     llm.setCache( agent.getConversation(llm.name));
     const output = await this.processPrompt(llm, prompt);
-    agent.setConversation(model.name, llm.getCache());
+    agent.setConversation(llm.name, llm.getCache());
     return output;
 }
 
