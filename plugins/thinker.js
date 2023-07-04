@@ -158,13 +158,13 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
 }
 
 askModelToRephrase(reply) {
-    const newPrompt = 'Please restate your reply as '+Strings.defaultResponseFormat+' Your reply was:'+reply;
+    const newPrompt = 'Please restate your reply. '+Strings.defaultResponseFormat+' Your reply was:'+reply;
     return new Task({
         agent: this.parentTask.agent,
         name: "Rephrase",
         description: `Rephrasing request for ${newPrompt}`,
         prompt: newPrompt,
-        commands: [{name: 'Think', prompt: newPrompt, model: this.parentTask.agent.getModel(), fullPrompt: false}],
+        commands: [{name: 'Think', args: {prompt: newPrompt, model: this.parentTask.agent.getModel(), fullPrompt: false}}],
         dependencies: [],
         context: {from: this.parentTask.id}
     });
