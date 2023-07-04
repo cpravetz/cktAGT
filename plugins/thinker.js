@@ -42,7 +42,7 @@ class ThoughtGeneratorPlugin {
     const {args, model} = command;
     const llm = model ? agent.modelManager.getModel(model) : agent.getModel();
     if (!llm) {
-        logger.warn({command:command},'thinker: No LLM provided to execute');
+        logger.error({command:command},'thinker: No LLM provided to execute');
         return {outcome: 'FAILURE', results: {error:'No model was provided to Think'}};
     }
 
@@ -120,12 +120,17 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
             } else { 
                 replyJSON = reply 
             };
-            output.text = this.humanizeOutput(replyJSON);
         } catch (err) {
             logger.error({error:err, reply: reply},`Thinker: can't turn reply into JSON. ${err.message}`);
             output.text = reply;
             output.results = {error: err};
             output.outcome = 'FAILURE';
+        }
+        try {
+            output.text = this.humanizeOutput(replyJSON);
+        } catch (err) {
+            logger.warn({error:err, reply: reply},`Thinker: can't humanize replyJSON. ${err.message}`);
+            output.text = reply;
         }
         const actions = replyJSON.thoughts ? (replyJSON.thoughts.actions ?? []) : (replyJSON.actions ?? []);
         if (replyJSON.commands) {

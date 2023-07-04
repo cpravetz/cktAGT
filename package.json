@@ -10,8 +10,7 @@
   "author": "Seakaytee, Inc.",
   "license": "MIT",
   "dependencies": {
-    "@huggingface/inference": "^2.3.3",
-    "chai": "^4.3.7",
+    "@huggingface/inference": "^2.6.1",
     "cheerio": "^1.0.0-rc.12",
     "docker": "^1.0.0",
     "dotenv": "^16.0.0",
@@ -22,8 +21,6 @@
     "googleapis": "^118.0.0",
     "googlethis": "^1.7.1",
     "jsonrepair": "^3.1.0",
-    "lamda": "^0.2.3",
-    "mocha": "^10.2.0",
     "mongodb": "^5.3.0",
     "mysql": "^2.18.1",
     "openai": "^3.2.0",
@@ -34,7 +31,6 @@
     "redis": "^3.0.1",
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
-    "transformers": "^3.1.0",
     "uniqid": "^5.4.0"
   },
   "devDependencies": {
