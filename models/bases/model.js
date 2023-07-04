@@ -80,11 +80,11 @@ class Model {
   }
 
   getCache() {
-    return false;
+    return this.cache || false;
   }
 
   setCache(cache) {
-    
+    this.cache = cache;
   }
 
 }

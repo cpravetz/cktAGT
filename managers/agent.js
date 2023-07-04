@@ -20,6 +20,7 @@ class Agent {
     this.store = agentManager.memoryManager.activeStore;
     this.status = 'pending';
     this.name = name;
+    this.conversations = new Map();
   }
 
   debugData() {
@@ -39,8 +40,17 @@ class Agent {
   pluginManager() {
     return PluginManager.getInstance();
   }
+
   getModel() {
     return this.taskManager.model || this.modelManager.activeModel;
+  }
+
+  getConversation(modelName) {
+    return this.conversations.get(modelName) || [];
+  }
+
+  setConversation(modelName, conversation) {
+    return this.conversations.set(modelName, conversation);
   }
 
   start() {

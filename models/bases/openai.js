@@ -59,7 +59,7 @@ class OpenAI extends Model {
     // Set the max_length and temperature parameters.
     const max_length = options.max_length || this.DEFAULT_MAX_LENGTH;
     const temperature = options.temperature || this.DEFAULT_TEMPERATURE;
-
+    this.cache = options.cache || this.cache;
     // Check for invalid input type for messages.
     if (!messages || (typeof messages !== 'string' && !Array.isArray(messages))) {
       throw new TypeError('Invalid input type for messages: expected a string or an array of strings.');

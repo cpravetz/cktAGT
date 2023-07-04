@@ -17,9 +17,9 @@ class SubAgentPlugin {
     this.version = 1.0;
 
     // The name of the command.
-  this.command = 'SubAgent';
+    this.command = 'SubAgent';
 
-  this.description = 'Creates a new agent with a new goal.  Use this to section off parts of your plan so they can receive focus.';
+    this.description = 'Creates a new agent with a new goal.  Use this to section off parts of your plan so they can receive focus.';
 
     // The arguments for the command.
     this.args = {
@@ -78,4 +78,4 @@ class SubAgentPlugin {
   }*/
 }
 
-module.exports = InternetSearchPlugin;
+module.exports = subAgentPlugin;
