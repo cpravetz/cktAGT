@@ -49,7 +49,7 @@ class ThoughtGeneratorPlugin {
     let prompt = this.getPrompt(command);
 
     if (command.args.fullPrompt) {
-        prompt = this.getCompiledPrompt(agent, llm, prompt, args.constraints || [], args.assessments || []);
+        prompt = this.getExtendedPrompt(agent, llm, prompt, args.constraints || [], args.assessments || []);
     }
     logger.debug({prompt:prompt},`thinker: about to process prompt`);
     llm.setCache( agent.getConversation(llm.name));
@@ -60,11 +60,11 @@ class ThoughtGeneratorPlugin {
 
 
 getPrompt({args, prompt, text}) {
-    const fullPrompt = args ? (args.prompt?.response || args.text || args.prompt) : (prompt || text);
+    const fullPrompt = args ? (args.prompt?.response || args.text || args.prompt) : (prompt || (text || ''));
     return fullPrompt;
 }
 
-getCompiledPrompt(agent, llm, prompt, constraints, assessments) {
+getExtendedPrompt(agent, llm, prompt, constraints, assessments) {
     return `${llm.compilePrompt(prompt, constraints, assessments)} ${Strings.modelListPrompt} ${agent.modelManager.ModelNames ?? llm.getModelName()}`;
 }
 

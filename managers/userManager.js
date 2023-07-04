@@ -7,6 +7,7 @@
 const keyMaker = require("../constants/keymaker.js");
 const logger = require('./../constants/logger.js');
 
+const MSG_RESEND_INTERVAL = 1500;
 
 class UserManager {
 
@@ -21,6 +22,12 @@ class UserManager {
     this.looping = false;
   }
 
+  sendAndSave(code,msg) {
+    msg.code = code;
+    this.io.emit(msg.code, msg);
+    this.tells.set(msg.id, msg);
+  }
+
   addListener(listener) {
    if (listener && (typeof(listener.hear) === 'function')) {
      this.listeners.add(listener);
@@ -28,10 +35,10 @@ class UserManager {
   }
 
   resendOldMsgs(uMgr) {
-    const cutoff = Date().now() - 1500;
+    const cutoff = Date().now() - MSG_RESEND_INTERVAL;
     for (const [key, tell] of uMgr.tells) {
       if ((tell.when || 0) < cutoff) {
-        uMgr.io.emit(tell.code, tell);
+        this.io.emit(tell.code, tell);
         tell.when = Date().now();
       }
     }
@@ -40,13 +47,11 @@ class UserManager {
   // This method sends a message to the server.
   say(text) {
     const msg = {id: keyMaker(), content: text, when: new Date() };
-    this.io.emit('serverSays', msg);
-    msg.code = 'serverSays';
-    this.tells.set(msg.id, msg);
+    this.sendAndSave('serverSays',msg);
     if (!this.looping) {
       this.looping = true;
       const self = this;
-      setInterval(() => {self.resendOldMsgs(self)}, 1500);
+      setInterval(() => {self.resendOldMsgs(self)}, MSG_RESEND_INTERVAL);
     }
   }
 
@@ -89,10 +94,7 @@ class UserManager {
   requestStepApproval() {
     logger.info('Requested step approval');
     const msg = {id:keyMaker()};
-    this.io.emit('serverNeedsApproval', msg);
-    msg.code = 'serverNeedsApproval';
-    this.tells.set(msg.id, msg);
-
+    this.sendAndSave('serverNeedsApproval',msg);
   }
 
   // This method asks the user a question.
@@ -127,9 +129,7 @@ class UserManager {
       throw new Error("invalid name or url in announceFile");
     }
     const msg = {id: keyMaker(),name: name, url: url };
-    this.io.emit('serverFileAdd', msg);
-    msg.code = 'serverFileAdd';
-    this.tells.set(msg.id, msg);
+    this.sendAndSave('serverFileAdd',msg);
   }
 }
 

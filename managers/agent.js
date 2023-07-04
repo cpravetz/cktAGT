@@ -6,6 +6,12 @@ const keyMaker = require('./../constants/keymaker.js');
 const logger = require('./../constants/logger.js');
 const PluginManager = require("./pluginManager.js");
 
+const STATUS_PENDING = 'pending';
+const STATUS_PAUSED = 'paused';
+const STATUS_RUNNING = 'running';
+const STATUS_FINISHED = 'finished';
+const STATUS_FAILED = 'failed';
+
 /**
  * This is the agent which executes related tasks, capturing new tasks and reporting status.
  */
@@ -15,10 +21,10 @@ class Agent {
     this.id = keyMaker();
     this.agentManager = agentManager;
     this.taskManager = agentManager.taskManager;
-    this.userManager = function() { return agentManager.userManager};
+    this.userManager = agentManager.userManager;
     this.modelManager = agentManager.modelManager;
     this.store = agentManager.memoryManager.activeStore;
-    this.status = 'pending';
+    this.status = STATUS_PENDING;
     this.name = name;
     this.conversations = new Map();
   }
@@ -34,7 +40,7 @@ class Agent {
 
   report(text) {
     logger.info(`Agent ${this.name} reports ${text}`);
-    this.userManager().say(text);
+    this.say(text);
   }
 
   pluginManager() {
@@ -63,7 +69,7 @@ class Agent {
   }
 
   say(text) {
-      this.userManager().say(text);
+      this.userManager.say(text);
   }
 
   _setStatus(s) {
@@ -76,7 +82,7 @@ class Agent {
       task.agent = this;
       this.taskManager.addTask(task);
     });
-    this.userManager().updateTasksOnBrowser(this.taskManager.tasks);
+    this.userManager.updateTasksOnBrowser(this.taskManager.tasks);
   }
 
   //dump tasks and commands
@@ -125,17 +131,17 @@ class Agent {
     this.report(`Starting task: ${task.name || task.id}`);
     this.agentManager.useOneStep();
     try {
-      task.status = 'running';
-      this.userManager().updateTasksOnBrowser(this.taskManager.tasks);
+      task.status = STATUS_RUNNING;
+      this.userManager.updateTasksOnBrowser(this.taskManager.tasks);
       const result = await task.execute();
       logger.debug({result:result, task:task.debugData()},'executeOne task results')
       this._processResult(result || {});
       this.report(`Finished task: ${task.name || task.id}`);
-      task.status = 'finished';
-      this.userManager().updateTasksOnBrowser(this.taskManager.tasks);
+      task.status = STATUS_FINISHED;
+      this.userManager.updateTasksOnBrowser(this.taskManager.tasks);
       this.taskManager.complete(task);
     } catch (err) {
-      task._setStatus('failed');
+      task._setStatus(STATUS_FAILED);
       logger.error({error:err, result:result, task:task.debugData()}, `Error executingOneTask ${err.message}`);
     }
     if (this.store) {
@@ -144,7 +150,7 @@ class Agent {
   }
 
   wrapUp() {
-    this._setStatus('finished');
+    this._setStatus(STATUS_FINISHED);
     this.report('The agent is finished.');
     this.reportOverview();
     this.store.saveAgent(this);
@@ -152,17 +158,17 @@ class Agent {
   }
 
   async _run() {
-    this._setStatus('running');
+    this._setStatus(STATUS_RUNNING);
     this.reportOverview();
-    while (!['paused', 'finished'].includes(this.status)) {
-      const task = this.taskManager.myNextTask(this, 'pending');
+    while (![STATUS_PAUSED, STATUS_FINISHED].includes(this.status)) {
+      const task = this.taskManager.myNextTask(this, STATUS_PENDING);
       if (!task && this.taskManager.tasks.size == 0) {
         this.wrapUp();
         break;
       }
       if (task) {
         if (!this.agentManager.okayToContinue(task)) {
-          this._setStatus('paused');
+          this._setStatus(STATUS_PAUSED);
         } else {
           try {
             await this._executeOneTask(task);
