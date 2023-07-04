@@ -53,7 +53,7 @@ class ThoughtGeneratorPlugin {
     }
     logger.debug({prompt:prompt},`thinker: about to process prompt`);
     llm.setCache( agent.getConversation(llm.name));
-    const output = await this.processPrompt(llm, prompt, conversationCache);
+    const output = await this.processPrompt(llm, prompt);
     agent.setConversation(model.name, llm.getCache());
     return output;
 }
@@ -68,11 +68,11 @@ getCompiledPrompt(agent, llm, prompt, constraints, assessments) {
     return `${llm.compilePrompt(prompt, constraints, assessments)}${Strings.modelListPrompt}${agent.modelManager.ModelNames || llm.getModelName()}`;
 }
 
-async processPrompt(llm, compiledPrompt, conversationCache) {
+async processPrompt(llm, compiledPrompt) {
     let output = {outcome: 'SUCCESS', tasks: []};
     let reply;
     try {
-        reply = await llm.generate([compiledPrompt], {cache: (conversationCache || false), max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
+        reply = await llm.generate([compiledPrompt], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
         if (reply) {
             logger.debug({reply: reply, prompt: compiledPrompt},'thinker: LLM reply');
             output = this.processReply(reply, output);
