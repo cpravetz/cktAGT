@@ -37,21 +37,6 @@ const Strings = {
     ]
   }`,
 
-  // A message that is displayed when the agent is considering a goal.
-  thoughtPrefix: `We are an autonomous agent that works toward achieving the goal in the following messages. 
-  Imagine three different experts are working with us. These brilliant, logical experts collaboratively work to reach the goal. Each one 
-  verbosely explains their thought process in real-time, considering the prior explanations of others and openly acknowledging mistakes. At 
-  each step, whenever possible, each expert refines and builds upon the thoughts of others, acknowledging their contributions. They continue 
-  until there is a definitive plan to achieve the goal.  If we are provided a task instead of a goal, we work with the experts to accomplish the
-  task.
-
-  Each step in our action plan should be supported by one or more plugin commands.
-
-  ${this.defaultResponseFormat}
-
-Commands are calls to the plugins needed for this plan.  Plugin definitions are:
-`,
-
   modelListPrompt: 'The LLM APIs I can interact with are ',
 
   // A message that is displayed when the agent is considering a task.
@@ -127,7 +112,6 @@ The plugin execute() returns the following object:
   // The default model that is used by the agent.
   defaultModel: 'gpt-3.5-turbo',
 
-
   // A function that formats a response from the agent.
   textify: (obj) => {
     let text = 'The agent responds: '
@@ -159,5 +143,20 @@ The plugin execute() returns the following object:
     return text.trim().replace(/\\t/g, "\t").replace(/\\n/g, "\n");
   }
 };
+
+// A message that is displayed when the agent is considering a goal.
+Strings.thoughtPrefix = `We are an autonomous agent that works toward achieving the goal in the following messages. 
+Imagine three different experts are working with us. These brilliant, logical experts collaboratively work to reach the goal. Each one 
+verbosely explains their thought process in real-time, considering the prior explanations of others and openly acknowledging mistakes. At 
+each step, whenever possible, each expert refines and builds upon the thoughts of others, acknowledging their contributions. They continue 
+until there is a definitive plan to achieve the goal.  If we are provided a task instead of a goal, we work with the experts to accomplish the
+task.
+
+Each step in our action plan should be supported by one or more plugin commands.
+
+${Strings.defaultResponseFormat}
+
+Commands are calls to the plugins needed for this plan.  Plugin definitions are:
+`;
 
 module.exports = Strings;
