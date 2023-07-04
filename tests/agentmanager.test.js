@@ -27,7 +27,7 @@ Main functionalities:
 The AgentManager class is responsible for managing agents, which are entities that can perform tasks and interact with users. It handles the creation and loading of agents, as well as the management of subagents. The class also manages the plugin, model, memory, and task managers used by the agents, and communicates with the user through a user manager.
 
 Methods:
-- addSubAgent(agent, start): adds a new subagent to the subAgents dictionary and starts it if specified
+- addSubAgent(agent, task, start): adds a new subagent to the subAgents dictionary and starts it if specified
 - getSubAgent(agentId): retrieves a subagent from the subAgents dictionary by ID
 - informTheLLM(input): adds a think task for feedback from the user
 - startTheAgent(): starts the agent and saves it to memory
@@ -84,9 +84,10 @@ describe('AgentManager_class', () => {
         const workDirName = "testDir/";
         const agentManager = new AgentManager(userManager, workDirName);
         const subAgent = {id: "123", start: jest.fn()};
-        agentManager.addSubAgent(subAgent, true);
+        const task = {id:'345'};
+        agentManager.addSubAgent(subAgent, task, false);
         expect(agentManager.subAgents.get("123")).toBe(subAgent);
-        expect(subAgent.start).toHaveBeenCalled();
+        expect(agentManager.taskManager.tasks.size).toBe(1);
     });
 
     // Tests loading an existing agent. 

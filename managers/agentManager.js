@@ -72,10 +72,16 @@ class AgentManager {
   }
 
   //adds a new Agent to the subAgent dictionary
-  addSubAgent(agent, start) {
-    this.subAgents.set(agent.id, agent);
-    if (start) {
-        agent.start();
+  addSubAgent(agent, initialTask, start) {
+    try {
+      this.subAgents.set(agent.id, agent);
+      this.taskManager.addTask(initialTask);
+      this.memoryManager.saveAgent(agent);
+      logger.debug({agent:agent.debugData(), task:initialTask.debugData()},'created subAgent');
+      this.userManager.updateTasksOnBrowser(this.taskManager.tasks);
+      if (start) { agent.start() }
+    } catch (err) {
+      logger.error({error:err},`Error creating subAgent: ${err.message}`);
     }
   }
 
