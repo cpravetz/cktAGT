@@ -20,21 +20,22 @@ class ThoughtGeneratorPlugin {
     this.command= 'Think';
 
     // The description of the plugin.
-    this.description= 'Sends instructions or information in a message to an LLM, likely you.  Use this to create content, answer questions, or generate new thuoghts.';
+    this.description= 'Sends instructions or information in a message to an LLM, likely you.  Use this to create content, answer questions, or generate new thoughts.';
 
     // The arguments for the command.
     this.args= {
       prompt: 'a complete message to send to the LLM that adequately but efficiently explains the goal or item to be resolved',
       constraints: 'An array of strings describing constraints the LLM should consider',
       assessments: 'An array of any other text that should be sent to the LLM with the prompt',
-      fullPrompt: 'if true, wraps the prompt in the introductory content',
+      fullPrompt: 'if true, wraps the prompt in the introductory content about formats, objectives, plugins, etc.',
       model: 'The name of the model interface to use',
-      languageModel: 'For huggingface, the name of the specific LLM to handle the request'
+      languageModel: `For huggingface, the name of the specific model to use
+microsoft/DialoGPT-large, microsoft/GODEL-v1_1-base-seq2seq, af1tang/personaGPT, h2oai/h2ogpt-gm-oasst1-en-2048-falcon-7b-v2 or gorilla-llm/gorilla-falcon-7b-hf-v0
+or another huggingface model you are sure exists.`
     };
   }
 
   async execute(agent, command, task) {
-
     agent.say('thinking...');
     logger.debug('thinker: executing');
     this.parentTask = task;
