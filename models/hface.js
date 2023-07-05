@@ -40,11 +40,29 @@ class HuggingFace extends Model {
     this.outputCache = [];
   }
 
+  async checkModelExists() {
+    const url = `https://api.huggingface.co/models/${this.languageModel}/info`;
+    const request = new Request(url, {
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+      },
+    });
+  
+    const response = await fetch(request);
+
+    if (response.status != 200) {
+      logger.info(`hface: The model ${this.languageModel} does not exist. Using gorilla.`);
+      this.languageModel = 'gorilla-llm/gorilla-falcon-7b-hf-v0';
+    }
+  }
+
   async generate(message, parameters = {}) {
     if (!message || (typeof message !== 'string')) {
       logger.error('Invalid input type for message expected a string');
       throw new TypeError('Invalid input type for message expected a string');
     }
+    this.languageModel = parameters.languageModel || this.languageModel;
+    checkModelExists();
     parameters.max_length = parameters.max_length || this.DEFAULT_MAX_LENGTH;
     if (parameters.max_length > 500) { parameters.max_length = 500;}
     parameters.temperature = parameters.temperature || this.DEFAULT_TEMPERATURE;

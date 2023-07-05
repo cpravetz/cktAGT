@@ -19,10 +19,12 @@ class Task {
     this.name = args.name || '';
     if (args.prompt) {this.prompt = args.prompt};
     this.description = args.description || '';
-    if (typeof(args.goal) === 'string') {
-      this.goal = args.goal;
-    } else {
-      this.goal = args.goal?.response || JSON.stringify(removeProperty(args.goal || {},'id'));
+    if (argss.goal) {
+      if (typeof(args.goal) === 'string') {
+        this.goal = args.goal;
+      } else {
+        this.goal = args.goal?.response || JSON.stringify(removeProperty(args.goal || {},'id'));
+      }
     }
     this.context = args.context || "";
     this.dependencies = args.dependencies || [];

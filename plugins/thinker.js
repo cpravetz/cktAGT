@@ -29,9 +29,8 @@ class ThoughtGeneratorPlugin {
       assessments: 'An array of any other text that should be sent to the LLM with the prompt',
       fullPrompt: 'if true, wraps the prompt in the introductory content about formats, objectives, plugins, etc.',
       model: 'The name of the model interface to use',
-      languageModel: `For huggingface, the name of the specific model to use
-microsoft/DialoGPT-large, microsoft/GODEL-v1_1-base-seq2seq, af1tang/personaGPT, h2oai/h2ogpt-gm-oasst1-en-2048-falcon-7b-v2 or gorilla-llm/gorilla-falcon-7b-hf-v0
-or another huggingface model you are sure exists.`
+      languageModel: `For huggingface, the name of the specific model to use, most likely either deepset/roberta-base-squad2, microsoft/DialoGPT-large, 
+microsoft/GODEL-v1_1-base-seq2seq, af1tang/personaGPT, h2oai/h2ogpt-gm-oasst1-en-2048-falcon-7b-v2 or gorilla-llm/gorilla-falcon-7b-hf-v0.`
     };
   }
 
@@ -54,7 +53,7 @@ or another huggingface model you are sure exists.`
     }
     logger.debug({prompt:prompt},`thinker: about to process prompt`);
     llm.setCache( agent.getConversation(llm.name));
-    const output = await this.processPrompt(llm, prompt);
+    const output = await this.processPrompt(llm, prompt, command.args?.languageModel);
     agent.setConversation(llm.name, llm.getCache());
     return output;
 }
@@ -69,11 +68,14 @@ getExtendedPrompt(agent, llm, prompt, constraints, assessments) {
     return `${llm.compilePrompt(prompt, constraints, assessments)} ${Strings.modelListPrompt} ${agent.modelManager.ModelNames ?? llm.getModelName()}`;
 }
 
-async processPrompt(llm, compiledPrompt) {
-    let output = {outcome: 'SUCCESS', tasks: []};
+async processPrompt(llm, compiledPrompt, languageModel) {
+    const output = {outcome: 'SUCCESS', tasks: []};
+    const options = {max_length: 2000, 
+                     temperature: Number(process.env.LLM_TEMPERATURE) || 0.7,
+                    languageModel: languageModel}
     let reply;
     try {
-        reply = await llm.generate([compiledPrompt], {max_length: 2000, temperature: Number(process.env.LLM_TEMPERATURE) || 0.7});
+        reply = await llm.generate([compiledPrompt], options);
         if (reply) {
             logger.debug({reply: reply, prompt: compiledPrompt},'thinker: LLM reply');
             output = this.processReply(reply, output);
