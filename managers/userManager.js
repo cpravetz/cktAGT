@@ -35,11 +35,11 @@ class UserManager {
   }
 
   resendOldMsgs(uMgr) {
-    const cutoff = Date().now() - MSG_RESEND_INTERVAL;
+    const cutoff = new Date() - MSG_RESEND_INTERVAL;
     for (const [key, tell] of uMgr.tells) {
       if ((tell.when || 0) < cutoff) {
         this.io.emit(tell.code, tell);
-        tell.when = Date().now();
+        tell.when = new Date();
       }
     }
   }
