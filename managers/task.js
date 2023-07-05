@@ -19,7 +19,7 @@ class Task {
     this.name = args.name || '';
     if (args.prompt) {this.prompt = args.prompt};
     this.description = args.description || '';
-    if (argss.goal) {
+    if (args.goal) {
       if (typeof(args.goal) === 'string') {
         this.goal = args.goal;
       } else {
