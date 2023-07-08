@@ -86,7 +86,8 @@ class OpenAI extends Model {
       this.cache.push({role:'assistant', content: this.extractValue(textReply,'thoughts')});
       return textReply;
     } catch (err) {
-      logger.error({error:err},`Error in OpenAI Generate ${err.message}`);
+      logger.error({error:err, conversation:conversation},`Error in OpenAI Generate ${err.message}`);
+      return false;
     }
   }
 
@@ -107,13 +108,14 @@ class OpenAI extends Model {
     return formattedMessages;
   }
 
-  extractValue(json, key) {
+  extractValue(jsonString, key) {
     try {
-      const value = JSON.stringify(JSON.parse(json)[key]);
+      const value = Strings.toHumanString(JSON.parse(jsonString)[key]);
       return value;
     }
-    catch (error) {
-      return json;
+    catch (err) {
+      logger.error({error:err, json: jsonString, key: key},`openAI: Could not convert JSON to string in extractValue`);
+      return jsonString;
     }
   }
 

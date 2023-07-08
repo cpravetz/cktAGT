@@ -58,7 +58,7 @@ class FileReaderPlugin {
       },
       tasks: tasks
     };
-    logger.debug({output:output},'fileRader: execute result');
+    logger.debug({output:output},'fileReader: execute result');
     return output;
   }
 

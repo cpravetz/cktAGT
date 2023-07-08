@@ -131,17 +131,17 @@ class Agent {
     this.report(`Starting task: ${task.name || task.id}`);
     this.agentManager.useOneStep();
     try {
-      task.status = STATUS_RUNNING;
+      task.setStatus(STATUS_RUNNING);
       this.userManager.updateTasksOnBrowser(this.taskManager.tasks);
       const result = await task.execute();
-      logger.debug({result:result, task:task.debugData()},'executeOne task results')
+      logger.debug({result:result},'executeOne task results')
       this._processResult(result || {});
       this.report(`Finished task: ${task.name || task.id}`);
-      task.status = STATUS_FINISHED;
+      task.setStatus(STATUS_FINISHED);
       this.userManager.updateTasksOnBrowser(this.taskManager.tasks);
       this.taskManager.complete(task);
     } catch (err) {
-      task._setStatus(STATUS_FAILED);
+      task.setStatus(STATUS_FAILED);
       logger.error({error:err, result:result, task:task.debugData()}, `Error executingOneTask ${err.message}`);
     }
     if (this.store) {

@@ -2,6 +2,7 @@ const Strings = require("../constants/strings.js");
 const Model = require('./bases/model.js');
 const hfi = require("@huggingface/inference");
 const fetch =  require('node-fetch');
+const Request =  require('node-fetch');
 const logger = require('./../constants/logger.js');
 
 /**
@@ -36,37 +37,43 @@ class HuggingFace extends Model {
       logger.error({error: err},`Invalid HuggingFace API key ${err.message}`);
       throw err;
     }
-    this.inputCache = [Strings.thoughtPrefix + this.describePlugins()];
+    this.inputCache = [];
     this.outputCache = [];
   }
 
   async checkModelExists() {
-    const url = `https://api.huggingface.co/models/${this.languageModel}/info`;
-    const request = new Request(url, {
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
-    });
-  
-    const response = await fetch(request);
-
-    if (response.status != 200) {
+    const url = `https://api-inference.huggingface.co/models/${this.languageModel}`;
+    let validModel = true;
+    try {
+      const response = await fetch(url);
+      if (response.status != 200) {
+        validModel = false;
+      }
+    } catch (err) {
+      validModel = false;
+    }
+    if (!validModel) {
       logger.info(`hface: The model ${this.languageModel} does not exist. Using gorilla.`);
-      this.languageModel = 'gorilla-llm/gorilla-falcon-7b-hf-v0';
+      this.languageModel = 'microsoft/DialoGPT-large';
+      //this.languageModel = 'gorilla-llm/gorilla-falcon-7b-hf-v0';
     }
   }
 
   async generate(message, parameters = {}) {
+    message = Strings.toHumanString(message[0] || message);
     if (!message || (typeof message !== 'string')) {
-      logger.error('Invalid input type for message expected a string');
-      throw new TypeError('Invalid input type for message expected a string');
+      logger.error('hFace: Invalid input type for message expected a string');
+      throw new TypeError('hFace: Invalid input type for message expected a string');
     }
     this.languageModel = parameters.languageModel || this.languageModel;
-    checkModelExists();
+    await this.checkModelExists();
+    if (parameters.languageModel) { delete parameters.languageModel };
     parameters.max_length = parameters.max_length || this.DEFAULT_MAX_LENGTH;
     if (parameters.max_length > 500) { parameters.max_length = 500;}
     parameters.temperature = parameters.temperature || this.DEFAULT_TEMPERATURE;
-    this.inputCache.push(message);
+    if (this.inputCache.length < 1) {
+      this.inputCache = [Strings.thoughtPrefix + await this.describePlugins()];      
+    }
     const conversation = {
       model: this.languageModel,
       inputs: {
@@ -80,7 +87,8 @@ class HuggingFace extends Model {
     try {
       const response = await this.hfiClient['conversational'](conversation, { fetch: fetch });
       logger.debug({response: response, conversation:conversation},'HfI Generate');
-      this.outputCache.push(response);
+      this.inputCache.push(message);
+      this.outputCache.push(response.generated_text);
       return response;
     } catch (err) {
       logger.error({error:err},`hface Error in generate ${err.message}`);
@@ -93,7 +101,7 @@ class HuggingFace extends Model {
   }
 
   setCache(cache) {
-    if (Array.isArray(cache)) {
+    if (Array.isArray(cache) && cache.length > 1) {
       this.inputCache = cache[0];
       this.outputCache = cache[1];
     }

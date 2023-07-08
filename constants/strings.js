@@ -112,6 +112,26 @@ The plugin execute() returns the following object:
   // The default model that is used by the agent.
   defaultModel: 'gpt-3.5-turbo',
 
+  toHumanString: (obj) => {
+
+    function linkArray(arr) {
+      let s = '';
+      for (const el of arr) {
+        s += Strings.toHumanString(el)+",";
+      }
+      return s;
+    }
+
+    if (typeof obj === "string") {
+      return obj;
+    } else if (Array.isArray(obj)) {
+      return "[" + linkArray(obj) + "]";
+    } else {
+      return " " + Object.entries(obj).map(([key, value]) => `${key}: ${Strings.toHumanString(value)}`).join(", ") + " ";
+    }
+  },
+  
+
   // A function that formats a response from the agent.
   textify: (obj) => {
     let text = 'The agent responds: '

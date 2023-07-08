@@ -115,6 +115,9 @@ class Task {
     return {name: this.name, status: this.status,  text: this.taskText(), commands: this.commands}
   }
 
+  setStatus(s) {
+    this.status = s;
+  }
 }
 
 module.exports = Task;

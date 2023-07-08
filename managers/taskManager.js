@@ -21,7 +21,6 @@ class TaskManager {
 
   // This method adds a task to the queue.
   addTask(task) {
-    logger.debug({task:task?.debugData()},'taskManager: Added a task');
     if (task.id) {
       this.tasks.set(task.id, task);
       if (this.store) {
@@ -32,29 +31,31 @@ class TaskManager {
 
   // This method pops a task from the queue and executes it.
   complete(task) {
-    task.status = 'finished';
-    logger.debug({task:task?.debugData()},'taskManager: Completed task');
+    task.setStatus('finished');
+    if (this.store) {
+      this.store.save(task);
+    }
     this.tasks.delete(task.id);
-  }
+}
 
   // myNextTask returns the next task for the given agent with the status given
   // no status means all tasks
   myNextTask(agent, status) {
     // Declare a variable to store the first task in the array.
-    let firstTask = null;
+    let nextTask = null;
     for (const key of this.tasks.keys()) {
       const task = this.tasks.get(key);
       if ((task.agent.id === agent.id) && (!status || (task.status === status))) {
-        firstTask = task;
+        nextTask = task;
         break;
       }
     }
-    if (firstTask) {
-      logger.debug({task:firstTask?.debugData()},`taskManager: Returning next task ${firstTask?.id}`);
+    if (nextTask) {
+      logger.debug(`taskManager: Returning next task ${nextTask.id}`);
     } else {
       logger.debug("no next task found.")
     }
-    return firstTask;
+    return nextTask;
   }
 
 }

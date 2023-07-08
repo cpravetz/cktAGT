@@ -25,7 +25,7 @@ class ServerManager {
     if (!(typeof(text) === 'string')) {
       text = JSON.stringify(text);
     }
-    li.textContent = sanitize(text.trim());
+    li.textContent = text.trim(); //sanitize(text.trim());
 
     // Append the `li` element to the list.
     document.getElementById("chatThread").appendChild(li);

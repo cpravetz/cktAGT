@@ -29,17 +29,19 @@ class ThoughtGeneratorPlugin {
       assessments: 'An array of any other text that should be sent to the LLM with the prompt',
       fullPrompt: 'if true, wraps the prompt in the introductory content about formats, objectives, plugins, etc.',
       model: 'The name of the model interface to use',
-      languageModel: `For huggingface, the name of the specific model to use, most likely either deepset/roberta-base-squad2, microsoft/DialoGPT-large, 
-microsoft/GODEL-v1_1-base-seq2seq, af1tang/personaGPT, h2oai/h2ogpt-gm-oasst1-en-2048-falcon-7b-v2 or gorilla-llm/gorilla-falcon-7b-hf-v0.`
+      languageModel: `For huggingface, the name of the specific model to use, most likely either microsoft/DialoGPT-medium, /facebook/blenderbot-400M-distill,
+microsoft/GODEL-v1_1-base-seq2seq, af1tang/personaGPT, h2oai/h2ogpt-gm-oasst1-en-2048-falcon-7b-v2`
     };
   }
 
   async execute(agent, command, task) {
     agent.say('thinking...');
-    logger.debug('thinker: executing');
+    logger.info('thinker: executing');
     this.parentTask = task;
 
-    const {args, model} = command;
+    const model = command.args.model || (command.model || false);
+    const args = command.args || {};
+    
     const llm = model ? agent.modelManager.getModel(model) : agent.getModel();
     if (!llm) {
         logger.error({command:command},'thinker: No LLM provided to execute');
@@ -48,12 +50,12 @@ microsoft/GODEL-v1_1-base-seq2seq, af1tang/personaGPT, h2oai/h2ogpt-gm-oasst1-en
 
     let prompt = this.getPrompt(command);
 
-    if (command.args.fullPrompt) {
+    if (args.fullPrompt) {
         prompt = this.getExtendedPrompt(agent, llm, prompt, args.constraints || [], args.assessments || []);
     }
-    logger.debug({prompt:prompt},`thinker: about to process prompt`);
+    logger.debug({prompt:prompt},`thinker: about to process prompt with ${llm.name} (requested ${model})`);
     llm.setCache( agent.getConversation(llm.name));
-    const output = await this.processPrompt(llm, prompt, command.args?.languageModel);
+    const output = await this.processPrompt(llm, prompt, args.languageModel);
     agent.setConversation(llm.name, llm.getCache());
     return output;
 }
@@ -69,17 +71,16 @@ getExtendedPrompt(agent, llm, prompt, constraints, assessments) {
 }
 
 async processPrompt(llm, compiledPrompt, languageModel) {
-    const output = {outcome: 'SUCCESS', tasks: []};
+    let output = {outcome: 'SUCCESS', tasks: []};
     const options = {max_length: 2000, 
                      temperature: Number(process.env.LLM_TEMPERATURE) || 0.7,
-                    languageModel: languageModel}
+                     languageModel: languageModel}
     let reply;
     try {
         reply = await llm.generate([compiledPrompt], options);
         if (reply) {
             logger.debug({reply: reply, prompt: compiledPrompt},'thinker: LLM reply');
             output = this.processReply(reply, output);
-            logger.debug({output: output}, 'thinker: execute results');
         } else {
             output.outcome = 'FAILURE';
             output.text = 'No reply received';
@@ -94,20 +95,31 @@ async processPrompt(llm, compiledPrompt, languageModel) {
 }
 
 humanizeOutput(replyJSON = {}){
+
+    function breakDownDetail(section) {
+      if (!section) {
+        return '';
+      } else {
+        if (typeof(section) === 'string') {
+            return `${section}
+    `
+            } else {
+                let txt = '';
+                section?.forEach((item)=> { txt += `${item}
+    `});
+                return txt;
+            }
+      }
+    }
+
     let humanText = '';
     if (replyJSON.thoughts?.text) {
-        humanText = replyJSON.thoughts.text+'\n\nReasons:\n';
-        if (typeof(replyJSON.thoughts.reasoning) === 'string') {
-            humanText += replyJSON.thoughts.reasoning+'\n';
-        }else {
-            replyJSON.thoughts.reasoning?.forEach((reason)=> { humanText+= reason+'\n'});
-        }
-        humanText += '\n\nPlan:\n';
-        if (typeof(replyJSON.thoughts.actions) === 'string') {
-            humanText += replyJSON.thoughts.actions+'\n';
-        }else {
-            replyJSON.thoughts.actions?.forEach((stepText)=> { humanText+= stepText+'\n'});
-        }
+        humanText = `${replyJSON.thoughts.text}
+Reasons:
+ ${breakDownDetail(replyJSON.thoughts.reasoning)}
+Plan:
+ ${breakDownDetail(replyJSON.thoughts.actions)}
+`;
     } else {
         humanText = JSON.stringify(replyJSON);
     }
@@ -132,7 +144,7 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
         try {
             output.text = this.humanizeOutput(replyJSON);
         } catch (err) {
-            logger.warn({error:err, reply: reply},`Thinker: can't humanize replyJSON. ${err.message}`);
+            logger.error({error:err, reply: reply},`Thinker: can't humanize replyJSON. ${err.message}`);
             output.text = reply;
         }
         const actions = replyJSON.thoughts ? (replyJSON.thoughts.actions ?? []) : (replyJSON.actions ?? []);
@@ -148,7 +160,6 @@ processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
                     const prompt = (actionDesc ?? '') + ' ' + (thisStep.args?.prompt ?? JSON.stringify(thisStep));
                     thisStep.args = this.replaceAllOutputs(thisStep.args,idMap);
                     const t = this.createTask(thisStep, prompt, idMap);
-                    logger.debug({task:t.debugData()},'thinker: task created')
                     output.tasks.push(t);
                 }
             }
