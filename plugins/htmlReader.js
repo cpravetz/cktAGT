@@ -45,8 +45,11 @@ class HTMLReaderPlugin {
         return {outcome: 'FAILURE', text: `Failed to generate message: ${response.status} ${response.statusText}`}
       }
 
+       // Get the response body as text using the .text() method.
+      const bodyText = await response.text();
+
       // Create a new Cheerio instance.
-      const cheer = cheerio.load(response.body);
+      const cheer = cheerio.load(bodyText);
 
       // Get the text of the web page.
       const text = cheer("body").text();

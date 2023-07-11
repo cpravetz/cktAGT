@@ -15,15 +15,13 @@ class HuggingFace extends Model {
   inputCache;
   outputCache;
   name = 'huggingface';
-  DEFAULT_MAX_LENGTH = Number(process.env.DEFAULT_MAX_LENGTH) || 500;
-  DEFAULT_TEMPERATURE = Number(process.env.DEFAULT_TEMPERATURE) || 0.7;
   chatLength = Number(process.env.LLM_CHAT_LENGTH) || 5;
   languageModel;
   token;
 
   constructor(options = {}) {
     super();
-    const { languageModel = process.env.DEFAULT_HF_LLM } = options;
+    const { languageModel = process.env.DEFAULT_HFACE_LLM } = options;
     const { token = process.env.HUGGINGFACE_TOKEN } = options;
     this.languageModel = languageModel;
     this.token = token;
@@ -68,10 +66,10 @@ class HuggingFace extends Model {
     this.languageModel = parameters.languageModel || this.languageModel;
     await this.checkModelExists();
     if (parameters.languageModel) { delete parameters.languageModel };
-    parameters.max_length = parameters.max_length || this.DEFAULT_MAX_LENGTH;
+    parameters.max_length = parameters.max_length || Number(process.env.DEFAULT_HFACE_MAX_LENGTH);
     if (parameters.max_length > 500) { parameters.max_length = 500;}
-    parameters.temperature = parameters.temperature || this.DEFAULT_TEMPERATURE;
-    if (this.inputCache.length < 1) {
+    parameters.temperature = parameters.temperature || Number(process.env.DEFAULT_HFACE_TEMPERATURE);
+    if (!this.inputCache.length) {
       this.inputCache = [Strings.thoughtPrefix + await this.describePlugins()];      
     }
     const conversation = {

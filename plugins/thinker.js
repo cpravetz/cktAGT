@@ -80,7 +80,7 @@ async processPrompt(llm, compiledPrompt, languageModel) {
         reply = await llm.generate([compiledPrompt], options);
         if (reply) {
             logger.debug({reply: reply, prompt: compiledPrompt},'thinker: LLM reply');
-            output = this.processReply(reply, output);
+            output = this.parseReplyToOutput(reply, output);
         } else {
             output.outcome = 'FAILURE';
             output.text = 'No reply received';
@@ -126,14 +126,14 @@ Plan:
     return humanText;
 }
 
-processReply(reply, output = {outcome: 'SUCCESS', tasks: []}) {
+parseReplyToOutput(reply, output = {outcome: 'SUCCESS', tasks: []}) {
     let replyJSON = {};
     try {
         try {
             if (typeof(reply) === 'string') { 
                 replyJSON = JSON.parse(jsonrepair.jsonrepair(reply)); 
             } else { 
-                replyJSON = reply 
+                replyJSON = reply
             };
         } catch (err) {
             logger.error({error:err, reply: reply},`Thinker: can't turn reply into JSON. ${err.message}`);
@@ -181,7 +181,7 @@ askModelToRephrase(reply) {
     return new Task({
         agent: this.parentTask.agent,
         name: "Rephrase",
-        description: `Rephrasing request for ${newPrompt}`,
+        description: `Rephrasing request.`,
         prompt: newPrompt,
         commands: [{name: 'Think', args: {prompt: newPrompt, model: this.parentTask.agent.getModel(), fullPrompt: false}}],
         dependencies: [],
