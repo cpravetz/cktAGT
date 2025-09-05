@@ -1,4 +1,7 @@
 # cktAGT
+
+ARCHIVED!  cktAGT has been archived.  The stage7 project at https://github.com/cpravetz/stage7 replaces cktAGT.
+
 This is a javascript implementation of an AGT that will be able to:
 - create its own plugins to accomplish new tasks as it encounters them and
 - select optimal LLMs to use based on the Goal and Tasks it is completing
